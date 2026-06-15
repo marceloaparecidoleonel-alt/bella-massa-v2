@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Bella Massa — Padaria artesanal premium em São Paulo. Pães de fermentação natural, bolos, doces e café especial. Entrega rápida." />
+  <meta name="theme-color" content="#fdf8f0" />
+  <title>Bella Massa | Padaria Artesanal Premium</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,800;1,400;1,600&family=Inter:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet" />
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/pages.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+</head>
+<body>
+
+  <!-- ===================== HEADER ===================== -->
+  <header class="header" id="header">
+    <div class="header__inner container">
+
+      <a href="#home" class="header__logo" aria-label="Bella Massa — Início">
+        <span class="logo__icon"><i class="fas fa-wheat-awn"></i></span>
+        <div class="logo__text">
+          <span class="logo__name">Bella Massa</span>
+          <span class="logo__tagline">Padaria Artesanal</span>
+        </div>
+      </a>
+
+      <nav class="header__nav" id="mainNav" aria-label="Navegação principal">
+        <ul class="nav__list">
+          <li><a href="#home"         class="nav__link">Início</a></li>
+          <li><a href="catalogo.html" class="nav__link">Catálogo</a></li>
+          <li><a href="#categories"   class="nav__link">Cardápio</a></li>
+          <li><a href="#about"        class="nav__link">Sobre</a></li>
+          <li><a href="contato.html"  class="nav__link">Contato</a></li>
+        </ul>
+      </nav>
+
+      <div class="header__actions">
+        <a href="https://wa.me/5511999999999" target="_blank" rel="noopener" class="btn btn--whatsapp" aria-label="Contato WhatsApp">
+          <i class="fab fa-whatsapp"></i>
+          <span>WhatsApp</span>
+        </a>
+        <a href="carrinho.html" class="btn btn--cart" id="cartBtn" aria-label="Ver carrinho">
+          <i class="fas fa-bag-shopping"></i>
+          <span class="cart__badge" id="cartBadge" data-cart-count style="display:none">0</span>
+        </a>
+        <button class="hamburger" id="hamburger" aria-label="Abrir menu" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ===================== HERO — SPLIT LAYOUT ===================== -->
+  <section class="hero" id="home" aria-label="Bem-vindo à Bella Massa">
+
+    <!-- Lado esquerdo: copy -->
+    <div class="hero__left">
+      <div class="hero__left-inner">
+        <div class="hero__eyebrow">
+          <span class="hero__dot"></span>
+          <span>Artesanal · São Paulo · Desde 2010</span>
+        </div>
+
+        <h1 class="hero__title">
+          Feito com amor,<br />
+          <em class="hero__title-em">assado com paixão</em>
+        </h1>
+
+        <p class="hero__subtitle">
+          Pães de fermentação natural, bolos premiados e doces artesanais criados com ingredientes selecionados e receitas que atravessam gerações.
+        </p>
+
+        <div class="hero__cta">
+          <a href="#products" class="btn btn--hero-primary">
+            <i class="fas fa-book-open"></i>
+            <span>Ver Cardápio</span>
+          </a>
+          <a href="https://wa.me/5511999999999?text=Olá!%20Gostaria%20de%20fazer%20um%20pedido." target="_blank" rel="noopener" class="btn btn--hero-ghost">
+            <i class="fab fa-whatsapp"></i>
+            <span>Fazer Pedido</span>
+          </a>
+        </div>
+
+        <div class="hero__stats">
+          <div class="hero__stat">
+            <span class="stat__number">15+</span>
+            <span class="stat__label">Anos de tradição</span>
+          </div>
+          <div class="hero__stat-sep"></div>
+          <div class="hero__stat">
+            <span class="stat__number">200+</span>
+            <span class="stat__label">Receitas únicas</span>
+          </div>
+          <div class="hero__stat-sep"></div>
+          <div class="hero__stat">
+            <span class="stat__number">5k+</span>
+            <span class="stat__label">Clientes felizes</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lado direito: visual -->
+    <div class="hero__right" aria-hidden="true">
+      <div class="hero__img-frame">
+        <img
+          src="https://images.unsplash.com/photo-1509440159596-0249088772ff?w=900&q=85"
+          alt="Pães artesanais frescos da Bella Massa"
+          class="hero__img"
+          loading="eager"
+          fetchpriority="high"
+        />
+        <div class="hero__img-glow"></div>
+      </div>
+
+      <!-- Floating cards -->
+      <div class="hero__float hero__float--fresh">
+        <div class="hero__float-icon"><i class="fas fa-fire-flame-curved"></i></div>
+        <div>
+          <strong>Saído do forno</strong>
+          <span>Fresquinho agora</span>
+        </div>
+      </div>
+
+      <div class="hero__float hero__float--rating">
+        <div class="hero__float-stars">
+          <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+        </div>
+        <strong>4.9 de 5</strong>
+        <span>+1.200 avaliações</span>
+      </div>
+
+      <!-- Decoration -->
+      <div class="hero__deco hero__deco--circle"></div>
+      <div class="hero__deco hero__deco--dots"></div>
+    </div>
+
+    <a href="#categories" class="hero__scroll" aria-label="Rolar para baixo">
+      <span>Explore</span>
+      <i class="fas fa-chevron-down"></i>
+    </a>
+
+  </section>
+
+  <main>
+
+    <!-- ===================== CATEGORIES ===================== -->
+    <section class="categories section" id="categories">
+      <div class="container">
+        <header class="section__header">
+          <span class="section__eyebrow">Nosso Cardápio</span>
+          <h2 class="section__title">O que você deseja hoje?</h2>
+          <p class="section__subtitle">Selecione uma categoria e descubra nossa seleção artesanal</p>
+        </header>
+        <div class="categories__grid" id="categoriesGrid" role="list"></div>
+      </div>
+    </section>
+
+    <!-- ===================== PRODUCTS ===================== -->
+    <section class="products section" id="products">
+      <div class="container">
+        <header class="section__header">
+          <span class="section__eyebrow">Produtos em Destaque</span>
+          <h2 class="section__title">Favoritos da casa</h2>
+          <p class="section__subtitle">Os produtos mais amados pelos nossos clientes, feitos fresquinhos todo dia</p>
+        </header>
+
+        <div class="products__filters" id="productFilters" role="tablist" aria-label="Filtrar por categoria">
+          <button class="filter__btn active" data-filter="all"       role="tab" aria-selected="true">Todos</button>
+          <button class="filter__btn"        data-filter="paes"      role="tab" aria-selected="false">Pães</button>
+          <button class="filter__btn"        data-filter="bolos"     role="tab" aria-selected="false">Bolos</button>
+          <button class="filter__btn"        data-filter="salgados"  role="tab" aria-selected="false">Salgados</button>
+          <button class="filter__btn"        data-filter="doces"     role="tab" aria-selected="false">Doces</button>
+          <button class="filter__btn"        data-filter="bebidas"   role="tab" aria-selected="false">Bebidas</button>
+        </div>
+
+        <div class="products__grid" id="productsGrid" role="list"></div>
+      </div>
+    </section>
+
+    <!-- ===================== ABOUT ===================== -->
+    <section class="about section" id="about">
+      <div class="container">
+        <div class="about__inner">
+
+          <div class="about__images reveal">
+            <div class="about__img-main">
+              <img
+                src="https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=720&q=80"
+                alt="Artesã da Bella Massa preparando pães"
+                loading="lazy"
+              />
+            </div>
+            <div class="about__img-secondary">
+              <img
+                src="https://images.unsplash.com/photo-1600566752355-35792bedcfea?w=420&q=80"
+                alt="Pães recém assados"
+                loading="lazy"
+              />
+              <div class="about__badge-float">
+                <i class="fas fa-award"></i>
+                <span>Qualidade<br/>Premiada</span>
+              </div>
+            </div>
+            <!-- Decorative element -->
+            <div class="about__deco"></div>
+          </div>
+
+          <div class="about__content reveal" style="--delay:0.15s">
+            <span class="section__eyebrow">Nossa História</span>
+            <h2 class="section__title">Tradição que se<br /><em>renova a cada fornada</em></h2>
+            <p class="about__text">
+              A Bella Massa nasceu em 2010 do sonho de Maria Fernanda Santos: criar uma padaria que unisse tradição e modernidade. Em uma pequena cozinha no bairro da Lapa, São Paulo, ela começou assando pães para os vizinhos com receitas herdadas da avó italiana.
+            </p>
+            <p class="about__text">
+              Hoje, mais de 15 anos depois, somos referência em panificação artesanal premium. A mesma essência artesanal, os mesmos ingredientes selecionados — e muito mais amor em cada produto.
+            </p>
+
+            <ul class="about__values">
+              <li class="value">
+                <div class="value__icon"><i class="fas fa-seedling"></i></div>
+                <div>
+                  <h4>Ingredientes Naturais</h4>
+                  <p>Sem conservantes artificiais. Apenas o que a natureza oferece de melhor.</p>
+                </div>
+              </li>
+              <li class="value">
+                <div class="value__icon"><i class="fas fa-hands-holding-heart"></i></div>
+                <div>
+                  <h4>Feito com Amor</h4>
+                  <p>Cada produto é preparado com atenção e carinho por nossos artesãos.</p>
+                </div>
+              </li>
+              <li class="value">
+                <div class="value__icon"><i class="fas fa-certificate"></i></div>
+                <div>
+                  <h4>Qualidade Garantida</h4>
+                  <p>Padrão rigoroso de qualidade em todos os produtos sem exceção.</p>
+                </div>
+              </li>
+            </ul>
+
+            <a href="#products" class="btn btn--primary btn--about">
+              <i class="fas fa-book-open"></i> Explorar o cardápio
+            </a>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== PROCESS ===================== -->
+    <section class="process section" id="process">
+      <div class="container">
+        <header class="section__header">
+          <span class="section__eyebrow">Processo Artesanal</span>
+          <h2 class="section__title">Do grão à sua mesa</h2>
+          <p class="section__subtitle">Cada detalhe importa. Cada etapa é feita com intenção e maestria.</p>
+        </header>
+
+        <div class="process__grid" id="processGrid"></div>
+      </div>
+    </section>
+
+    <!-- ===================== BENEFITS ===================== -->
+    <section class="benefits section" id="benefits">
+      <div class="container">
+        <header class="section__header">
+          <span class="section__eyebrow">Por que nos escolher</span>
+          <h2 class="section__title">A diferença que você sente<br /><em>no primeiro mordida</em></h2>
+        </header>
+
+        <div class="benefits__grid">
+          <article class="benefit__card reveal">
+            <div class="benefit__icon"><i class="fas fa-hands"></i></div>
+            <h3>Produção Artesanal</h3>
+            <p>Cada produto é feito à mão, com técnicas tradicionais passadas de geração em geração.</p>
+          </article>
+          <article class="benefit__card reveal" style="--delay:0.1s">
+            <div class="benefit__icon"><i class="fas fa-leaf"></i></div>
+            <h3>Ingredientes Selecionados</h3>
+            <p>Trabalhamos apenas com fornecedores certificados e ingredientes de primeira qualidade.</p>
+          </article>
+          <article class="benefit__card reveal" style="--delay:0.2s">
+            <div class="benefit__icon"><i class="fas fa-truck-fast"></i></div>
+            <h3>Entrega Rápida</h3>
+            <p>Entregamos no mesmo dia para garantir que você receba os produtos ainda fresquinhos.</p>
+          </article>
+          <article class="benefit__card reveal" style="--delay:0.3s">
+            <div class="benefit__icon"><i class="fas fa-sun"></i></div>
+            <h3>Frescos Diariamente</h3>
+            <p>Assamos todo dia, começando às 4h da manhã para que tudo esteja pronto para você.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== TESTIMONIALS ===================== -->
+    <section class="testimonials section" id="testimonials">
+      <div class="container">
+        <header class="section__header">
+          <span class="section__eyebrow">Depoimentos</span>
+          <h2 class="section__title">O que nossos clientes dizem</h2>
+          <p class="section__subtitle">Mais de 5.000 famílias confiam na Bella Massa todo dia</p>
+        </header>
+        <div class="testimonials__grid" id="testimonialsGrid" role="list"></div>
+      </div>
+    </section>
+
+    <!-- ===================== CTA FINAL ===================== -->
+    <section class="cta-section" aria-label="Faça seu pedido">
+      <div class="cta__overlay"></div>
+      <img
+        src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1600&q=80"
+        alt="Mesa de café da manhã artesanal"
+        class="cta__bg"
+        loading="lazy"
+      />
+      <div class="cta__content container reveal">
+        <span class="section__eyebrow">Experimente agora</span>
+        <h2 class="cta__title">Comece o dia com<br /><em>o melhor da Bella Massa</em></h2>
+        <p class="cta__subtitle">
+          Faça seu pedido agora pelo WhatsApp ou monte seu carrinho.<br />
+          Entregamos fresquinhos até a sua porta!
+        </p>
+        <div class="cta__btns">
+          <button class="btn btn--primary btn--lg" id="ctaCartBtn">
+            <i class="fas fa-basket-shopping"></i> Montar meu pedido
+          </button>
+          <a href="https://wa.me/5511999999999?text=Olá!%20Quero%20fazer%20um%20pedido%20na%20Bella%20Massa!" target="_blank" rel="noopener" class="btn btn--whatsapp btn--lg">
+            <i class="fab fa-whatsapp"></i> Pedir pelo WhatsApp
+          </a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===================== FOOTER ===================== -->
+  <footer class="footer" id="contact">
+    <div class="footer__main container">
+
+      <div class="footer__brand">
+        <a href="#home" class="header__logo footer__logo" aria-label="Bella Massa">
+          <span class="logo__icon"><i class="fas fa-wheat-awn"></i></span>
+          <div class="logo__text">
+            <span class="logo__name">Bella Massa</span>
+            <span class="logo__tagline">Padaria Artesanal</span>
+          </div>
+        </a>
+        <p class="footer__desc">
+          Tradição, sabor e qualidade artesanal desde 2010. Feito com amor para a sua família.
+        </p>
+        <div class="footer__social">
+          <a href="#" aria-label="Instagram"  class="social__link"><i class="fab fa-instagram"></i></a>
+          <a href="#" aria-label="Facebook"   class="social__link"><i class="fab fa-facebook-f"></i></a>
+          <a href="#" aria-label="TikTok"     class="social__link"><i class="fab fa-tiktok"></i></a>
+          <a href="https://wa.me/5511999999999" aria-label="WhatsApp" class="social__link" target="_blank" rel="noopener"><i class="fab fa-whatsapp"></i></a>
+        </div>
+      </div>
+
+      <div class="footer__col">
+        <h4 class="footer__title">Cardápio</h4>
+        <ul class="footer__links">
+          <li><a href="#categories">Pães Artesanais</a></li>
+          <li><a href="#categories">Bolos & Tortas</a></li>
+          <li><a href="#categories">Salgados</a></li>
+          <li><a href="#categories">Doces Finos</a></li>
+          <li><a href="#categories">Bebidas Especiais</a></li>
+        </ul>
+      </div>
+
+      <div class="footer__col">
+        <h4 class="footer__title">Empresa</h4>
+        <ul class="footer__links">
+          <li><a href="#about">Nossa História</a></li>
+          <li><a href="#process">Processo Artesanal</a></li>
+          <li><a href="#testimonials">Avaliações</a></li>
+          <li><a href="#">Trabalhe Conosco</a></li>
+          <li><a href="#">Franquias</a></li>
+        </ul>
+      </div>
+
+      <div class="footer__col">
+        <h4 class="footer__title">Contato & Horários</h4>
+        <ul class="footer__info">
+          <li>
+            <i class="fas fa-location-dot"></i>
+            <span>Rua das Flores, 482 — Lapa, São Paulo – SP</span>
+          </li>
+          <li>
+            <i class="fab fa-whatsapp"></i>
+            <a href="https://wa.me/5511999999999">(11) 99999-9999</a>
+          </li>
+          <li>
+            <i class="fas fa-envelope"></i>
+            <a href="mailto:contato@bellamassa.com.br">contato@bellamassa.com.br</a>
+          </li>
+          <li>
+            <i class="fas fa-clock"></i>
+            <span>Seg–Sex: 6h às 20h<br />Sáb–Dom: 6h às 14h</span>
+          </li>
+        </ul>
+      </div>
+
+    </div>
+
+    <div class="footer__bottom">
+      <div class="container footer__bottom-inner">
+        <p>© <span id="footerYear"></span> Bella Massa Padaria Artesanal. Todos os direitos reservados.</p>
+        <p>Desenvolvido com <i class="fas fa-heart"></i> para um portfólio profissional.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ===================== CART OFFCANVAS ===================== -->
+  <div class="cart-overlay" id="cartOverlay"></div>
+  <aside class="cart" id="cart" aria-label="Carrinho de compras" aria-hidden="true">
+    <div class="cart__header">
+      <h2 class="cart__title">
+        <i class="fas fa-basket-shopping"></i> Seu Carrinho
+      </h2>
+      <button class="cart__close" id="cartClose" aria-label="Fechar carrinho">
+        <i class="fas fa-xmark"></i>
+      </button>
+    </div>
+
+    <div class="cart__body" id="cartBody">
+      <div class="cart__empty" id="cartEmpty">
+        <i class="fas fa-basket-shopping"></i>
+        <p>Seu carrinho está vazio</p>
+        <span>Adicione produtos deliciosos!</span>
+        <button class="btn btn--primary" id="cartEmptyBtn">Ver Produtos</button>
+      </div>
+      <ul class="cart__items" id="cartItems"></ul>
+    </div>
+
+    <div class="cart__footer" id="cartFooter">
+      <div class="cart__summary">
+        <div class="cart__subtotal">
+          <span>Subtotal</span>
+          <span id="cartSubtotal">R$ 0,00</span>
+        </div>
+        <div class="cart__delivery">
+          <span>Entrega</span>
+          <span class="cart__delivery-free">Grátis acima de R$ 50</span>
+        </div>
+        <div class="cart__total">
+          <span>Total</span>
+          <strong id="cartTotal">R$ 0,00</strong>
+        </div>
+      </div>
+      <a
+        href="carrinho.html"
+        class="btn btn--primary btn--block"
+        id="checkoutBtn"
+      >
+        <i class="fas fa-bag-shopping"></i> Ver carrinho completo
+      </a>
+      <button class="btn btn--ghost btn--block" id="clearCartBtn">
+        <i class="fas fa-trash"></i> Limpar Carrinho
+      </button>
+    </div>
+  </aside>
+
+  <!-- Toast Notification -->
+  <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- Scripts -->
+  <script src="js/data.js"></script>
+  <script src="js/products.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/cart.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/ui.js"></script>
+</body>
+</html>

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Carrinho de compras — Bella Massa Padaria Artesanal." />
+  <title>Carrinho | Bella Massa</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,800;1,400;1,600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/pages.css" />
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="header" id="header">
+    <div class="header__inner container">
+      <a href="index.html" class="header__logo">
+        <span class="logo__icon"><i class="fas fa-wheat-awn"></i></span>
+        <div class="logo__text">
+          <span class="logo__name">Bella Massa</span>
+          <span class="logo__tagline">Padaria Artesanal</span>
+        </div>
+      </a>
+      <nav class="header__nav">
+        <ul class="nav__list">
+          <li><a href="index.html"    class="nav__link">Início</a></li>
+          <li><a href="catalogo.html" class="nav__link">Catálogo</a></li>
+          <li><a href="sobre.html"    class="nav__link">Sobre</a></li>
+          <li><a href="contato.html"  class="nav__link">Contato</a></li>
+        </ul>
+      </nav>
+      <div class="header__actions">
+        <a href="carrinho.html" class="btn--cart" aria-label="Carrinho">
+          <i class="fas fa-bag-shopping"></i>
+          <span class="cart__badge" data-cart-count style="display:none">0</span>
+        </a>
+        <button class="hamburger" aria-label="Menu" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="page-content">
+    <!-- Page Hero -->
+    <section class="page-hero">
+      <div class="container page-hero__inner">
+        <nav class="page-hero__breadcrumb" aria-label="Breadcrumb">
+          <a href="index.html">Início</a>
+          <span>/</span>
+          <strong>Carrinho</strong>
+        </nav>
+        <h1 class="page-hero__title">Meu Carrinho</h1>
+        <p class="page-hero__subtitle" id="cartHeaderSubtitle">Revise seus itens antes de finalizar.</p>
+      </div>
+    </section>
+
+    <!-- Carrinho -->
+    <section class="carrinho">
+      <div class="container">
+        <div class="carrinho__layout" id="carrinhoLayout">
+
+          <!-- Items -->
+          <div>
+            <div class="carrinho__items" id="carrinhoItems">
+              <div class="carrinho__items-header">
+                <h2>Itens do pedido</h2>
+                <button class="carrinho__clear" id="clearCartBtn">
+                  <i class="fas fa-trash-can"></i> Limpar tudo
+                </button>
+              </div>
+              <div id="cartItemsList"></div>
+            </div>
+          </div>
+
+          <!-- Summary -->
+          <aside class="order-summary" id="orderSummary">
+            <h3 class="order-summary__title">Resumo do pedido</h3>
+
+            <div class="order-summary__row">
+              <span>Subtotal</span>
+              <span id="summarySubtotal">R$ 0,00</span>
+            </div>
+            <div class="order-summary__row" id="deliveryRow">
+              <span>Entrega</span>
+              <span id="summaryDelivery">R$ 0,00</span>
+            </div>
+            <div class="order-summary__row order-summary__row--total">
+              <span>Total</span>
+              <span id="summaryTotal">R$ 0,00</span>
+            </div>
+
+            <p class="order-summary__free" id="freeDeliveryHint" style="display:none;margin-top:.5rem;font-size:.8rem;"></p>
+
+            <div class="order-summary__cta">
+              <a href="checkout.html" class="btn-checkout" id="checkoutBtn">
+                <i class="fas fa-lock"></i> Finalizar pedido
+              </a>
+              <a href="catalogo.html" class="btn-continue">
+                <i class="fas fa-arrow-left"></i> Continuar comprando
+              </a>
+            </div>
+          </aside>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- Sugestões -->
+    <section style="background:var(--clr-off-white);padding-block:3rem;" id="suggestSection">
+      <div class="container">
+        <h2 style="font-family:var(--ff-heading);font-size:1.4rem;font-weight:700;color:var(--clr-brown-dark);margin-bottom:1.5rem;">
+          Que tal adicionar mais?
+        </h2>
+        <div class="catalogo__grid" id="suggestGrid" style="grid-template-columns:repeat(4,1fr);"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer__main container">
+      <div class="footer__brand">
+        <span class="footer__logo"><i class="fas fa-wheat-awn"></i> Bella Massa</span>
+        <p class="footer__tagline">Feito com farinha, amor e dedicação artesanal.</p>
+      </div>
+      <div>
+        <h4 class="footer__col-title">Navegação</h4>
+        <ul class="footer__links">
+          <li><a href="index.html">Início</a></li>
+          <li><a href="catalogo.html">Catálogo</a></li>
+          <li><a href="sobre.html">Sobre nós</a></li>
+          <li><a href="contato.html">Contato</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <div class="footer__bottom-inner container">
+        <p>&copy; <span id="footerYear"></span> Bella Massa. Todos os direitos reservados.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/data.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/carrinho.js"></script>
+</body>
+</html>

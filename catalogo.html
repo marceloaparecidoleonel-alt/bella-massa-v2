@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Catálogo completo da Bella Massa — pães artesanais, bolos, doces, salgados e bebidas." />
+  <title>Catálogo | Bella Massa</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,800;1,400;1,600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/pages.css" />
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="header" id="header">
+    <div class="header__inner container">
+      <a href="index.html" class="header__logo" aria-label="Bella Massa — Início">
+        <span class="logo__icon"><i class="fas fa-wheat-awn"></i></span>
+        <div class="logo__text">
+          <span class="logo__name">Bella Massa</span>
+          <span class="logo__tagline">Padaria Artesanal</span>
+        </div>
+      </a>
+      <nav class="header__nav" aria-label="Navegação principal">
+        <ul class="nav__list">
+          <li><a href="index.html"    class="nav__link">Início</a></li>
+          <li><a href="catalogo.html" class="nav__link">Catálogo</a></li>
+          <li><a href="sobre.html"    class="nav__link">Sobre</a></li>
+          <li><a href="contato.html"  class="nav__link">Contato</a></li>
+        </ul>
+      </nav>
+      <div class="header__actions">
+        <a href="carrinho.html" class="btn--cart" aria-label="Carrinho de compras">
+          <i class="fas fa-bag-shopping"></i>
+          <span class="cart__badge" data-cart-count style="display:none">0</span>
+        </a>
+        <button class="hamburger" aria-label="Menu" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="page-content">
+    <!-- Page Hero -->
+    <section class="page-hero">
+      <div class="container page-hero__inner">
+        <nav class="page-hero__breadcrumb" aria-label="Breadcrumb">
+          <a href="index.html">Início</a>
+          <span>/</span>
+          <strong>Catálogo</strong>
+        </nav>
+        <h1 class="page-hero__title">Nosso Catálogo</h1>
+        <p class="page-hero__subtitle">Tudo feito com amor, farinha e muito cuidado artesanal.</p>
+      </div>
+    </section>
+
+    <!-- Catálogo -->
+    <section class="catalogo">
+      <div class="container">
+        <div class="catalogo__layout">
+
+          <!-- Sidebar -->
+          <aside class="catalogo__sidebar" id="catalogoSidebar">
+            <h2 class="catalogo__sidebar-title">
+              <i class="fas fa-sliders"></i> Categorias
+            </h2>
+            <ul class="filter-list" id="filterList" role="list" aria-label="Filtrar por categoria">
+              <li>
+                <button class="filter-list__btn active" data-cat="all">
+                  <i class="fas fa-border-all"></i>
+                  Todos os produtos
+                  <span class="filter-list__count" id="count-all">0</span>
+                </button>
+              </li>
+            </ul>
+          </aside>
+
+          <!-- Main -->
+          <div class="catalogo__main">
+            <div class="catalogo__main-header">
+              <div class="catalogo__count">
+                Mostrando <strong id="prodCount">0</strong> produtos
+              </div>
+              <div style="display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;">
+                <button class="catalogo__filter-toggle" id="filterToggle" aria-expanded="false">
+                  <i class="fas fa-sliders"></i> Filtros
+                </button>
+                <div class="catalogo__sort">
+                  <label for="sortSelect">Ordenar:</label>
+                  <select id="sortSelect">
+                    <option value="default">Em destaque</option>
+                    <option value="price-asc">Menor preço</option>
+                    <option value="price-desc">Maior preço</option>
+                    <option value="name">A–Z</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="catalogo__grid" id="catalogoGrid" role="list" aria-label="Produtos"></div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer__main container">
+      <div class="footer__brand">
+        <span class="footer__logo"><i class="fas fa-wheat-awn"></i> Bella Massa</span>
+        <p class="footer__tagline">Feito com farinha, amor e dedicação artesanal desde 2010.</p>
+      </div>
+      <div>
+        <h4 class="footer__col-title">Navegação</h4>
+        <ul class="footer__links">
+          <li><a href="index.html">Início</a></li>
+          <li><a href="catalogo.html">Catálogo</a></li>
+          <li><a href="sobre.html">Sobre nós</a></li>
+          <li><a href="contato.html">Contato</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="footer__col-title">Atendimento</h4>
+        <ul class="footer__links">
+          <li><a href="https://wa.me/5511999999999" target="_blank">WhatsApp</a></li>
+          <li><a href="contato.html">Fale conosco</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <div class="footer__bottom-inner container">
+        <p>&copy; <span id="footerYear"></span> Bella Massa. Todos os direitos reservados.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/data.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/catalogo.js"></script>
+</body>
+</html>

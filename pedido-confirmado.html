@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pedido Confirmado | Bella Massa</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,800;1,400;1,600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/pages.css" />
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="header" id="header">
+    <div class="header__inner container">
+      <a href="index.html" class="header__logo">
+        <span class="logo__icon"><i class="fas fa-wheat-awn"></i></span>
+        <div class="logo__text">
+          <span class="logo__name">Bella Massa</span>
+          <span class="logo__tagline">Padaria Artesanal</span>
+        </div>
+      </a>
+      <nav class="header__nav">
+        <ul class="nav__list">
+          <li><a href="index.html"    class="nav__link">Início</a></li>
+          <li><a href="catalogo.html" class="nav__link">Catálogo</a></li>
+          <li><a href="sobre.html"    class="nav__link">Sobre</a></li>
+          <li><a href="contato.html"  class="nav__link">Contato</a></li>
+        </ul>
+      </nav>
+      <div class="header__actions">
+        <button class="hamburger" aria-label="Menu" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="page-content confirmado">
+    <div class="container">
+      <div class="confirmado__card reveal revealed">
+
+        <div class="confirmado__icon">
+          <i class="fas fa-check"></i>
+        </div>
+
+        <h1 class="confirmado__title">Pedido confirmado!</h1>
+        <p class="confirmado__subtitle" id="confirmMsg">
+          Seu pedido foi recebido com sucesso.<br>
+          Em breve entraremos em contato via WhatsApp para confirmar.
+        </p>
+
+        <div class="confirmado__info" id="confirmInfo"></div>
+
+        <div class="confirmado__actions">
+          <a href="https://wa.me/5511999999999" target="_blank" class="btn--whatsapp btn btn--lg btn--block" style="text-decoration:none;display:flex;align-items:center;justify-content:center;gap:.5em;padding:.9em;">
+            <i class="fab fa-whatsapp"></i> Acompanhar pelo WhatsApp
+          </a>
+          <a href="catalogo.html" class="btn btn--ghost btn--block" style="text-decoration:none;display:flex;align-items:center;justify-content:center;gap:.5em;padding:.85em;">
+            <i class="fas fa-bag-shopping"></i> Continuar comprando
+          </a>
+          <a href="index.html" style="display:flex;align-items:center;justify-content:center;gap:.4em;font-size:.85rem;color:var(--clr-text-muted);text-decoration:none;margin-top:.25rem;transition:color .2s;">
+            <i class="fas fa-house"></i> Voltar ao início
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer__bottom" style="border-top:1px solid var(--clr-border-light);">
+      <div class="footer__bottom-inner container">
+        <p>&copy; <span id="footerYear"></span> Bella Massa. Todos os direitos reservados.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/data.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/ui.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const raw = sessionStorage.getItem('bm_last_order');
+      if (!raw) return;
+
+      const order = JSON.parse(raw);
+      const info = document.getElementById('confirmInfo');
+      const msg  = document.getElementById('confirmMsg');
+
+      const isDelivery = order.delivery === 'delivery';
+      const payLabels  = { pix: 'Pix', dinheiro: 'Dinheiro', cartao: 'Cartão' };
+
+      msg.innerHTML = `Olá, <strong>${order.name}</strong>! Seu pedido foi recebido com sucesso.<br>Entraremos em contato em breve para confirmar.`;
+
+      info.innerHTML = `
+        <div class="confirmado__info-row">
+          <i class="fas fa-user"></i>
+          <span>${order.name} &mdash; ${order.phone}</span>
+        </div>
+        ${isDelivery ? `
+        <div class="confirmado__info-row">
+          <i class="fas fa-location-dot"></i>
+          <span>${order.address}, ${order.neighborhood} &mdash; ${order.city}</span>
+        </div>` : `
+        <div class="confirmado__info-row">
+          <i class="fas fa-store"></i>
+          <span>Retirada na loja</span>
+        </div>`}
+        <div class="confirmado__info-row">
+          <i class="fas fa-credit-card"></i>
+          <span>Pagamento: <strong>${payLabels[order.payment] || order.payment}</strong></span>
+        </div>
+        <div class="confirmado__info-row">
+          <i class="fas fa-brazilian-real-sign"></i>
+          <span>Total: <strong>${order.total}</strong></span>
+        </div>
+      `;
+    });
+  </script>
+</body>
+</html>

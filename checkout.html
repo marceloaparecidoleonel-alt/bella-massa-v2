@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Finalizar pedido — Bella Massa Padaria Artesanal." />
+  <title>Checkout | Bella Massa</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,800;1,400;1,600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/pages.css" />
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="header" id="header">
+    <div class="header__inner container">
+      <a href="index.html" class="header__logo">
+        <span class="logo__icon"><i class="fas fa-wheat-awn"></i></span>
+        <div class="logo__text">
+          <span class="logo__name">Bella Massa</span>
+          <span class="logo__tagline">Padaria Artesanal</span>
+        </div>
+      </a>
+      <nav class="header__nav">
+        <ul class="nav__list">
+          <li><a href="index.html"    class="nav__link">Início</a></li>
+          <li><a href="catalogo.html" class="nav__link">Catálogo</a></li>
+          <li><a href="sobre.html"    class="nav__link">Sobre</a></li>
+          <li><a href="contato.html"  class="nav__link">Contato</a></li>
+        </ul>
+      </nav>
+      <div class="header__actions">
+        <a href="carrinho.html" class="btn--cart" aria-label="Carrinho">
+          <i class="fas fa-bag-shopping"></i>
+          <span class="cart__badge" data-cart-count style="display:none">0</span>
+        </a>
+        <button class="hamburger" aria-label="Menu" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="page-content">
+    <!-- Page Hero -->
+    <section class="page-hero">
+      <div class="container page-hero__inner">
+        <nav class="page-hero__breadcrumb" aria-label="Breadcrumb">
+          <a href="index.html">Início</a>
+          <span>/</span>
+          <a href="carrinho.html">Carrinho</a>
+          <span>/</span>
+          <strong>Checkout</strong>
+        </nav>
+        <h1 class="page-hero__title">Finalizar Pedido</h1>
+        <p class="page-hero__subtitle">Preencha suas informações de entrega e pagamento.</p>
+      </div>
+    </section>
+
+    <!-- Checkout -->
+    <section class="checkout">
+      <div class="container">
+        <div class="checkout__layout">
+
+          <!-- Form -->
+          <div class="checkout__form-wrap">
+            <form id="checkoutForm" novalidate>
+
+              <!-- 1. Dados pessoais -->
+              <div class="checkout__section">
+                <div class="checkout__section-header">
+                  <span class="checkout__section-num">1</span>
+                  <h2 class="checkout__section-title">Dados pessoais</h2>
+                </div>
+                <div class="checkout__section-body">
+                  <div class="form-grid">
+                    <div class="form-group">
+                      <label class="form-label" for="clientName">Nome completo <span>*</span></label>
+                      <input class="form-input" type="text" id="clientName" name="name" autocomplete="name" placeholder="Seu nome" required />
+                      <span class="form-error" id="err-name"></span>
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label" for="clientPhone">Telefone / WhatsApp <span>*</span></label>
+                      <input class="form-input" type="tel" id="clientPhone" name="phone" autocomplete="tel" placeholder="(11) 99999-9999" required />
+                      <span class="form-error" id="err-phone"></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 2. Entrega ou Retirada -->
+              <div class="checkout__section">
+                <div class="checkout__section-header">
+                  <span class="checkout__section-num">2</span>
+                  <h2 class="checkout__section-title">Modo de recebimento</h2>
+                </div>
+                <div class="checkout__section-body">
+                  <div class="delivery-options">
+                    <div class="delivery-option">
+                      <input type="radio" name="delivery" id="optDelivery" value="delivery" checked />
+                      <label class="delivery-option__label" for="optDelivery">
+                        <span class="delivery-option__icon"><i class="fas fa-motorcycle"></i></span>
+                        <span class="delivery-option__text">
+                          <strong>Entrega</strong>
+                          <span>Receba em casa</span>
+                        </span>
+                      </label>
+                    </div>
+                    <div class="delivery-option">
+                      <input type="radio" name="delivery" id="optPickup" value="pickup" />
+                      <label class="delivery-option__label" for="optPickup">
+                        <span class="delivery-option__icon"><i class="fas fa-store"></i></span>
+                        <span class="delivery-option__text">
+                          <strong>Retirada</strong>
+                          <span>Retire na loja</span>
+                        </span>
+                      </label>
+                    </div>
+                  </div>
+
+                  <!-- Address fields (shown only for delivery) -->
+                  <div id="addressFields">
+                    <div class="form-grid">
+                      <div class="form-group form-group--full">
+                        <label class="form-label" for="clientAddress">Endereço <span>*</span></label>
+                        <input class="form-input" type="text" id="clientAddress" name="address" autocomplete="street-address" placeholder="Rua, número, complemento" />
+                        <span class="form-error" id="err-address"></span>
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label" for="clientNeighborhood">Bairro <span>*</span></label>
+                        <input class="form-input" type="text" id="clientNeighborhood" name="neighborhood" placeholder="Seu bairro" />
+                        <span class="form-error" id="err-neighborhood"></span>
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label" for="clientCity">Cidade <span>*</span></label>
+                        <input class="form-input" type="text" id="clientCity" name="city" autocomplete="address-level2" placeholder="São Paulo" />
+                        <span class="form-error" id="err-city"></span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="form-group" style="margin-top:1rem;">
+                    <label class="form-label" for="clientObs">Observações (opcional)</label>
+                    <textarea class="form-textarea" id="clientObs" name="obs" placeholder="Ex: sem cebola, interfone, horário preferido…"></textarea>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 3. Pagamento -->
+              <div class="checkout__section">
+                <div class="checkout__section-header">
+                  <span class="checkout__section-num">3</span>
+                  <h2 class="checkout__section-title">Forma de pagamento</h2>
+                </div>
+                <div class="checkout__section-body">
+                  <div class="payment-options">
+                    <div class="payment-option">
+                      <input type="radio" name="payment" id="payPix" value="pix" checked />
+                      <label class="payment-option__label" for="payPix">
+                        <i class="fas fa-qrcode"></i>
+                        <span>Pix</span>
+                      </label>
+                    </div>
+                    <div class="payment-option">
+                      <input type="radio" name="payment" id="payCash" value="dinheiro" />
+                      <label class="payment-option__label" for="payCash">
+                        <i class="fas fa-money-bill-wave"></i>
+                        <span>Dinheiro</span>
+                      </label>
+                    </div>
+                    <div class="payment-option">
+                      <input type="radio" name="payment" id="payCard" value="cartao" />
+                      <label class="payment-option__label" for="payCard">
+                        <i class="fas fa-credit-card"></i>
+                        <span>Cartão</span>
+                      </label>
+                    </div>
+                  </div>
+
+                  <!-- Troco (dinheiro only) -->
+                  <div class="form-group" id="trocoPara">
+                    <label class="form-label" for="trocoVal">Troco para quanto?</label>
+                    <input class="form-input" type="number" id="trocoVal" name="troco" placeholder="Ex: 100" min="0" step="0.01" />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Submit -->
+              <button type="submit" class="checkout__submit" id="submitBtn">
+                <i class="fas fa-check-circle"></i> Confirmar pedido
+              </button>
+            </form>
+          </div>
+
+          <!-- Order Summary (sidebar) -->
+          <aside class="order-summary" id="checkoutSummary">
+            <h3 class="order-summary__title">Resumo do pedido</h3>
+            <div id="checkoutItemsList"></div>
+            <div style="border-top:1px solid var(--clr-border-light);margin-top:.75rem;padding-top:.75rem;">
+              <div class="order-summary__row">
+                <span>Subtotal</span>
+                <span id="coSubtotal">R$ 0,00</span>
+              </div>
+              <div class="order-summary__row" id="coDeliveryRow">
+                <span>Entrega</span>
+                <span id="coDelivery">R$ 0,00</span>
+              </div>
+              <div class="order-summary__row order-summary__row--total">
+                <span>Total</span>
+                <span id="coTotal">R$ 0,00</span>
+              </div>
+            </div>
+            <a href="carrinho.html" class="btn-continue" style="display:flex;align-items:center;justify-content:center;gap:.4em;margin-top:1rem;text-decoration:none;padding:.65em;border:1.5px solid var(--clr-border);border-radius:var(--radius-full);font-size:.83rem;color:var(--clr-text-muted);transition:all .2s;">
+              <i class="fas fa-arrow-left"></i> Editar carrinho
+            </a>
+          </aside>
+
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer__main container">
+      <div class="footer__brand">
+        <span class="footer__logo"><i class="fas fa-wheat-awn"></i> Bella Massa</span>
+        <p class="footer__tagline">Feito com farinha, amor e dedicação artesanal.</p>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <div class="footer__bottom-inner container">
+        <p>&copy; <span id="footerYear"></span> Bella Massa. Todos os direitos reservados.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/data.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/checkout.js"></script>
+</body>
+</html>

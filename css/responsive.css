@@ -1,0 +1,292 @@
+/* ================================================================
+   responsive.css — Bella Massa | Padaria Artesanal Premium
+   Breakpoints: 1200px · 1024px · 768px · 580px · 480px · 360px
+   ================================================================ */
+
+/* ─── Large Desktop (≤ 1200px) ──────────────────────────────────── */
+@media (max-width: 1200px) {
+  :root { --section-py: 5rem; }
+
+  .categories__grid { grid-template-columns: repeat(5, 1fr); gap: 1rem; }
+  .products__grid   { grid-template-columns: repeat(3, 1fr); }
+
+  .footer__main {
+    grid-template-columns: 1.5fr 1fr 1fr 1.5fr;
+    gap: 2.5rem;
+  }
+}
+
+/* ─── Tablet Large (≤ 1024px) ───────────────────────────────────── */
+@media (max-width: 1024px) {
+  :root { --section-py: 4rem; }
+
+  /* ── Hero: stack vertically ── */
+  .hero {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 55vw;
+    min-height: unset;
+  }
+
+  .hero__left {
+    padding: 3.5rem clamp(1.5rem, 5vw, 3rem) 2.5rem;
+    justify-content: flex-start;
+  }
+
+  .hero__left-inner { max-width: 100%; }
+
+  .hero__right {
+    min-height: unset;
+    height: 55vw;
+  }
+
+  .hero__img-glow {
+    background: linear-gradient(to bottom, var(--clr-cream) 0%, transparent 30%);
+  }
+
+  .hero__scroll {
+    left: 50%;
+    bottom: 1.2rem;
+  }
+
+  /* ── Header mobile nav ── */
+  .header__nav {
+    position: fixed;
+    top: var(--header-h);
+    left: 0;
+    right: 0;
+    background: rgba(253,248,240,0.98);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1.5px solid var(--clr-border);
+    padding: 1rem 1.5rem 1.5rem;
+    transform: translateY(-110%);
+    opacity: 0;
+    transition: transform 0.4s cubic-bezier(0.4,0,0.2,1), opacity 0.35s ease;
+    pointer-events: none;
+    box-shadow: 0 20px 40px rgba(46,26,14,0.12);
+    z-index: 899;
+  }
+
+  .header__nav.nav--open {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .nav__list {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.2rem;
+    width: 100%;
+  }
+
+  .nav__link {
+    display: block;
+    width: 100%;
+    padding: 0.75em 1em;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    color: var(--clr-text);
+  }
+
+  .nav__link:hover, .nav__link--active {
+    background: var(--clr-cream-dark);
+    color: var(--clr-brown-dark);
+  }
+
+  .nav__link::after { display: none; }
+
+  .hamburger { display: flex; }
+
+  .btn--whatsapp span { display: none; }
+  .btn--whatsapp {
+    width: 44px; height: 44px; padding: 0;
+    border-radius: 50%; font-size: 1.15rem;
+  }
+
+  /* About */
+  .about__inner { grid-template-columns: 1fr; gap: 3rem; }
+  .about__images { height: 420px; max-width: 560px; margin-inline: auto; width: 100%; }
+
+  /* Process */
+  .process__grid { grid-template-columns: repeat(2, 1fr); gap: 2rem 2.5rem; }
+  .process__grid::before { display: none; }
+
+  /* Benefits */
+  .benefits__grid { grid-template-columns: repeat(2, 1fr); }
+
+  /* Footer */
+  .footer__main { grid-template-columns: 1fr 1fr; gap: 2.5rem 3rem; }
+  .footer__brand { grid-column: 1 / -1; }
+  .footer__bottom-inner { flex-direction: column; text-align: center; gap: 0.5rem; }
+}
+
+/* ─── Tablet (≤ 768px) ──────────────────────────────────────────── */
+@media (max-width: 768px) {
+  :root { --section-py: 3.5rem; --header-h: 68px; }
+
+  .section__header { margin-bottom: 2.5rem; }
+  .section__title  { font-size: clamp(1.75rem, 5vw, 2.2rem); }
+
+  /* Hero */
+  .hero { grid-template-rows: auto 60vw; }
+  .hero__right { height: 60vw; }
+
+  .hero__title    { font-size: clamp(2.2rem, 7vw, 3rem); }
+  .hero__subtitle { font-size: 0.95rem; }
+  .hero__cta      { gap: 0.75rem; }
+  .hero__stats    { gap: 1.25rem; }
+  .stat__number   { font-size: 1.45rem; }
+
+  .hero__float--fresh  { bottom: 10%; left: 5%; }
+  .hero__float--rating { top: 8%; right: 5%; }
+
+  /* Categories */
+  .categories__grid { grid-template-columns: repeat(3, 1fr); gap: 0.875rem; }
+
+  /* Products */
+  .products__grid { grid-template-columns: repeat(2, 1fr); gap: 1.25rem; }
+  .products__filters { gap: 0.5rem; margin-bottom: 1.75rem; }
+  .filter__btn { padding: 0.45em 1em; font-size: 0.82rem; }
+
+  /* Benefits */
+  .benefits__grid { grid-template-columns: repeat(2, 1fr); gap: 1.25rem; }
+  .benefit__card  { padding: 1.75rem 1.25rem; }
+
+  /* Testimonials */
+  .testimonials__grid { grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+
+  /* CTA */
+  .cta__title { font-size: clamp(1.7rem, 5vw, 2.2rem); }
+  .cta__btns  { flex-direction: column; align-items: center; }
+  .cta__btns .btn { width: 100%; max-width: 320px; }
+
+  /* Footer */
+  .footer__main   { grid-template-columns: 1fr; gap: 2rem; padding-block: 3rem; }
+  .footer__brand  { grid-column: auto; }
+
+  /* Cart */
+  .cart { width: 100%; }
+}
+
+/* ─── Mobile Large (≤ 580px) ────────────────────────────────────── */
+@media (max-width: 580px) {
+  /* Hero: go fully stacked, image below */
+  .hero { grid-template-rows: auto 70vw; }
+  .hero__right { height: 70vw; }
+  .hero__left  { padding: 2.5rem 1.25rem 2rem; }
+
+  .hero__stats { gap: 1rem; }
+  .hero__stat-sep { display: none; }
+
+  /* Process */
+  .process__grid { grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+}
+
+/* ─── Mobile (≤ 480px) ──────────────────────────────────────────── */
+@media (max-width: 480px) {
+  :root { --section-py: 3rem; --header-h: 64px; }
+
+  /* Hero */
+  .hero { grid-template-rows: auto 72vw; }
+  .hero__right { height: 72vw; }
+  .hero__title { font-size: clamp(1.9rem, 9vw, 2.6rem); }
+
+  .hero__cta .btn--hero-primary,
+  .hero__cta .btn--hero-ghost {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Float cards smaller */
+  .hero__float { padding: 0.6rem 0.85rem; gap: 0.5rem; }
+  .hero__float-icon { width: 32px; height: 32px; font-size: 0.85rem; }
+  .hero__float strong { font-size: 0.75rem; }
+  .hero__float span   { font-size: 0.62rem; }
+  .hero__float-stars  { font-size: 0.6rem; }
+
+  /* Categories */
+  .categories__grid { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+  .category__card:last-child {
+    grid-column: 1 / -1;
+    max-width: 200px;
+    margin-inline: auto;
+  }
+
+  /* Products */
+  .products__grid { grid-template-columns: 1fr 1fr; gap: 0.875rem; }
+  .product__name  { font-size: 0.9rem; }
+  .product__desc  {
+    font-size: 0.77rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .product__price { font-size: 1rem; }
+  .btn--add-cart span { display: none; }
+  .btn--add-cart { padding: 0.5em 0.8em; }
+
+  /* About */
+  .about__images { height: 320px; }
+  .about__img-main { width: 85%; }
+
+  /* Process */
+  .process__grid { grid-template-columns: 1fr; max-width: 300px; margin-inline: auto; }
+
+  /* Benefits */
+  .benefits__grid { grid-template-columns: 1fr; gap: 1rem; }
+
+  /* Testimonials */
+  .testimonials__grid { grid-template-columns: 1fr; }
+
+  /* Cart */
+  .cart__item { grid-template-columns: 60px 1fr auto; gap: 0.625rem; }
+  .cart__item-img { width: 60px; height: 60px; }
+
+  /* Footer */
+  .footer__bottom-inner { font-size: 0.75rem; }
+}
+
+/* ─── Small Mobile (≤ 360px) ────────────────────────────────────── */
+@media (max-width: 360px) {
+  .logo__tagline { display: none; }
+  .hero__title   { font-size: 1.8rem; }
+  .hero__eyebrow { font-size: 0.62rem; }
+
+  .categories__grid { grid-template-columns: repeat(2, 1fr); }
+  .products__grid   { grid-template-columns: 1fr; }
+
+  .filter__btn { font-size: 0.76rem; padding: 0.4em 0.8em; }
+
+  .cart__header, .cart__footer { padding-inline: 1rem; }
+  .cart__body   { padding: 0.875rem 1rem; }
+}
+
+/* ─── Print ─────────────────────────────────────────────────────── */
+@media print {
+  .header, .cart, .cart-overlay, .toast, .hero__scroll,
+  .hero__float, .hero__deco { display: none !important; }
+
+  .hero {
+    display: block;
+    min-height: unset;
+    padding: 2rem 0;
+  }
+
+  .hero__right { display: none; }
+}
+
+/* ─── Reduced Motion ────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .reveal { opacity: 1; transform: none; }
+  .hero__float { animation: none; opacity: 1; }
+  .hero__left-inner { animation: none; opacity: 1; }
+}
