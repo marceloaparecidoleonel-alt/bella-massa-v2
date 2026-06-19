@@ -6,8 +6,10 @@
 
 const BM_CONFIG = {
   storeName: 'Bella Massa',
-  whatsapp: '5511999999999',
-  address: 'Rua das Flores, 123 — Vila Madalena, São Paulo/SP',
+  // Número do WhatsApp no formato exigido pelo wa.me (apenas dígitos, sem + ou espaços)
+  whatsapp: '554396624762',
+  // Endereço informado pelo cliente
+  address: 'Rua Dr Xavier da Silva, Centro — Ribeirão Claro/PR',
   openHours: 'Seg–Sex 7h–20h · Sáb–Dom 7h–18h',
   minOrderDelivery: 30,
   deliveryFee: 8,

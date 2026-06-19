@@ -27,7 +27,7 @@
       <nav class="header__nav">
         <ul class="nav__list">
           <li><a href="index.html"    class="nav__link">Início</a></li>
-          <li><a href="catalogo.html" class="nav__link">Catálogo</a></li>
+          <li><a href="cardapio.html" class="nav__link">Cardápio</a></li>
           <li><a href="sobre.html"    class="nav__link">Sobre</a></li>
           <li><a href="contato.html"  class="nav__link">Contato</a></li>
         </ul>
@@ -116,32 +116,47 @@
             </div>
           </div>
 
-          <!-- Form -->
+          <!-- Canais de contato direto -->
           <div class="contato__form-wrap reveal" style="--delay:.1s">
-            <h3 class="contato__form-title">Envie uma mensagem</h3>
-            <form id="contactForm" novalidate>
-              <div class="form-grid" style="margin-bottom:1rem;">
-                <div class="form-group">
-                  <label class="form-label" for="contactName">Nome <span style="color:var(--clr-error)">*</span></label>
-                  <input class="form-input" type="text" id="contactName" placeholder="Seu nome" required />
+            <h3 class="contato__form-title">Fale diretamente conosco</h3>
+            <p style="font-size:.92rem;color:var(--clr-text-muted);margin-bottom:1.8rem;">Escolha o canal de preferência e entraremos em contato rapidamente.</p>
+
+            <div style="display:flex;flex-direction:column;gap:1rem;">
+
+              <a href="https://wa.me/5511999999999" target="_blank" style="display:flex;align-items:center;gap:1rem;padding:1.1rem 1.4rem;background:#f0faf4;border:1.5px solid #b2dfcb;border-radius:14px;text-decoration:none;transition:box-shadow .2s;" onmouseover="this.style.boxShadow='0 4px 18px rgba(37,211,102,.18)'" onmouseout="this.style.boxShadow='none'">
+                <div style="width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#25d366,#1da851);display:grid;place-items:center;flex-shrink:0;">
+                  <i class="fab fa-whatsapp" style="color:#fff;font-size:1.3rem;"></i>
                 </div>
-                <div class="form-group">
-                  <label class="form-label" for="contactEmail">E-mail <span style="color:var(--clr-error)">*</span></label>
-                  <input class="form-input" type="email" id="contactEmail" placeholder="seu@email.com" required />
+                <div>
+                  <p style="font-weight:700;font-size:.95rem;color:#1a6e3a;margin-bottom:2px;">WhatsApp</p>
+                  <p style="font-size:.88rem;color:var(--clr-text-muted);">(11) 99999-9999 &mdash; Resposta rápida</p>
                 </div>
-                <div class="form-group form-group--full">
-                  <label class="form-label" for="contactSubject">Assunto</label>
-                  <input class="form-input" type="text" id="contactSubject" placeholder="Como podemos ajudar?" />
+                <i class="fas fa-arrow-right" style="margin-left:auto;color:#1da851;font-size:.85rem;"></i>
+              </a>
+
+              <a href="tel:+5511999999999" style="display:flex;align-items:center;gap:1rem;padding:1.1rem 1.4rem;background:#f5f0ff;border:1.5px solid #c9b8f0;border-radius:14px;text-decoration:none;transition:box-shadow .2s;" onmouseover="this.style.boxShadow='0 4px 18px rgba(120,80,200,.15)'" onmouseout="this.style.boxShadow='none'">
+                <div style="width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#7c4dff,#5c35c9);display:grid;place-items:center;flex-shrink:0;">
+                  <i class="fas fa-phone" style="color:#fff;font-size:1.15rem;"></i>
                 </div>
-                <div class="form-group form-group--full">
-                  <label class="form-label" for="contactMsg">Mensagem <span style="color:var(--clr-error)">*</span></label>
-                  <textarea class="form-textarea" id="contactMsg" rows="5" placeholder="Escreva sua mensagem…" required style="min-height:120px;"></textarea>
+                <div>
+                  <p style="font-weight:700;font-size:.95rem;color:#4a2fb5;margin-bottom:2px;">Telefone</p>
+                  <p style="font-size:.88rem;color:var(--clr-text-muted);">(11) 99999-9999 &mdash; Seg. a Sex. 7h–20h</p>
                 </div>
-              </div>
-              <button type="submit" id="contactSubmitBtn" style="display:flex;align-items:center;justify-content:center;gap:.5em;width:100%;padding:.9em;background:linear-gradient(135deg,#d4a040,#a06820);color:white;border:none;border-radius:999px;font-family:var(--ff-body);font-size:.95rem;font-weight:600;cursor:pointer;transition:all .3s;box-shadow:0 4px 20px rgba(200,150,62,.32);">
-                <i class="fas fa-paper-plane"></i> Enviar mensagem
-              </button>
-            </form>
+                <i class="fas fa-arrow-right" style="margin-left:auto;color:#7c4dff;font-size:.85rem;"></i>
+              </a>
+
+              <a href="mailto:contato@bellamassa.com.br" style="display:flex;align-items:center;gap:1rem;padding:1.1rem 1.4rem;background:#fff8ed;border:1.5px solid #f0d8a0;border-radius:14px;text-decoration:none;transition:box-shadow .2s;" onmouseover="this.style.boxShadow='0 4px 18px rgba(200,150,62,.18)'" onmouseout="this.style.boxShadow='none'">
+                <div style="width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#d4a040,#a06820);display:grid;place-items:center;flex-shrink:0;">
+                  <i class="fas fa-envelope" style="color:#fff;font-size:1.1rem;"></i>
+                </div>
+                <div>
+                  <p style="font-weight:700;font-size:.95rem;color:#7a5220;margin-bottom:2px;">E-mail</p>
+                  <p style="font-size:.88rem;color:var(--clr-text-muted);">contato@bellamassa.com.br</p>
+                </div>
+                <i class="fas fa-arrow-right" style="margin-left:auto;color:#c8963e;font-size:.85rem;"></i>
+              </a>
+
+            </div>
           </div>
 
         </div>
@@ -173,7 +188,7 @@
         <h4 class="footer__col-title">Navegação</h4>
         <ul class="footer__links">
           <li><a href="index.html">Início</a></li>
-          <li><a href="catalogo.html">Catálogo</a></li>
+          <li><a href="cardapio.html">Cardápio</a></li>
           <li><a href="sobre.html">Sobre nós</a></li>
           <li><a href="contato.html">Contato</a></li>
         </ul>
@@ -196,28 +211,5 @@
   <script src="js/data.js"></script>
   <script src="js/store.js"></script>
   <script src="js/ui.js"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      document.getElementById('contactForm').addEventListener('submit', e => {
-        e.preventDefault();
-        const name = document.getElementById('contactName').value.trim();
-        const email = document.getElementById('contactEmail').value.trim();
-        const msg = document.getElementById('contactMsg').value.trim();
-        if (!name || !email || !msg) {
-          showToast('Preencha todos os campos obrigatórios.', 'error');
-          return;
-        }
-        const btn = document.getElementById('contactSubmitBtn');
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando…';
-        setTimeout(() => {
-          showToast('Mensagem enviada com sucesso! Em breve entraremos em contato.', 'success', 4500);
-          e.target.reset();
-          btn.disabled = false;
-          btn.innerHTML = '<i class="fas fa-paper-plane"></i> Enviar mensagem';
-        }, 1200);
-      });
-    });
-  </script>
 </body>
 </html>

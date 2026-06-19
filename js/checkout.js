@@ -139,7 +139,7 @@ function initForm() {
   const btn  = document.getElementById('submitBtn');
   if (!form) return;
 
-  form.addEventListener('submit', e => {
+  form.addEventListener('submit', async e => {
     e.preventDefault();
 
     const data = {
@@ -193,8 +193,57 @@ function initForm() {
 
     if (data.obs) msg += `\n📝 *Obs:* ${data.obs}`;
 
+    // Save order to Firestore
+    const orderNumber = String(Date.now()).slice(-4); // Gera número de pedido (últimos 4 dígitos do timestamp)
+    const orderData = {
+      numero: orderNumber,
+      cliente: {
+        nome: data.name,
+        telefone: data.phone
+      },
+      endereco: isDelivery ? {
+        rua: data.address,
+        bairro: data.neighborhood,
+        cidade: data.city
+      } : null,
+      itens: cart.map(item => ({
+        id: item.id,
+        nome: item.name,
+        qty: item.qty,
+        preco: item.price
+      })),
+      pagamento: data.payment,
+      troco: data.troco || '',
+      tipo: isDelivery ? 'delivery' : 'pickup',
+      total: Store.getGrandTotal(isDelivery),
+      status: 'novo',
+      obs: data.obs || '',
+      criadoEm: window.Firebase.fs.serverTimestamp(),
+      atualizadoEm: window.Firebase.fs.serverTimestamp()
+    };
+
+    // Save to Firestore (aguarda sucesso antes de prosseguir)
+    if (window.Firebase && window.Firebase.db) {
+      try {
+        await window.Firebase.fs.addDoc(
+          window.Firebase.fs.collection(window.Firebase.db, 'pedidos'),
+          orderData
+        );
+        console.log('✅ Pedido salvo no Firestore:', orderNumber);
+      } catch (err) {
+        console.error('❌ Erro ao salvar pedido no Firestore:', err);
+        showToast('Erro ao salvar pedido no banco. Verifique sua conexão e tente novamente.', 'error');
+        btn.disabled = false;
+        btn.innerHTML = 'Finalizar pedido';
+        return; // Não prossegue para WhatsApp/redirect
+      }
+    } else {
+      console.warn('⚠️ Firebase não inicializado — pedido não será salvo no banco');
+    }
+
     // Save order to session for success page
     sessionStorage.setItem('bm_last_order', JSON.stringify({
+      numero: orderNumber,
       name: data.name,
       phone: data.phone,
       address: data.address,
@@ -244,4 +293,9 @@ document.addEventListener('DOMContentLoaded', () => {
   initForm();
 
   Store.subscribe(renderCheckoutSummary);
+
+  // Recalcular resumo quando config do Firestore for carregada
+  window.addEventListener('configLoaded', () => {
+    renderCheckoutSummary();
+  });
 });

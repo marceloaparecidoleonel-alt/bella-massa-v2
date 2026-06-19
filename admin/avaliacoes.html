@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Avaliações — Bella Massa Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@1,400;1,600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="css/admin.css" />
+  <link rel="stylesheet" href="css/admin-responsive.css" />
+  <style>
+    .btn-action {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 30px; height: 30px; border-radius: 6px;
+      border: 1px solid var(--a-border, #e5e0d8); background: var(--a-card, #fff);
+      cursor: pointer; font-size: .78rem; color: var(--a-text, #3a2e22); transition: .15s;
+    }
+    .btn-action:hover { filter: brightness(.92); }
+    .btn-action--approve    { color: #2ecc71; border-color: #2ecc71; }
+    .btn-action--unapprove  { color: #e67e22; border-color: #e67e22; }
+    .btn-action--highlight  { color: #c8a044; border-color: #c8a044; }
+    .btn-action--unhighlight{ color: #999; }
+    .btn-action--delete     { color: #e74c3c; border-color: #e74c3c; }
+    .badge--success  { background: #e8f8ef; color: #1a8a42; }
+    .badge--muted    { background: #f3f0ec; color: #999; }
+    .aval-filter { padding: .4rem .9rem; border-radius: 20px; border: 1px solid var(--a-border,#e5e0d8); background: transparent; cursor: pointer; font-size: .82rem; font-weight: 500; color: var(--a-text-muted,#7a6c5c); transition: .15s; }
+    .aval-filter.active { background: var(--a-accent,#c8a044); color: #fff; border-color: var(--a-accent,#c8a044); }
+    .kpi-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 1rem; margin-bottom: 1.5rem; }
+    @media(max-width:700px){ .kpi-row { grid-template-columns: repeat(2,1fr); } }
+    .kpi-mini { background: var(--a-card,#fff); border: 1px solid var(--a-border,#e5e0d8); border-radius: 12px; padding: 1rem 1.2rem; }
+    .kpi-mini__label { font-size: .78rem; color: var(--a-text-muted,#7a6c5c); font-weight: 500; margin-bottom: 4px; }
+    .kpi-mini__value { font-size: 1.6rem; font-weight: 700; color: var(--a-text,#3a2e22); }
+  </style>
+</head>
+<body>
+
+<div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+<div class="admin-shell">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <a href="dashboard.html" class="sidebar__brand">
+      <div class="sidebar__logo-icon"><i class="fas fa-wheat-awn"></i></div>
+      <div class="sidebar__logo-text">
+        <span class="sidebar__logo-name">Bella Massa</span>
+        <span class="sidebar__logo-sub">Painel Admin</span>
+      </div>
+    </a>
+    <div class="sidebar__scroll">
+      <div class="sidebar__section">
+        <span class="sidebar__section-label">Operação</span>
+        <nav class="sidebar__nav">
+          <a href="dashboard.html" class="sidebar__link"><i class="fas fa-house"></i> Dashboard</a>
+          <a href="pedidos.html" class="sidebar__link">
+            <i class="fas fa-bag-shopping"></i> Pedidos
+            <span class="badge badge--warning" style="margin-left:auto;font-size:0.68rem;display:none;" id="sidebarBadge">0</span>
+          </a>
+          <a href="produtos.html" class="sidebar__link"><i class="fas fa-layer-group"></i> Produtos</a>
+          <a href="clientes.html" class="sidebar__link"><i class="fas fa-users"></i> Clientes</a>
+          <a href="avaliacoes.html" class="sidebar__link sidebar__link--active"><i class="fas fa-star"></i> Avaliações</a>
+        </nav>
+      </div>
+      <div class="sidebar__divider"></div>
+      <div class="sidebar__section">
+        <span class="sidebar__section-label">Gestão</span>
+        <nav class="sidebar__nav">
+          <a href="financeiro.html" class="sidebar__link"><i class="fas fa-chart-line"></i> Financeiro</a>
+          <a href="configuracoes.html" class="sidebar__link"><i class="fas fa-sliders"></i> Configurações</a>
+        </nav>
+      </div>
+    </div>
+    <div class="sidebar__footer">
+      <a href="admin-login.html" class="sidebar__logout">
+        <i class="fas fa-arrow-right-from-bracket"></i> Sair
+      </a>
+    </div>
+  </aside>
+
+  <!-- PAGE -->
+  <div class="page">
+
+    <header class="topbar">
+      <button class="topbar__burger" id="burgerBtn"><span></span><span></span><span></span></button>
+      <div class="topbar__search">
+        <i class="fas fa-magnifying-glass"></i>
+        <input type="text" placeholder="Buscar avaliação…" />
+      </div>
+      <div class="topbar__right">
+        <button class="topbar__icon-btn"><i class="fas fa-bell"></i><span class="topbar__notif-dot"></span></button>
+        <div class="topbar__profile" id="topbarProfile" style="opacity:0;">
+          <div class="topbar__avatar"></div>
+          <div class="topbar__profile-text"><strong></strong><small></small></div>
+        </div>
+      </div>
+    </header>
+
+    <main class="page-body">
+
+      <div class="page-header">
+        <div class="page-header__copy">
+          <div class="breadcrumb">
+            <a href="dashboard.html">Dashboard</a>
+            <i class="fas fa-chevron-right"></i>
+            <span>Avaliações</span>
+          </div>
+          <h1>Avaliações</h1>
+          <p>Gerencie os comentários dos clientes e escolha quais aparecem na home</p>
+        </div>
+      </div>
+
+      <!-- KPIs -->
+      <div class="kpi-row">
+        <div class="kpi-mini">
+          <div class="kpi-mini__label">Total recebido</div>
+          <div class="kpi-mini__value" id="avalTotal">—</div>
+        </div>
+        <div class="kpi-mini">
+          <div class="kpi-mini__label">Pendentes</div>
+          <div class="kpi-mini__value" id="avalPendente" style="color:#e67e22;">—</div>
+        </div>
+        <div class="kpi-mini">
+          <div class="kpi-mini__label">Em destaque</div>
+          <div class="kpi-mini__value" id="avalDestaque" style="color:#c8a044;">—</div>
+        </div>
+        <div class="kpi-mini">
+          <div class="kpi-mini__label">Média de estrelas</div>
+          <div class="kpi-mini__value" id="avalMedia">—</div>
+        </div>
+      </div>
+
+      <!-- Filtros -->
+      <div style="display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap;">
+        <button class="aval-filter active" data-filter="todas">Todas</button>
+        <button class="aval-filter" data-filter="pendente">Pendentes</button>
+        <button class="aval-filter" data-filter="destaque">Em destaque</button>
+      </div>
+
+      <!-- Tabela -->
+      <div class="panel">
+        <div class="panel__body" style="padding:0;">
+          <div style="overflow-x:auto;">
+            <table class="orders-table" style="min-width:700px;">
+              <thead>
+                <tr>
+                  <th>Data</th>
+                  <th>Cliente</th>
+                  <th>Estrelas</th>
+                  <th>Comentário</th>
+                  <th>Status</th>
+                  <th>Destaque</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="avalTableBody">
+                <tr><td colspan="7" style="text-align:center;padding:2rem;color:#888;"><i class="fas fa-spinner fa-spin"></i> Carregando…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:#fff8ec;border:1px solid #f0d8a0;border-radius:10px;padding:1rem 1.2rem;margin-top:1.5rem;font-size:.85rem;color:#7a5c20;">
+        <i class="fas fa-info-circle" style="margin-right:6px;"></i>
+        <strong>Como funciona:</strong> Avaliações enviadas pelos clientes chegam como <em>pendentes</em>. Aprove para que fiquem visíveis no modal "Ver todos". Clique em <i class="fas fa-star" style="color:#c8a044;"></i> para colocar em <strong>destaque</strong> — aparecerão diretamente na home do site.
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script type="module" src="../js/firebase.js"></script>
+<script src="js/admin-common.js"></script>
+<script src="js/avaliacoes-admin.js"></script>
+</body>
+</html>

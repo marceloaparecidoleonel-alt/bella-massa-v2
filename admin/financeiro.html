@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Financeiro — Bella Massa Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@1,400;1,600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="css/admin.css" />
+  <link rel="stylesheet" href="css/admin-responsive.css" />
+</head>
+<body>
+
+<div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+<div class="admin-shell">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <a href="dashboard.html" class="sidebar__brand">
+      <div class="sidebar__logo-icon"><i class="fas fa-wheat-awn"></i></div>
+      <div class="sidebar__logo-text">
+        <span class="sidebar__logo-name">Bella Massa</span>
+        <span class="sidebar__logo-sub">Painel Admin</span>
+      </div>
+    </a>
+    <div class="sidebar__scroll">
+      <div class="sidebar__section">
+        <span class="sidebar__section-label">Operação</span>
+        <nav class="sidebar__nav">
+          <a href="dashboard.html" class="sidebar__link"><i class="fas fa-house"></i> Dashboard</a>
+          <a href="pedidos.html" class="sidebar__link">
+            <i class="fas fa-bag-shopping"></i> Pedidos
+            <span class="badge badge--warning" style="margin-left:auto;font-size:0.68rem;display:none;" id="sidebarBadge">0</span>
+          </a>
+          <a href="produtos.html" class="sidebar__link"><i class="fas fa-layer-group"></i> Produtos</a>
+          <a href="clientes.html" class="sidebar__link"><i class="fas fa-users"></i> Clientes</a>
+          <a href="avaliacoes.html" class="sidebar__link"><i class="fas fa-star"></i> Avaliações</a>
+        </nav>
+      </div>
+      <div class="sidebar__divider"></div>
+      <div class="sidebar__section">
+        <span class="sidebar__section-label">Gestão</span>
+        <nav class="sidebar__nav">
+          <a href="financeiro.html" class="sidebar__link sidebar__link--active"><i class="fas fa-chart-line"></i> Financeiro</a>
+          <a href="configuracoes.html" class="sidebar__link"><i class="fas fa-sliders"></i> Configurações</a>
+        </nav>
+      </div>
+    </div>
+    <div class="sidebar__footer">
+      <a href="admin-login.html" class="sidebar__logout">
+        <i class="fas fa-arrow-right-from-bracket"></i> Sair
+      </a>
+    </div>
+  </aside>
+
+  <!-- PAGE -->
+  <div class="page">
+
+    <header class="topbar">
+      <button class="topbar__burger" id="burgerBtn"><span></span><span></span><span></span></button>
+      <div class="topbar__search">
+        <i class="fas fa-magnifying-glass"></i>
+        <input type="text" placeholder="Buscar lançamento, método ou período…" />
+      </div>
+      <div class="topbar__right">
+        <button class="topbar__icon-btn"><i class="fas fa-bell"></i><span class="topbar__notif-dot"></span></button>
+        <div class="topbar__profile" id="topbarProfile" style="opacity:0;">
+          <div class="topbar__avatar"></div>
+          <div class="topbar__profile-text"><strong></strong><small></small></div>
+        </div>
+      </div>
+    </header>
+
+    <main class="page-body">
+
+      <div class="page-header">
+        <div class="page-header__copy">
+          <div class="breadcrumb">
+            <a href="dashboard.html">Dashboard</a>
+            <i class="fas fa-chevron-right"></i>
+            <span>Financeiro</span>
+          </div>
+          <h1>Financeiro</h1>
+          <p>Faturamento e indicadores por período</p>
+        </div>
+        <div class="page-header__actions">
+          <button class="abtn abtn--secondary"><i class="fas fa-download"></i> Exportar relatório</button>
+        </div>
+      </div>
+
+      <!-- Seletor de período -->
+      <div class="panel__filters" id="periodFilters">
+        <button class="chip chip--active" data-period="hoje">Hoje</button>
+        <button class="chip" data-period="semana">Esta semana</button>
+        <button class="chip" data-period="mes">Este mês</button>
+        <button class="chip" data-period="mes_ant">Mês anterior</button>
+      </div>
+
+      <!-- KPIs financeiros -->
+      <div class="kpi-grid">
+        <div class="kpi-card kpi-card--featured">
+          <div class="kpi-card__header">
+            <div class="kpi-card__icon"><i class="fas fa-brazilian-real-sign"></i></div>
+          </div>
+          <div class="kpi-card__label">Faturamento bruto</div>
+          <div class="kpi-card__value" id="finRevenue">—</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-card__header">
+            <div class="kpi-card__icon kpi-card__icon--green"><i class="fas fa-bag-shopping"></i></div>
+          </div>
+          <div class="kpi-card__label">Pedidos no período</div>
+          <div class="kpi-card__value" id="finOrders">—</div>
+          <div class="kpi-card__sub" id="finOrdersSub"></div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-card__header">
+            <div class="kpi-card__icon kpi-card__icon--amber"><i class="fas fa-receipt"></i></div>
+          </div>
+          <div class="kpi-card__label">Ticket médio</div>
+          <div class="kpi-card__value" id="finTicket">—</div>
+          <div class="kpi-card__sub">Por pedido entregue</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-card__header">
+            <div class="kpi-card__icon kpi-card__icon--info"><i class="fas fa-motorcycle"></i></div>
+          </div>
+          <div class="kpi-card__label">Taxa de entrega</div>
+          <div class="kpi-card__value" id="finDelivery">—</div>
+        </div>
+      </div>
+
+      <!-- Gráfico + Métodos de pagamento -->
+      <div class="fin-row-main">
+
+        <!-- Gráfico de faturamento -->
+        <div class="panel">
+          <div class="panel__head">
+            <div>
+              <h2>Faturamento — 30 dias</h2>
+              <p>Valores em R$</p>
+            </div>
+          </div>
+          <div class="chart-area">
+            <div class="chart-bars">
+              <div class="chart-bar" style="--h:48%"><span class="chart-bar__val">R$1.680</span><div class="chart-bar__fill"></div><span class="chart-bar__label">1</span></div>
+              <div class="chart-bar" style="--h:55%"><span class="chart-bar__val">R$1.920</span><div class="chart-bar__fill"></div><span class="chart-bar__label">2</span></div>
+              <div class="chart-bar" style="--h:60%"><span class="chart-bar__val">R$2.100</span><div class="chart-bar__fill"></div><span class="chart-bar__label">3</span></div>
+              <div class="chart-bar" style="--h:52%"><span class="chart-bar__val">R$1.820</span><div class="chart-bar__fill"></div><span class="chart-bar__label">4</span></div>
+              <div class="chart-bar" style="--h:70%"><span class="chart-bar__val">R$2.450</span><div class="chart-bar__fill"></div><span class="chart-bar__label">5</span></div>
+              <div class="chart-bar" style="--h:88%"><span class="chart-bar__val">R$3.080</span><div class="chart-bar__fill"></div><span class="chart-bar__label">6</span></div>
+              <div class="chart-bar" style="--h:94%"><span class="chart-bar__val">R$3.290</span><div class="chart-bar__fill"></div><span class="chart-bar__label">7</span></div>
+              <div class="chart-bar" style="--h:63%"><span class="chart-bar__val">R$2.200</span><div class="chart-bar__fill"></div><span class="chart-bar__label">8</span></div>
+              <div class="chart-bar" style="--h:58%"><span class="chart-bar__val">R$2.030</span><div class="chart-bar__fill"></div><span class="chart-bar__label">9</span></div>
+              <div class="chart-bar" style="--h:72%"><span class="chart-bar__val">R$2.520</span><div class="chart-bar__fill"></div><span class="chart-bar__label">10</span></div>
+              <div class="chart-bar" style="--h:66%"><span class="chart-bar__val">R$2.310</span><div class="chart-bar__fill"></div><span class="chart-bar__label">11</span></div>
+              <div class="chart-bar" style="--h:80%"><span class="chart-bar__val">R$2.800</span><div class="chart-bar__fill"></div><span class="chart-bar__label">12</span></div>
+              <div class="chart-bar" style="--h:91%"><span class="chart-bar__val">R$3.185</span><div class="chart-bar__fill"></div><span class="chart-bar__label">13</span></div>
+              <div class="chart-bar" style="--h:100%"><span class="chart-bar__val">R$3.500</span><div class="chart-bar__fill"></div><span class="chart-bar__label">14</span></div>
+              <div class="chart-bar chart-bar--active" style="--h:82%"><span class="chart-bar__val">R$2.870</span><div class="chart-bar__fill"></div><span class="chart-bar__label">Hoje</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Métodos de pagamento -->
+        <div class="panel">
+          <div class="panel__head">
+            <div><h2>Métodos de pagamento</h2><p>Distribuição do período</p></div>
+          </div>
+          <div class="fin-payment-list">
+            <div class="fin-payment-item">
+              <div class="fin-payment-icon" style="background:rgba(45,123,191,0.12);color:#2d7bbf;"><i class="fas fa-credit-card"></i></div>
+              <div class="fin-payment-info">
+                <div class="fin-payment-label">Cartão de Crédito</div>
+                <div class="fin-payment-bar"><div id="payCartaoFill" class="fin-payment-bar__fill" style="width:0%;background:#2d7bbf;"></div></div>
+              </div>
+              <div class="fin-payment-vals">
+                <strong id="payCartaoPct">0%</strong>
+                <small id="payCartaoVal">R$ 0,00</small>
+              </div>
+            </div>
+            <div class="fin-payment-item">
+              <div class="fin-payment-icon" style="background:rgba(200,150,62,0.12);color:var(--a-gold);"><i class="fab fa-pix"></i></div>
+              <div class="fin-payment-info">
+                <div class="fin-payment-label">Pix</div>
+                <div class="fin-payment-bar"><div id="payPixFill" class="fin-payment-bar__fill" style="width:0%;background:var(--a-gold);"></div></div>
+              </div>
+              <div class="fin-payment-vals">
+                <strong id="payPixPct">0%</strong>
+                <small id="payPixVal">R$ 0,00</small>
+              </div>
+            </div>
+            <div class="fin-payment-item">
+              <div class="fin-payment-icon" style="background:rgba(61,158,95,0.12);color:#3d9e5f;"><i class="fas fa-money-bill-wave"></i></div>
+              <div class="fin-payment-info">
+                <div class="fin-payment-label">Dinheiro</div>
+                <div class="fin-payment-bar"><div id="payDinheiroFill" class="fin-payment-bar__fill" style="width:0%;background:#3d9e5f;"></div></div>
+              </div>
+              <div class="fin-payment-vals">
+                <strong id="payDinheiroPct">0%</strong>
+                <small id="payDinheiroVal">R$ 0,00</small>
+              </div>
+            </div>
+            <div class="fin-payment-item">
+              <div class="fin-payment-icon" style="background:rgba(200,122,26,0.12);color:#c87a1a;"><i class="fas fa-credit-card"></i></div>
+              <div class="fin-payment-info">
+                <div class="fin-payment-label">Cartão de Débito</div>
+                <div class="fin-payment-bar"><div id="payDebitoFill" class="fin-payment-bar__fill" style="width:0%;background:#c87a1a;"></div></div>
+              </div>
+              <div class="fin-payment-vals">
+                <strong id="payDebitoPct">0%</strong>
+                <small id="payDebitoVal">R$ 0,00</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Resumo por período -->
+      <div class="panel">
+        <div class="panel__head">
+          <div><h2>Resumo por dia</h2><p>Últimos 7 dias</p></div>
+        </div>
+        <div class="panel__body" style="padding:0;">
+          <table class="atable">
+            <thead>
+              <tr>
+                <th>Data</th>
+                <th>Pedidos</th>
+                <th>Entregues</th>
+                <th>Cancelados</th>
+                <th>Taxa entrega</th>
+                <th>Ticket médio</th>
+                <th>Faturamento</th>
+              </tr>
+            </thead>
+            <tbody id="dailySummaryBody"><tr><td colspan="7" style="text-align:center;color:var(--a-text-muted);"><i class="fas fa-spinner fa-spin"></i> Carregando…</td></tr></tbody>
+            <tfoot>
+              <tr id="dailySummaryFoot" style="font-weight:700; background:var(--a-bg-muted);"></tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<div class="toast-stack" id="toastStack"></div>
+
+<style>
+.fin-row-main {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 20px;
+}
+
+.fin-payment-list { padding: 8px 24px 24px; display: flex; flex-direction: column; gap: 20px; }
+
+.fin-payment-item { display: flex; align-items: center; gap: 14px; }
+
+.fin-payment-icon {
+  width: 36px; height: 36px;
+  border-radius: var(--a-radius-md);
+  display: grid; place-items: center;
+  font-size: 0.95rem; flex-shrink: 0;
+}
+
+.fin-payment-info { flex: 1; min-width: 0; }
+
+.fin-payment-label { font-size: 0.82rem; font-weight: 600; color: var(--a-text); margin-bottom: 6px; }
+
+.fin-payment-bar {
+  height: 6px;
+  background: var(--a-border-soft);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.fin-payment-bar__fill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 800ms cubic-bezier(0.4,0,0.2,1);
+}
+
+.fin-payment-vals { text-align: right; flex-shrink: 0; }
+.fin-payment-vals strong { display: block; font-size: 0.9rem; font-weight: 700; color: var(--a-text-heading); }
+.fin-payment-vals small { font-size: 0.75rem; color: var(--a-text-soft); }
+
+@media (max-width: 1100px) { .fin-row-main { grid-template-columns: 1fr; } }
+</style>
+
+<script type="module" src="../js/firebase.js"></script>
+<script src="js/admin-common.js"></script>
+<script src="js/financeiro.js"></script>
+</body>
+</html>

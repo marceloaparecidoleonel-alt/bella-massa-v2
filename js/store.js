@@ -35,7 +35,7 @@ const Store = (() => {
   }
 
   function addItem(product, qty = 1) {
-    const existing = _cart.find(i => i.id === product.id);
+    const existing = _cart.find(i => String(i.id) === String(product.id));
     if (existing) {
       existing.qty += qty;
     } else {
@@ -51,12 +51,12 @@ const Store = (() => {
   }
 
   function removeItem(productId) {
-    _cart = _cart.filter(i => i.id !== Number(productId));
+    _cart = _cart.filter(i => String(i.id) !== String(productId));
     _save();
   }
 
   function updateQty(productId, qty) {
-    const item = _cart.find(i => i.id === Number(productId));
+    const item = _cart.find(i => String(i.id) === String(productId));
     if (!item) return;
     if (qty <= 0) {
       removeItem(productId);

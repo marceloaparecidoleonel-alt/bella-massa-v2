@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Produtos — Bella Massa Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@1,400;1,600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="css/admin.css" />
+  <link rel="stylesheet" href="css/admin-responsive.css" />
+</head>
+<body>
+
+<div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+<div class="admin-shell">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <a href="dashboard.html" class="sidebar__brand">
+      <div class="sidebar__logo-icon"><i class="fas fa-wheat-awn"></i></div>
+      <div class="sidebar__logo-text">
+        <span class="sidebar__logo-name">Bella Massa</span>
+        <span class="sidebar__logo-sub">Painel Admin</span>
+      </div>
+    </a>
+    <div class="sidebar__scroll">
+      <div class="sidebar__section">
+        <span class="sidebar__section-label">Operação</span>
+        <nav class="sidebar__nav">
+          <a href="dashboard.html" class="sidebar__link"><i class="fas fa-house"></i> Dashboard</a>
+          <a href="pedidos.html" class="sidebar__link">
+            <i class="fas fa-bag-shopping"></i> Pedidos
+            <span class="badge badge--warning" style="margin-left:auto;font-size:0.68rem;display:none;" id="sidebarBadge">0</span>
+          </a>
+          <a href="produtos.html" class="sidebar__link sidebar__link--active"><i class="fas fa-layer-group"></i> Produtos</a>
+          <a href="clientes.html" class="sidebar__link"><i class="fas fa-users"></i> Clientes</a>
+          <a href="avaliacoes.html" class="sidebar__link"><i class="fas fa-star"></i> Avaliações</a>
+        </nav>
+      </div>
+      <div class="sidebar__divider"></div>
+      <div class="sidebar__section">
+        <span class="sidebar__section-label">Gestão</span>
+        <nav class="sidebar__nav">
+          <a href="financeiro.html" class="sidebar__link"><i class="fas fa-chart-line"></i> Financeiro</a>
+          <a href="configuracoes.html" class="sidebar__link"><i class="fas fa-sliders"></i> Configurações</a>
+        </nav>
+      </div>
+    </div>
+    <div class="sidebar__footer">
+      <button class="sidebar__cta-btn" id="newProductBtn">
+        <i class="fas fa-plus"></i> Novo produto
+      </button>
+      <a href="admin-login.html" class="sidebar__logout">
+        <i class="fas fa-arrow-right-from-bracket"></i> Sair
+      </a>
+    </div>
+  </aside>
+
+  <!-- PAGE -->
+  <div class="page">
+
+    <header class="topbar">
+      <button class="topbar__burger" id="burgerBtn"><span></span><span></span><span></span></button>
+      <div class="topbar__search">
+        <i class="fas fa-magnifying-glass"></i>
+        <input type="text" id="searchInput" placeholder="Buscar produto por nome ou categoria…" />
+      </div>
+      <div class="topbar__right">
+        <button class="topbar__icon-btn"><i class="fas fa-bell"></i><span class="topbar__notif-dot"></span></button>
+        <div class="topbar__profile" id="topbarProfile" style="opacity:0;">
+          <div class="topbar__avatar"></div>
+          <div class="topbar__profile-text"><strong></strong><small></small></div>
+        </div>
+      </div>
+    </header>
+
+    <main class="page-body">
+
+      <div class="page-header">
+        <div class="page-header__copy">
+          <div class="breadcrumb">
+            <a href="dashboard.html">Dashboard</a>
+            <i class="fas fa-chevron-right"></i>
+            <span>Produtos</span>
+          </div>
+          <h1>Produtos</h1>
+          <p>Gerencie o catálogo da Bella Massa</p>
+        </div>
+        <div class="page-header__actions">
+          <button class="abtn abtn--secondary"><i class="fas fa-download"></i> Exportar</button>
+          <button class="abtn abtn--primary" id="openProductModal">
+            <i class="fas fa-plus"></i> Novo produto
+          </button>
+        </div>
+      </div>
+
+      <!-- Filtros de categoria -->
+      <div class="panel__filters" id="catFilters">
+        <button class="chip chip--active" data-cat="todos">Todos</button>
+        <button class="chip" data-cat="paes">Pães</button>
+        <button class="chip" data-cat="doces">Doces</button>
+        <button class="chip" data-cat="bolos">Bolos</button>
+        <button class="chip" data-cat="salgados">Salgados</button>
+        <button class="chip" data-cat="cafe">Café</button>
+      </div>
+
+      <!-- Contador de produtos -->
+      <p style="font-size:0.82rem;color:var(--a-text-muted);margin-bottom:16px;"><span id="totalProdutos">0</span> produtos cadastrados</p>
+
+      <!-- Grid de produtos — renderizado via JS -->
+      <div class="product-grid" id="productGrid">
+        <p style="color:var(--a-text-muted);padding:2rem;grid-column:1/-1;"><i class="fas fa-spinner fa-spin"></i> Carregando produtos…</p>
+      </div>
+
+    </main>
+  </div>
+
+</div>
+
+<div class="toast-stack" id="toastStack"></div>
+
+<!-- Modal produto -->
+<div class="modal-overlay" id="productModal">
+  <div class="modal" style="width:min(680px,100%);max-height:90vh;display:flex;flex-direction:column;">
+    <div class="modal__head">
+      <h2 id="productModalTitle">Novo Produto</h2>
+      <button class="modal__close" id="closeProductModal"><i class="fas fa-xmark"></i></button>
+    </div>
+    <div class="modal__body" style="overflow-y:auto;flex:1;">
+      <form class="aform" id="productForm">
+        <div class="aform__field">
+          <label class="aform__label">Nome do produto <span>*</span></label>
+          <input type="text" id="fieldNome" class="aform__input" placeholder="Ex: Pão de Centeio Integral" required />
+        </div>
+        <div class="aform__grid">
+          <div class="aform__field">
+            <label class="aform__label">Categoria <span>*</span></label>
+            <select id="fieldCategoria" class="aform__select" required>
+              <option value="">Selecionar…</option>
+              <option value="paes">Pães</option>
+              <option value="bolos">Bolos</option>
+              <option value="doces">Doces</option>
+              <option value="salgados">Salgados</option>
+              <option value="bebidas">Bebidas</option>
+            </select>
+          </div>
+          <div class="aform__field">
+            <label class="aform__label">Preço (R$) <span>*</span></label>
+            <input type="text" id="fieldPreco" class="aform__input" placeholder="Ex: 32,90" required />
+          </div>
+        </div>
+        <div class="aform__field">
+          <label class="aform__label">Descrição completa</label>
+          <textarea id="fieldDescricao" class="aform__textarea" placeholder="Descrição detalhada para a página do produto…" style="min-height:56px;max-height:90px"></textarea>
+        </div>
+        <div class="aform__field">
+          <label class="aform__label">Descrição curta</label>
+          <input type="text" id="fieldDescCurta" class="aform__input" placeholder="Ex: Levain artesanal, 18h de fermentação." />
+        </div>
+        <div class="aform__grid">
+          <div class="aform__field" style="grid-column:1/-1">
+            <label class="aform__label">Imagem do produto</label>
+            <!-- Área de upload -->
+            <div id="imgUploadArea" class="img-upload-area">
+              <input type="file" id="fieldImagemFile" accept="image/*" style="display:none" />
+              <img id="imgPreview" src="" alt="Preview" style="display:none;max-height:110px;border-radius:8px;object-fit:cover;width:100%;" />
+              <div id="imgUploadPlaceholder">
+                <i class="fas fa-image" style="font-size:1.4rem;color:var(--a-text-muted);margin-bottom:4px;"></i>
+                <p style="font-size:0.82rem;font-weight:600;color:var(--a-text-muted);margin:0;">Clique ou arraste uma imagem aqui</p>
+                <p style="font-size:0.73rem;color:var(--a-text-soft);margin:2px 0 0;">JPG, PNG, WEBP — máx. 2MB</p>
+              </div>
+              <button type="button" id="imgRemoveBtn" style="display:none;position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.55);color:#fff;border:none;border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:0.8rem;"><i class="fas fa-xmark"></i></button>
+            </div>
+            <!-- Ou colar URL -->
+            <div style="display:flex;align-items:center;gap:8px;margin-top:8px;">
+              <span style="font-size:0.75rem;color:var(--a-text-muted);white-space:nowrap;">ou cole uma URL:</span>
+              <input type="url" id="fieldImagem" class="aform__input" placeholder="https://…" style="flex:1;font-size:0.82rem;padding:6px 10px;" />
+            </div>
+          </div>
+          <div class="aform__field">
+            <label class="aform__label">Peso / Volume</label>
+            <input type="text" id="fieldPeso" class="aform__input" placeholder="Ex: 800g, 350ml" />
+          </div>
+        </div>
+        <div class="aform__grid">
+          <div class="aform__field">
+            <label class="aform__label">Status</label>
+            <select id="fieldAtivo" class="aform__select">
+              <option value="1">Ativo</option>
+              <option value="0">Inativo</option>
+            </select>
+          </div>
+          <div class="aform__field">
+            <label class="aform__label">Ordem de exibição</label>
+            <input type="number" id="fieldOrdem" class="aform__input" placeholder="0" min="0" />
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;margin-top:4px;">
+          <input type="checkbox" id="fieldDestaque" style="width:16px;height:16px;accent-color:var(--a-gold);" />
+          <label for="fieldDestaque" style="font-size:0.88rem;font-weight:500;cursor:pointer;">Produto em destaque (aparece na Home e no topo do Cardápio)</label>
+        </div>
+      </form>
+    </div>
+    <div class="modal__footer">
+      <button class="abtn abtn--ghost" id="cancelProductModal">Cancelar</button>
+      <button class="abtn abtn--primary" id="saveProduct">
+        <i class="fas fa-check"></i> Salvar produto
+      </button>
+    </div>
+  </div>
+</div>
+
+<style>
+.img-upload-area {
+  position: relative;
+  border: 2px dashed var(--a-border);
+  border-radius: var(--a-radius-md);
+  padding: 12px 16px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  background: var(--a-bg-muted);
+  min-height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+.img-upload-area:hover,
+.img-upload-area.drag-over {
+  border-color: var(--a-gold);
+  background: rgba(var(--a-gold-rgb, 180,130,60), 0.05);
+}
+.img-upload-area.has-image {
+  padding: 8px;
+  border-style: solid;
+  border-color: var(--a-border-soft);
+}
+#imgUploadPlaceholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+}
+</style>
+<script type="module" src="../js/firebase.js"></script>
+<script src="js/admin-common.js"></script>
+<script src="js/produtos.js"></script>
+</body>
+</html>

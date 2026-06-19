@@ -18,9 +18,9 @@ function renderCartPage() {
       <div class="carrinho__empty">
         <i class="fas fa-bag-shopping"></i>
         <h3>Seu carrinho está vazio</h3>
-        <p>Adicione produtos do nosso catálogo para começar.</p>
-        <a href="catalogo.html" style="display:inline-flex;align-items:center;gap:.5em;padding:.82em 1.8em;background:linear-gradient(135deg,#d4a040,#a06820);color:white;border-radius:999px;font-weight:600;text-decoration:none;font-size:.9rem;">
-          <i class="fas fa-bag-shopping"></i> Ver catálogo
+        <p>Adicione produtos do nosso cardápio para começar.</p>
+        <a href="cardapio.html" style="display:inline-flex;align-items:center;gap:.5em;padding:.82em 1.8em;background:linear-gradient(135deg,#d4a040,#a06820);color:white;border-radius:999px;font-weight:600;text-decoration:none;font-size:.9rem;">
+          <i class="fas fa-bag-shopping"></i> Ver cardápio
         </a>
       </div>`;
     if (summaryEl) summaryEl.style.display = 'none';
@@ -61,8 +61,8 @@ function renderCartPage() {
   // Controls
   listEl.querySelectorAll('.cart-row__qty-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      const id   = Number(btn.dataset.id);
-      const item = Store.getCart().find(i => i.id === id);
+      const id   = btn.dataset.id;
+      const item = Store.getCart().find(i => String(i.id) === String(id));
       if (!item) return;
       if (btn.dataset.action === 'inc') {
         Store.updateQty(id, item.qty + 1);
@@ -96,18 +96,7 @@ function updateSummary() {
   if (el('summaryDelivery')) el('summaryDelivery').textContent = delivery === 0 ? 'Grátis' : fmt(delivery);
   if (el('summaryTotal'))    el('summaryTotal').textContent    = fmt(total);
 
-  if (hint) {
-    if (delivery > 0) {
-      const remaining = BM_CONFIG.freeDeliveryAbove - subtotal;
-      hint.style.display = '';
-      hint.textContent = `Faltam ${fmt(remaining)} para frete grátis!`;
-    } else if (subtotal > 0) {
-      hint.style.display = '';
-      hint.textContent = 'Você ganhou frete grátis! 🎉';
-    } else {
-      hint.style.display = 'none';
-    }
-  }
+  if (hint) hint.style.display = 'none';
 
   // Disable checkout button if cart empty
   const btn = document.getElementById('checkoutBtn');
@@ -194,5 +183,10 @@ document.addEventListener('DOMContentLoaded', () => {
   Store.subscribe(() => {
     renderCartPage();
     renderSuggestions();
+  });
+
+  // Recalcular resumo quando config do Firestore for carregada
+  window.addEventListener('configLoaded', () => {
+    updateSummary();
   });
 });

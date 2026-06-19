@@ -168,8 +168,8 @@ document.addEventListener('DOMContentLoaded', () => {
         <i class="fas fa-circle-exclamation" style="font-size:3rem;color:var(--clr-border);margin-bottom:1rem;display:block;"></i>
         <h2 style="font-family:var(--ff-heading);font-size:1.5rem;margin-bottom:.5rem;color:var(--clr-brown-dark);">Produto não encontrado</h2>
         <p style="color:var(--clr-text-muted);margin-bottom:1.5rem;">Esse produto pode ter sido removido ou o link está incorreto.</p>
-        <a href="catalogo.html" style="display:inline-flex;align-items:center;gap:.5em;padding:.8em 1.8em;background:linear-gradient(135deg,#d4a040,#a06820);color:white;border-radius:999px;font-weight:600;text-decoration:none;">
-          <i class="fas fa-arrow-left"></i> Ver catálogo
+        <a href="cardapio.html" style="display:inline-flex;align-items:center;gap:.5em;padding:.8em 1.8em;background:linear-gradient(135deg,#d4a040,#a06820);color:white;border-radius:999px;font-weight:600;text-decoration:none;">
+          <i class="fas fa-arrow-left"></i> Ver cardápio
         </a>
       </div>`;
     return;

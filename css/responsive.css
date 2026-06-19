@@ -112,9 +112,6 @@
   .process__grid { grid-template-columns: repeat(2, 1fr); gap: 2rem 2.5rem; }
   .process__grid::before { display: none; }
 
-  /* Benefits */
-  .benefits__grid { grid-template-columns: repeat(2, 1fr); }
-
   /* Footer */
   .footer__main { grid-template-columns: 1fr 1fr; gap: 2.5rem 3rem; }
   .footer__brand { grid-column: 1 / -1; }
@@ -149,16 +146,15 @@
   .products__filters { gap: 0.5rem; margin-bottom: 1.75rem; }
   .filter__btn { padding: 0.45em 1em; font-size: 0.82rem; }
 
-  /* Benefits */
-  .benefits__grid { grid-template-columns: repeat(2, 1fr); gap: 1.25rem; }
-  .benefit__card  { padding: 1.75rem 1.25rem; }
-
   /* Testimonials */
   .testimonials__grid { grid-template-columns: 1fr 1fr; gap: 1.25rem; }
 
   /* CTA */
-  .cta__title { font-size: clamp(1.7rem, 5vw, 2.2rem); }
-  .cta__btns  { flex-direction: column; align-items: center; }
+  .cta-section  { min-height: 480px; }
+  .cta__content { padding-block: 4.5rem; }
+  .cta__title   { font-size: clamp(1.8rem, 5vw, 2.4rem); }
+  .cta__subtitle { font-size: 0.98rem; }
+  .cta__btns    { flex-direction: column; align-items: center; }
   .cta__btns .btn { width: 100%; max-width: 320px; }
 
   /* Footer */
@@ -181,6 +177,11 @@
 
   /* Process */
   .process__grid { grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+
+  /* CTA */
+  .cta-section  { min-height: 420px; }
+  .cta__content { padding-block: 3.5rem; }
+  .cta__title   { font-size: clamp(1.65rem, 7vw, 2rem); }
 }
 
 /* ─── Mobile (≤ 480px) ──────────────────────────────────────────── */
@@ -235,15 +236,17 @@
   /* Process */
   .process__grid { grid-template-columns: 1fr; max-width: 300px; margin-inline: auto; }
 
-  /* Benefits */
-  .benefits__grid { grid-template-columns: 1fr; gap: 1rem; }
-
   /* Testimonials */
   .testimonials__grid { grid-template-columns: 1fr; }
 
   /* Cart */
   .cart__item { grid-template-columns: 60px 1fr auto; gap: 0.625rem; }
   .cart__item-img { width: 60px; height: 60px; }
+
+  /* CTA */
+  .cta-section  { min-height: 380px; }
+  .cta__content { padding-block: 3rem; }
+  .cta__subtitle { font-size: 0.92rem; }
 
   /* Footer */
   .footer__bottom-inner { font-size: 0.75rem; }

@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pedidos — Bella Massa Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@1,400;1,600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="css/admin.css" />
+  <link rel="stylesheet" href="css/admin-responsive.css" />
+</head>
+<body>
+
+<div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+<div class="admin-shell">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <a href="dashboard.html" class="sidebar__brand">
+      <div class="sidebar__logo-icon"><i class="fas fa-wheat-awn"></i></div>
+      <div class="sidebar__logo-text">
+        <span class="sidebar__logo-name">Bella Massa</span>
+        <span class="sidebar__logo-sub">Painel Admin</span>
+      </div>
+    </a>
+    <div class="sidebar__scroll">
+      <div class="sidebar__section">
+        <span class="sidebar__section-label">Operação</span>
+        <nav class="sidebar__nav">
+          <a href="dashboard.html" class="sidebar__link"><i class="fas fa-house"></i> Dashboard</a>
+          <a href="pedidos.html" class="sidebar__link sidebar__link--active">
+            <i class="fas fa-bag-shopping"></i> Pedidos
+            <span class="badge badge--warning" style="margin-left:auto;font-size:0.68rem;display:none;" id="pendingCount">0</span>
+          </a>
+          <a href="produtos.html" class="sidebar__link"><i class="fas fa-layer-group"></i> Produtos</a>
+          <a href="clientes.html" class="sidebar__link"><i class="fas fa-users"></i> Clientes</a>
+          <a href="avaliacoes.html" class="sidebar__link"><i class="fas fa-star"></i> Avaliações</a>
+        </nav>
+      </div>
+      <div class="sidebar__divider"></div>
+      <div class="sidebar__section">
+        <span class="sidebar__section-label">Gestão</span>
+        <nav class="sidebar__nav">
+          <a href="financeiro.html" class="sidebar__link"><i class="fas fa-chart-line"></i> Financeiro</a>
+          <a href="configuracoes.html" class="sidebar__link"><i class="fas fa-sliders"></i> Configurações</a>
+        </nav>
+      </div>
+    </div>
+    <div class="sidebar__footer">
+      <a href="admin-login.html" class="sidebar__logout">
+        <i class="fas fa-arrow-right-from-bracket"></i> Sair
+      </a>
+    </div>
+  </aside>
+
+  <!-- PAGE -->
+  <div class="page">
+
+    <header class="topbar">
+      <button class="topbar__burger" id="burgerBtn"><span></span><span></span><span></span></button>
+      <div class="topbar__search">
+        <i class="fas fa-magnifying-glass"></i>
+        <input type="text" id="searchInput" placeholder="Buscar por #número, cliente, telefone ou endereço…" />
+      </div>
+      <div class="topbar__right">
+        <button class="topbar__icon-btn"><i class="fas fa-bell"></i><span class="topbar__notif-dot"></span></button>
+        <div class="topbar__profile" id="topbarProfile" style="opacity:0;">
+          <div class="topbar__avatar"></div>
+          <div class="topbar__profile-text"><strong></strong><small></small></div>
+        </div>
+      </div>
+    </header>
+
+    <main class="page-body">
+
+      <div class="page-header">
+        <div class="page-header__copy">
+          <div class="breadcrumb">
+            <a href="dashboard.html">Dashboard</a>
+            <i class="fas fa-chevron-right"></i>
+            <span>Pedidos</span>
+          </div>
+          <h1>Pedidos</h1>
+          <p>Central de operações — <span id="todayOrderCount">0</span> pedidos hoje</p>
+        </div>
+        <div class="page-header__actions" style="display:flex;gap:10px;align-items:center;">
+          <button id="btnClearDone" class="abtn abtn--ghost" style="color:#e74c3c;border-color:#e74c3c;display:flex;align-items:center;gap:6px;" title="Excluir todos os pedidos entregues e cancelados">
+            <i class="fas fa-trash-can"></i> Limpar finalizados
+          </button>
+        </div>
+      </div>
+
+      <!-- Filtros de status -->
+      <div class="panel__filters" id="statusFilters">
+        <button class="chip chip--active" data-filter="todos">Todos <span class="chip-count">0</span></button>
+        <button class="chip chip--new" data-filter="novo">Novos <span class="chip-count">0</span></button>
+        <button class="chip chip--prod" data-filter="producao">Em Produção <span class="chip-count">0</span></button>
+        <button class="chip chip--ready" data-filter="pronto">Prontos <span class="chip-count">0</span></button>
+        <button class="chip chip--delivery" data-filter="entrega">Em Entrega <span class="chip-count">0</span></button>
+        <button class="chip chip--done" data-filter="entregue">Entregues <span class="chip-count">0</span></button>
+        <button class="chip chip--cancel" data-filter="cancelado">Cancelados <span class="chip-count">0</span></button>
+      </div>
+
+      <!-- Tabela de pedidos -->
+      <div class="panel">
+        <div class="panel__body" style="padding:0;">
+          <div class="orders-table-wrap">
+            <table class="atable" id="ordersTable">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Cliente</th>
+                  <th>Endereço</th>
+                  <th>Itens</th>
+                  <th>Pagamento</th>
+                  <th>Valor</th>
+                  <th>Horário</th>
+                  <th>Status</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="ordersBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<div class="toast-stack" id="toastStack"></div>
+
+<!-- Modal: Detalhes do pedido -->
+<div class="modal-overlay" id="orderDetailModal">
+  <div class="modal" style="width:min(600px,100%)">
+    <div class="modal__head">
+      <h2 id="modalOrderNum">Pedido #2341</h2>
+      <button class="modal__close" id="closeDetailModal"><i class="fas fa-xmark"></i></button>
+    </div>
+    <div class="modal__body">
+      <div class="order-detail-grid">
+        <div class="order-detail-section">
+          <div class="order-detail-label">Cliente</div>
+          <div class="order-detail-val" id="detailClient">—</div>
+        </div>
+        <div class="order-detail-section">
+          <div class="order-detail-label">Telefone</div>
+          <div class="order-detail-val" id="detailPhone">—</div>
+        </div>
+        <div class="order-detail-section" style="grid-column:1/-1">
+          <div class="order-detail-label">Endereço de entrega</div>
+          <div class="order-detail-val" id="detailAddress">—</div>
+        </div>
+        <div class="order-detail-section" style="grid-column:1/-1">
+          <div class="order-detail-label">Itens do pedido</div>
+          <div class="order-detail-val" id="detailItems">—</div>
+        </div>
+        <div class="order-detail-section" style="grid-column:1/-1">
+          <div class="order-detail-label">Observações</div>
+          <div class="order-detail-val" id="detailObs">—</div>
+        </div>
+        <div class="order-detail-section">
+          <div class="order-detail-label">Pagamento</div>
+          <div class="order-detail-val" id="detailPayment">—</div>
+        </div>
+        <div class="order-detail-section">
+          <div class="order-detail-label">Valor total</div>
+          <div class="order-detail-val" id="detailValue" style="font-family:var(--a-ff-heading);font-size:1.4rem;font-weight:700;color:var(--a-brown-dark)">—</div>
+        </div>
+        <div class="order-detail-section">
+          <div class="order-detail-label">Horário</div>
+          <div class="order-detail-val" id="detailTime">—</div>
+        </div>
+        <div class="order-detail-section">
+          <div class="order-detail-label">Status atual</div>
+          <div class="order-detail-val" id="detailStatus">—</div>
+        </div>
+      </div>
+    </div>
+    <div class="modal__footer">
+      <button class="abtn abtn--ghost" id="closeDetailModal2">Fechar</button>
+      <a id="detailWhatsApp" href="#" target="_blank" class="abtn abtn--primary" style="background:#25d366;border:none;">
+        <i class="fab fa-whatsapp"></i> Contato via WhatsApp
+      </a>
+    </div>
+  </div>
+</div>
+
+<style>
+.orders-table-wrap { overflow-x: auto; }
+
+.chip-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 18px;
+  padding: 0 5px;
+  background: rgba(46,26,14,0.1);
+  border-radius: 99px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  margin-left: 4px;
+}
+
+.chip--active .chip-count { background: rgba(255,255,255,0.25); }
+
+.chip--new      { border-color: #2d7bbf; color: #2d7bbf; }
+.chip--prod     { border-color: #c87a1a; color: #c87a1a; }
+.chip--ready    { border-color: #3d9e5f; color: #3d9e5f; }
+.chip--delivery { border-color: var(--a-gold); color: var(--a-gold); }
+.chip--done     { border-color: #3d9e5f; color: #3d9e5f; }
+.chip--cancel   { border-color: #d94040; color: #d94040; }
+
+.payment-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--a-text-muted);
+}
+
+.cell-actions { display: flex; gap: 6px; white-space: nowrap; }
+
+tr[data-status="entregue"] { opacity: 0.7; }
+tr[data-status="cancelado"] { opacity: 0.5; }
+
+.order-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.order-detail-section {
+  background: var(--a-bg-muted);
+  border: 1px solid var(--a-border-soft);
+  border-radius: var(--a-radius-md);
+  padding: 12px 16px;
+}
+
+.order-detail-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--a-text-soft);
+  margin-bottom: 4px;
+}
+
+.order-detail-val {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--a-text);
+}
+</style>
+
+<script type="module" src="../js/firebase.js"></script>
+<script src="js/admin-common.js"></script>
+<script src="js/pedidos.js"></script>
+</body>
+</html>

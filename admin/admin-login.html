@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login — Bella Massa Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@1,400;1,600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="css/admin.css" />
+  <link rel="stylesheet" href="css/admin-responsive.css" />
+  <style>
+    /* ── Login-specific styles ── */
+    body { background: var(--a-bg-page); }
+
+    .login-split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      min-height: 100svh;
+    }
+
+    /* Visual side */
+    .login-visual {
+      position: relative;
+      background: var(--a-bg-sidebar);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 52px;
+    }
+
+    .login-visual::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 70% 60% at 30% 20%, rgba(200,150,62,0.28) 0%, transparent 70%),
+        radial-gradient(ellipse 60% 80% at 80% 80%, rgba(200,150,62,0.15) 0%, transparent 70%);
+    }
+
+    .login-visual__img {
+      position: absolute;
+      inset: 0;
+      background-image: url('https://images.unsplash.com/photo-1509440159596-0249088772ff?w=900&q=75');
+      background-size: cover;
+      background-position: center;
+      opacity: 0.12;
+    }
+
+    .login-visual__content {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+    }
+
+    .login-visual__badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--a-gold-light);
+      border: 1px solid rgba(200,150,62,0.35);
+      border-radius: var(--a-radius-pill);
+      padding: 6px 16px;
+      margin-bottom: 32px;
+      background: rgba(200,150,62,0.1);
+    }
+
+    .login-visual__icon {
+      width: 80px;
+      height: 80px;
+      border-radius: var(--a-radius-lg);
+      background: var(--a-gold-grad);
+      display: grid;
+      place-items: center;
+      font-size: 2rem;
+      color: #fff;
+      box-shadow: 0 16px 48px rgba(200,150,62,0.4);
+      margin: 0 auto 32px;
+    }
+
+    .login-visual h1 {
+      font-family: var(--a-ff-heading);
+      font-size: clamp(2rem, 2.5vw, 3rem);
+      font-weight: 700;
+      color: var(--a-gold-pale);
+      line-height: 1.2;
+      letter-spacing: -0.01em;
+      margin-bottom: 16px;
+    }
+
+    .login-visual h1 em {
+      font-style: italic;
+      color: var(--a-gold-light);
+    }
+
+    .login-visual p {
+      font-size: 0.95rem;
+      color: rgba(250,240,224,0.55);
+      max-width: 300px;
+      margin: 0 auto 40px;
+      line-height: 1.7;
+    }
+
+    .login-visual__stats {
+      display: flex;
+      gap: 32px;
+      justify-content: center;
+    }
+
+    .login-visual__stat {
+      text-align: center;
+    }
+
+    .login-visual__stat strong {
+      display: block;
+      font-family: var(--a-ff-heading);
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--a-gold-pale);
+    }
+
+    .login-visual__stat span {
+      font-size: 0.72rem;
+      color: rgba(250,240,224,0.42);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .login-visual__quote {
+      position: absolute;
+      bottom: 40px;
+      left: 52px;
+      right: 52px;
+      padding: 20px 22px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: var(--a-radius-lg);
+      backdrop-filter: blur(8px);
+    }
+
+    .login-visual__quote p {
+      font-family: var(--a-ff-accent);
+      font-style: italic;
+      font-size: 1rem;
+      color: rgba(250,240,224,0.7);
+      margin: 0 0 8px;
+      max-width: 100%;
+    }
+
+    .login-visual__quote cite {
+      font-size: 0.72rem;
+      font-style: normal;
+      color: rgba(250,240,224,0.35);
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    /* Form side */
+    .login-form-side {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 52px;
+      background: var(--a-bg-page);
+    }
+
+    .login-form-wrap {
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .login-form-wrap__logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 40px;
+    }
+
+    .login-form-wrap__logo-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--a-radius-md);
+      background: var(--a-gold-grad);
+      display: grid;
+      place-items: center;
+      font-size: 1.1rem;
+      color: #fff;
+      box-shadow: var(--a-shadow-gold);
+    }
+
+    .login-form-wrap__logo-name {
+      font-family: var(--a-ff-heading);
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--a-text-heading);
+    }
+
+    .login-form-wrap__logo-sub {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--a-gold);
+      display: block;
+    }
+
+    .login-form-wrap h2 {
+      font-family: var(--a-ff-heading);
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--a-text-heading);
+      line-height: 1.2;
+      margin-bottom: 8px;
+    }
+
+    .login-form-wrap > p {
+      font-size: 0.9rem;
+      color: var(--a-text-muted);
+      margin-bottom: 36px;
+    }
+
+    .login-form { display: flex; flex-direction: column; gap: 18px; }
+
+    .login-field {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .login-label {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--a-text-muted);
+    }
+
+    .login-input-wrap {
+      position: relative;
+    }
+
+    .login-input-wrap i:first-child {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--a-text-soft);
+      font-size: 0.88rem;
+      pointer-events: none;
+      transition: color var(--a-ease);
+    }
+
+    .login-input-wrap:focus-within i:first-child { color: var(--a-gold); }
+
+    .login-input {
+      width: 100%;
+      padding: 13px 14px 13px 42px;
+      border: 1.5px solid var(--a-border-input);
+      border-radius: var(--a-radius-md);
+      background: var(--a-bg-input);
+      font-size: 0.93rem;
+      color: var(--a-text);
+      outline: none;
+      transition: border-color var(--a-ease), box-shadow var(--a-ease);
+    }
+
+    .login-input:focus {
+      border-color: var(--a-gold);
+      box-shadow: 0 0 0 3px var(--a-gold-dim);
+    }
+
+    .login-input::placeholder { color: var(--a-text-soft); }
+
+    .login-eye {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--a-text-soft);
+      font-size: 0.88rem;
+      padding: 4px;
+      transition: color var(--a-ease-fast);
+    }
+
+    .login-eye:hover { color: var(--a-brown); }
+
+    .login-options {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .login-remember {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      font-size: 0.84rem;
+      color: var(--a-text-muted);
+    }
+
+    .login-remember input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--a-gold);
+    }
+
+    .login-forgot {
+      font-size: 0.84rem;
+      font-weight: 600;
+      color: var(--a-gold);
+      transition: opacity var(--a-ease-fast);
+    }
+
+    .login-forgot:hover { opacity: 0.75; }
+
+    .login-submit {
+      margin-top: 4px;
+      width: 100%;
+      padding: 14px;
+      border-radius: var(--a-radius-pill);
+      border: none;
+      background: var(--a-gold-grad);
+      color: #fff;
+      font-family: var(--a-ff-body);
+      font-size: 0.95rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+      box-shadow: 0 6px 24px rgba(200,150,62,0.35);
+      transition: transform var(--a-spring), box-shadow var(--a-ease);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .login-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--a-shadow-gold);
+    }
+
+    .login-submit:active { transform: translateY(0); }
+
+    .login-divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--a-text-soft);
+      font-size: 0.78rem;
+    }
+
+    .login-divider::before,
+    .login-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--a-border);
+    }
+
+    .login-back {
+      text-align: center;
+      font-size: 0.83rem;
+      color: var(--a-text-soft);
+    }
+
+    .login-back a {
+      color: var(--a-gold);
+      font-weight: 600;
+      transition: opacity var(--a-ease-fast);
+    }
+
+    .login-back a:hover { opacity: 0.75; }
+
+    .login-error {
+      padding: 12px 14px;
+      border-radius: var(--a-radius-md);
+      background: var(--a-danger-bg);
+      border: 1px solid rgba(217,64,64,0.25);
+      color: var(--a-danger);
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .login-error.hidden { display: none; }
+  </style>
+</head>
+<body>
+
+  <div class="login-split">
+
+    <!-- ── Lado visual ── -->
+    <div class="login-visual" aria-hidden="true">
+      <div class="login-visual__img"></div>
+
+      <div class="login-visual__content">
+        <div class="login-visual__badge">
+          <i class="fas fa-wheat-awn"></i>
+          Painel Administrativo
+        </div>
+
+        <div class="login-visual__icon">
+          <i class="fas fa-wheat-awn"></i>
+        </div>
+
+        <h1>Bella<br /><em>Massa</em></h1>
+        <p>Gerencie seus pedidos, produtos e clientes em um só lugar.</p>
+
+        <div class="login-visual__stats">
+          <div class="login-visual__stat">
+            <strong>R$48k</strong>
+            <span>Faturamento / mês</span>
+          </div>
+          <div class="login-visual__stat">
+            <strong>340+</strong>
+            <span>Pedidos / mês</span>
+          </div>
+          <div class="login-visual__stat">
+            <strong>98%</strong>
+            <span>Satisfação</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="login-visual__quote">
+        <p>"Feito com amor, assado com paixão — desde 2010."</p>
+        <cite>Bella Massa · Padaria Artesanal</cite>
+      </div>
+    </div>
+
+    <!-- ── Lado do formulário ── -->
+    <div class="login-form-side">
+      <div class="login-form-wrap">
+
+        <div class="login-form-wrap__logo">
+          <div class="login-form-wrap__logo-icon">
+            <i class="fas fa-wheat-awn"></i>
+          </div>
+          <div>
+            <span class="login-form-wrap__logo-name">Bella Massa</span>
+            <span class="login-form-wrap__logo-sub">Padaria Artesanal</span>
+          </div>
+        </div>
+
+        <h2>Bem-vindo de volta</h2>
+        <p>Entre com suas credenciais para acessar o painel.</p>
+
+        <div class="login-error hidden" id="loginError">
+          <i class="fas fa-circle-exclamation"></i>
+          <span>E-mail ou senha incorretos. Tente novamente.</span>
+        </div>
+
+        <form class="login-form" id="loginForm" novalidate>
+
+          <div class="login-field">
+            <label class="login-label" for="email">E-mail</label>
+            <div class="login-input-wrap">
+              <i class="fas fa-envelope"></i>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                class="login-input"
+                placeholder="admin@bellamassa.com.br"
+                autocomplete="email"
+                required
+              />
+            </div>
+          </div>
+
+          <div class="login-field">
+            <label class="login-label" for="password">Senha</label>
+            <div class="login-input-wrap">
+              <i class="fas fa-lock"></i>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                class="login-input"
+                placeholder="••••••••"
+                autocomplete="current-password"
+                required
+              />
+              <button type="button" class="login-eye" id="eyeToggle" aria-label="Mostrar/ocultar senha">
+                <i class="fas fa-eye" id="eyeIcon"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="login-options">
+            <label class="login-remember">
+              <input type="checkbox" name="remember" />
+              Lembrar de mim
+            </label>
+            <a href="#" class="login-forgot">Esqueci a senha</a>
+          </div>
+
+          <button type="submit" class="login-submit" id="loginBtn">
+            <i class="fas fa-arrow-right-to-bracket"></i>
+            Entrar no painel
+          </button>
+
+        </form>
+
+        <div class="login-divider" style="margin-top: 28px;">ou</div>
+
+        <div class="login-back" style="margin-top: 20px;">
+          <a href="../index.html"><i class="fas fa-arrow-left" style="font-size:0.75rem;"></i> Voltar ao site</a>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <script type="module" src="../js/firebase.js"></script>
+  <script>
+    const form     = document.getElementById('loginForm');
+    const eyeBtn   = document.getElementById('eyeToggle');
+    const eyeIcon  = document.getElementById('eyeIcon');
+    const pwdInput = document.getElementById('password');
+    const errorBox = document.getElementById('loginError');
+    const loginBtn = document.getElementById('loginBtn');
+
+    eyeBtn.addEventListener('click', () => {
+      const isHidden = pwdInput.type === 'password';
+      pwdInput.type = isHidden ? 'text' : 'password';
+      eyeIcon.className = isHidden ? 'fas fa-eye-slash' : 'fas fa-eye';
+    });
+
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      errorBox.classList.add('hidden');
+
+      const email = form.email.value.trim();
+      const pwd   = form.password.value;
+
+      if (!email || !pwd) {
+        errorBox.classList.remove('hidden');
+        return;
+      }
+
+      loginBtn.disabled = true;
+      loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verificando…';
+
+      // Wait for Firebase to load
+      let attempts = 0;
+      while (!window.Firebase && attempts < 20) {
+        await new Promise(r => setTimeout(r, 100));
+        attempts++;
+      }
+
+      if (!window.Firebase || !window.Firebase.auth) {
+        errorBox.textContent = 'Erro ao carregar Firebase. Tente recarregar a página.';
+        errorBox.classList.remove('hidden');
+        loginBtn.disabled = false;
+        loginBtn.innerHTML = '<i class="fas fa-arrow-right-to-bracket"></i> Entrar no painel';
+        return;
+      }
+
+      try {
+        const userCredential = await window.Firebase.authApi.signInWithEmailAndPassword(window.Firebase.auth, email, pwd);
+        console.log('✅ Login bem-sucedido:', userCredential.user.email);
+
+        // Store auth state
+        localStorage.setItem('bm_admin_auth', JSON.stringify({
+          email: userCredential.user.email,
+          uid: userCredential.user.uid,
+          timestamp: Date.now()
+        }));
+
+        loginBtn.innerHTML = '<i class="fas fa-check"></i> Acesso autorizado!';
+        loginBtn.style.background = 'linear-gradient(135deg,#3d9e5f,#2d7a48)';
+        await new Promise(r => setTimeout(r, 600));
+        window.location.href = 'dashboard.html';
+
+      } catch (err) {
+        console.error('❌ Erro de login:', err);
+        let msg = 'E-mail ou senha incorretos.';
+        if (err.code === 'auth/user-not-found') msg = 'Usuário não encontrado.';
+        if (err.code === 'auth/wrong-password') msg = 'Senha incorreta.';
+        if (err.code === 'auth/invalid-email') msg = 'E-mail inválido.';
+        if (err.code === 'auth/too-many-requests') msg = 'Muitas tentativas. Tente mais tarde.';
+
+        errorBox.querySelector('span').textContent = msg;
+        errorBox.classList.remove('hidden');
+        loginBtn.disabled = false;
+        loginBtn.innerHTML = '<i class="fas fa-arrow-right-to-bracket"></i> Entrar no painel';
+        pwdInput.value = '';
+        pwdInput.focus();
+      }
+    });
+
+    // Check if already logged in — usa Firebase Auth como fonte de verdade
+    async function checkAuthState() {
+      let attempts = 0;
+      while (!window.Firebase && attempts < 30) {
+        await new Promise(r => setTimeout(r, 100));
+        attempts++;
+      }
+      if (!window.Firebase || !window.Firebase.authApi) return;
+      window.Firebase.authApi.onAuthStateChanged(window.Firebase.auth, function (user) {
+        if (user) {
+          window.location.href = 'dashboard.html';
+        } else {
+          localStorage.removeItem('bm_admin_auth');
+        }
+      });
+    }
+    window.addEventListener('load', checkAuthState);
+  </script>
+
+</body>
+</html>

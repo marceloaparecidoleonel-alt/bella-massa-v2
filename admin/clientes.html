@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Clientes — Bella Massa Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@1,400;1,600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="css/admin.css" />
+  <link rel="stylesheet" href="css/admin-responsive.css" />
+</head>
+<body>
+
+<div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+<div class="admin-shell">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <a href="dashboard.html" class="sidebar__brand">
+      <div class="sidebar__logo-icon"><i class="fas fa-wheat-awn"></i></div>
+      <div class="sidebar__logo-text">
+        <span class="sidebar__logo-name">Bella Massa</span>
+        <span class="sidebar__logo-sub">Painel Admin</span>
+      </div>
+    </a>
+    <div class="sidebar__scroll">
+      <div class="sidebar__section">
+        <span class="sidebar__section-label">Operação</span>
+        <nav class="sidebar__nav">
+          <a href="dashboard.html" class="sidebar__link"><i class="fas fa-house"></i> Dashboard</a>
+          <a href="pedidos.html" class="sidebar__link">
+            <i class="fas fa-bag-shopping"></i> Pedidos
+            <span class="badge badge--warning" style="margin-left:auto;font-size:0.68rem;display:none;" id="sidebarBadge">0</span>
+          </a>
+          <a href="produtos.html" class="sidebar__link"><i class="fas fa-layer-group"></i> Produtos</a>
+          <a href="clientes.html" class="sidebar__link sidebar__link--active"><i class="fas fa-users"></i> Clientes</a>
+          <a href="avaliacoes.html" class="sidebar__link"><i class="fas fa-star"></i> Avaliações</a>
+        </nav>
+      </div>
+      <div class="sidebar__divider"></div>
+      <div class="sidebar__section">
+        <span class="sidebar__section-label">Gestão</span>
+        <nav class="sidebar__nav">
+          <a href="financeiro.html" class="sidebar__link"><i class="fas fa-chart-line"></i> Financeiro</a>
+          <a href="configuracoes.html" class="sidebar__link"><i class="fas fa-sliders"></i> Configurações</a>
+        </nav>
+      </div>
+    </div>
+    <div class="sidebar__footer">
+      <button class="sidebar__cta-btn" id="newCustomerBtn">
+        <i class="fas fa-user-plus"></i> Novo cliente
+      </button>
+      <a href="admin-login.html" class="sidebar__logout">
+        <i class="fas fa-arrow-right-from-bracket"></i> Sair
+      </a>
+    </div>
+  </aside>
+
+  <!-- PAGE -->
+  <div class="page">
+
+    <header class="topbar">
+      <button class="topbar__burger" id="burgerBtn"><span></span><span></span><span></span></button>
+      <div class="topbar__search">
+        <i class="fas fa-magnifying-glass"></i>
+        <input type="text" id="searchInput" placeholder="Buscar por nome, telefone ou e-mail…" />
+      </div>
+      <div class="topbar__right">
+        <button class="topbar__icon-btn"><i class="fas fa-bell"></i><span class="topbar__notif-dot"></span></button>
+        <div class="topbar__profile" id="topbarProfile" style="opacity:0;">
+          <div class="topbar__avatar"></div>
+          <div class="topbar__profile-text"><strong></strong><small></small></div>
+        </div>
+      </div>
+    </header>
+
+    <main class="page-body">
+
+      <div class="page-header">
+        <div class="page-header__copy">
+          <div class="breadcrumb">
+            <a href="dashboard.html">Dashboard</a>
+            <i class="fas fa-chevron-right"></i>
+            <span>Clientes</span>
+          </div>
+          <h1>Clientes</h1>
+          <p>Gerencie e fidelize sua base de clientes</p>
+        </div>
+        <div class="page-header__actions">
+          <button class="abtn abtn--secondary"><i class="fas fa-download"></i> Exportar</button>
+          <button class="abtn abtn--primary" id="openCustomerModal">
+            <i class="fas fa-user-plus"></i> Novo cliente
+          </button>
+        </div>
+      </div>
+
+      <!-- KPI clientes -->
+      <div class="kpi-grid" style="grid-template-columns: repeat(4, 1fr);">
+        <div class="kpi-card kpi-card--featured">
+          <div class="kpi-card__header">
+            <div class="kpi-card__icon"><i class="fas fa-users"></i></div>
+          </div>
+          <div class="kpi-card__label">Total de clientes</div>
+          <div class="kpi-card__value" id="kpiTotalClientes">—</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-card__header">
+            <div class="kpi-card__icon kpi-card__icon--green"><i class="fas fa-star"></i></div>
+          </div>
+          <div class="kpi-card__label">Clientes VIP</div>
+          <div class="kpi-card__value" id="kpiClientesVip">—</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-card__header">
+            <div class="kpi-card__icon kpi-card__icon--amber"><i class="fas fa-user-plus"></i></div>
+          </div>
+          <div class="kpi-card__label">Novos este mês</div>
+          <div class="kpi-card__value" id="kpiNovosMes">—</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-card__header">
+            <div class="kpi-card__icon kpi-card__icon--info"><i class="fas fa-repeat"></i></div>
+          </div>
+          <div class="kpi-card__label">Taxa de retorno</div>
+          <div class="kpi-card__value" id="kpiRetorno">—</div>
+        </div>
+      </div>
+
+      <!-- Segmentos -->
+      <div class="panel__filters" id="segFilters">
+        <button class="chip chip--active" data-seg="todos">Todos</button>
+        <button class="chip" data-seg="vip">VIP</button>
+        <button class="chip" data-seg="frequente">Frequente</button>
+        <button class="chip" data-seg="novo">Novo</button>
+        <button class="chip" data-seg="inativo">Inativo</button>
+      </div>
+
+      <!-- Grid de clientes — renderizado via JS -->
+      <div class="customer-grid" id="customerGrid">
+        <p style="color:var(--a-text-muted);padding:2rem;grid-column:1/-1;"><i class="fas fa-spinner fa-spin"></i> Carregando clientes…</p>
+      </div>
+
+    </main>
+  </div>
+
+</div>
+
+<div class="toast-stack" id="toastStack"></div>
+
+<!-- Modal novo cliente -->
+<div class="modal-overlay" id="customerModal">
+  <div class="modal">
+    <div class="modal__head">
+      <h2>Novo Cliente</h2>
+      <button class="modal__close" id="closeCustomerModal"><i class="fas fa-xmark"></i></button>
+    </div>
+    <div class="modal__body">
+      <form class="aform" id="customerForm">
+        <div class="aform__grid">
+          <div class="aform__field">
+            <label class="aform__label">Nome completo <span>*</span></label>
+            <input type="text" class="aform__input" placeholder="Nome do cliente" required />
+          </div>
+          <div class="aform__field">
+            <label class="aform__label">Telefone <span>*</span></label>
+            <input type="tel" class="aform__input" placeholder="(11) 99999-9999" required />
+          </div>
+        </div>
+        <div class="aform__grid">
+          <div class="aform__field">
+            <label class="aform__label">E-mail</label>
+            <input type="email" class="aform__input" placeholder="cliente@email.com" />
+          </div>
+          <div class="aform__field">
+            <label class="aform__label">Segmento</label>
+            <select class="aform__select">
+              <option>Novo</option>
+              <option>Frequente</option>
+              <option>VIP</option>
+              <option>Inativo</option>
+            </select>
+          </div>
+        </div>
+        <div class="aform__field">
+          <label class="aform__label">Endereço de entrega</label>
+          <input type="text" class="aform__input" placeholder="Rua, número, bairro, cidade" />
+        </div>
+        <div class="aform__field">
+          <label class="aform__label">Observações</label>
+          <textarea class="aform__textarea" placeholder="Preferências, alergias, etc." style="min-height:80px"></textarea>
+        </div>
+      </form>
+    </div>
+    <div class="modal__footer">
+      <button class="abtn abtn--ghost" id="cancelCustomerModal">Cancelar</button>
+      <button class="abtn abtn--primary" id="saveCustomer">
+        <i class="fas fa-check"></i> Cadastrar cliente
+      </button>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="../js/firebase.js"></script>
+<script src="js/admin-common.js"></script>
+<script src="js/clientes.js"></script>
+</body>
+</html>

@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Configurações — Bella Massa Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@1,400;1,600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="css/admin.css" />
+  <link rel="stylesheet" href="css/admin-responsive.css" />
+</head>
+<body>
+
+<div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+<div class="admin-shell">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <a href="dashboard.html" class="sidebar__brand">
+      <div class="sidebar__logo-icon"><i class="fas fa-wheat-awn"></i></div>
+      <div class="sidebar__logo-text">
+        <span class="sidebar__logo-name">Bella Massa</span>
+        <span class="sidebar__logo-sub">Painel Admin</span>
+      </div>
+    </a>
+    <div class="sidebar__scroll">
+      <div class="sidebar__section">
+        <span class="sidebar__section-label">Operação</span>
+        <nav class="sidebar__nav">
+          <a href="dashboard.html" class="sidebar__link"><i class="fas fa-house"></i> Dashboard</a>
+          <a href="pedidos.html" class="sidebar__link">
+            <i class="fas fa-bag-shopping"></i> Pedidos
+            <span class="badge badge--warning" style="margin-left:auto;font-size:0.68rem;display:none;" id="sidebarBadge">0</span>
+          </a>
+          <a href="produtos.html" class="sidebar__link"><i class="fas fa-layer-group"></i> Produtos</a>
+          <a href="clientes.html" class="sidebar__link"><i class="fas fa-users"></i> Clientes</a>
+          <a href="avaliacoes.html" class="sidebar__link"><i class="fas fa-star"></i> Avaliações</a>
+        </nav>
+      </div>
+      <div class="sidebar__divider"></div>
+      <div class="sidebar__section">
+        <span class="sidebar__section-label">Gestão</span>
+        <nav class="sidebar__nav">
+          <a href="financeiro.html" class="sidebar__link"><i class="fas fa-chart-line"></i> Financeiro</a>
+          <a href="configuracoes.html" class="sidebar__link sidebar__link--active"><i class="fas fa-sliders"></i> Configurações</a>
+        </nav>
+      </div>
+    </div>
+    <div class="sidebar__footer">
+      <button class="sidebar__cta-btn" onclick="window.location.href='pedidos.html'">
+        <i class="fas fa-plus"></i> Novo pedido
+      </button>
+      <a href="admin-login.html" class="sidebar__logout">
+        <i class="fas fa-arrow-right-from-bracket"></i> Sair
+      </a>
+    </div>
+  </aside>
+
+  <!-- PAGE -->
+  <div class="page">
+
+    <header class="topbar">
+      <button class="topbar__burger" id="burgerBtn"><span></span><span></span><span></span></button>
+      <div class="topbar__search">
+        <i class="fas fa-magnifying-glass"></i>
+        <input type="text" placeholder="Buscar configuração…" />
+      </div>
+      <div class="topbar__right">
+        <button class="topbar__icon-btn"><i class="fas fa-bell"></i><span class="topbar__notif-dot"></span></button>
+        <div class="topbar__profile" id="topbarProfile" style="opacity:0;">
+          <div class="topbar__avatar"></div>
+          <div class="topbar__profile-text"><strong></strong><small></small></div>
+        </div>
+      </div>
+    </header>
+
+    <main class="page-body">
+
+      <div class="page-header">
+        <div class="page-header__copy">
+          <div class="breadcrumb">
+            <a href="dashboard.html">Dashboard</a>
+            <i class="fas fa-chevron-right"></i>
+            <span>Configurações</span>
+          </div>
+          <h1>Configurações</h1>
+          <p>Personalize o funcionamento da Bella Massa</p>
+        </div>
+      </div>
+
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start;">
+
+        <!-- Coluna esquerda -->
+        <div style="display:flex;flex-direction:column;gap:20px;">
+
+          <!-- Informações da empresa -->
+          <div class="settings-section">
+            <div class="settings-section__head">
+              <div class="settings-section__icon"><i class="fas fa-store"></i></div>
+              <div>
+                <h3>Informações da Empresa</h3>
+                <p>Dados gerais da padaria</p>
+              </div>
+            </div>
+            <div class="settings-section__body">
+              <form class="aform" id="companyForm">
+                <div class="aform__field">
+                  <label class="aform__label">Nome da empresa</label>
+                  <input type="text" id="cfgNomeEmpresa" class="aform__input" placeholder="Nome da padaria" />
+                </div>
+                <div class="aform__grid">
+                  <div class="aform__field">
+                    <label class="aform__label">Telefone</label>
+                    <input type="tel" id="cfgTelefone" class="aform__input" placeholder="(11) 99999-9999" />
+                  </div>
+                  <div class="aform__field">
+                    <label class="aform__label">WhatsApp</label>
+                    <input type="tel" id="cfgWhatsapp" class="aform__input" placeholder="(11) 99999-9999" />
+                  </div>
+                </div>
+                <div class="aform__field">
+                  <label class="aform__label">Endereço</label>
+                  <input type="text" id="cfgEndereco" class="aform__input" placeholder="Rua, número — Bairro, Cidade" />
+                </div>
+                <div class="aform__field">
+                  <label class="aform__label">Horário de funcionamento</label>
+                  <input type="text" id="cfgHorario" class="aform__input" placeholder="Seg–Sex: 7h–19h | Sáb–Dom: 7h–14h" />
+                </div>
+                <div style="display:flex;justify-content:flex-end;margin-top:4px;">
+                  <button type="button" class="abtn abtn--primary save-form-btn" data-form="empresa" data-label="empresa">
+                    <i class="fas fa-check"></i> Salvar
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <!-- Redes sociais -->
+          <div class="settings-section">
+            <div class="settings-section__head">
+              <div class="settings-section__icon"><i class="fas fa-share-nodes"></i></div>
+              <div>
+                <h3>Redes Sociais</h3>
+                <p>Links dos perfis da padaria</p>
+              </div>
+            </div>
+            <div class="settings-section__body">
+              <form class="aform" id="socialForm">
+                <div class="aform__field">
+                  <label class="aform__label"><i class="fab fa-instagram" style="color:#e1306c;margin-right:6px;"></i>Instagram</label>
+                  <input type="url" id="cfgInstagram" class="aform__input" placeholder="https://instagram.com/bellamassa" />
+                </div>
+                <div class="aform__field">
+                  <label class="aform__label"><i class="fab fa-facebook" style="color:#1877f2;margin-right:6px;"></i>Facebook</label>
+                  <input type="url" id="cfgFacebook" class="aform__input" placeholder="https://facebook.com/bellamassa" />
+                </div>
+                <div class="aform__field">
+                  <label class="aform__label"><i class="fab fa-tiktok" style="margin-right:6px;"></i>TikTok</label>
+                  <input type="url" id="cfgTiktok" class="aform__input" placeholder="https://tiktok.com/@bellamassa" />
+                </div>
+                <div style="display:flex;justify-content:flex-end;margin-top:4px;">
+                  <button type="button" class="abtn abtn--primary save-form-btn" data-form="social" data-label="redes sociais">
+                    <i class="fas fa-check"></i> Salvar
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Coluna direita -->
+        <div style="display:flex;flex-direction:column;gap:20px;">
+
+          <!-- Preferências operacionais -->
+          <div class="settings-section">
+            <div class="settings-section__head">
+              <div class="settings-section__icon"><i class="fas fa-toggle-on"></i></div>
+              <div>
+                <h3>Preferências Operacionais</h3>
+                <p>Controle o funcionamento do sistema</p>
+              </div>
+            </div>
+            <div class="settings-section__body">
+              <div class="toggle-wrap">
+                <div class="toggle-wrap__label">
+                  <strong>Aceitar novos pedidos</strong>
+                  <span>Bloqueia o recebimento de pedidos no site público</span>
+                </div>
+                <label class="toggle">
+                  <input type="checkbox" id="cfgAceitarPedidos" />
+                  <span class="toggle__slider"></span>
+                </label>
+              </div>
+              <div class="toggle-wrap">
+                <div class="toggle-wrap__label">
+                  <strong>Notificações de pedidos</strong>
+                  <span>Alerta sonoro quando um novo pedido chega</span>
+                </div>
+                <label class="toggle">
+                  <input type="checkbox" id="cfgNotificacoes" />
+                  <span class="toggle__slider"></span>
+                </label>
+              </div>
+              <div class="toggle-wrap">
+                <div class="toggle-wrap__label">
+                  <strong>Modo delivery ativo</strong>
+                  <span>Permite entrega via motoboy no site</span>
+                </div>
+                <label class="toggle">
+                  <input type="checkbox" id="cfgDelivery" />
+                  <span class="toggle__slider"></span>
+                </label>
+              </div>
+              <div class="toggle-wrap">
+                <div class="toggle-wrap__label">
+                  <strong>Banner de promoção</strong>
+                  <span>Exibe banner de oferta no topo do site</span>
+                </div>
+                <label class="toggle">
+                  <input type="checkbox" id="cfgBannerPromo" />
+                  <span class="toggle__slider"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Segurança -->
+          <div class="settings-section">
+            <div class="settings-section__head">
+              <div class="settings-section__icon"><i class="fas fa-shield-halved"></i></div>
+              <div>
+                <h3>Segurança</h3>
+                <p>Altere a senha de acesso ao painel</p>
+              </div>
+            </div>
+            <div class="settings-section__body">
+              <form class="aform" id="securityForm">
+                <div class="aform__field">
+                  <label class="aform__label">Senha atual</label>
+                  <input type="password" class="aform__input" placeholder="••••••••" />
+                </div>
+                <div class="aform__grid">
+                  <div class="aform__field">
+                    <label class="aform__label">Nova senha</label>
+                    <input type="password" class="aform__input" placeholder="••••••••" />
+                  </div>
+                  <div class="aform__field">
+                    <label class="aform__label">Confirmar</label>
+                    <input type="password" class="aform__input" placeholder="••••••••" />
+                  </div>
+                </div>
+                <div style="display:flex;justify-content:flex-end;margin-top:4px;">
+                  <button type="button" class="abtn abtn--primary save-form-btn" data-form="securityForm" data-label="segurança">
+                    <i class="fas fa-lock"></i> Atualizar senha
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <!-- Taxa de entrega -->
+          <div class="settings-section">
+            <div class="settings-section__head">
+              <div class="settings-section__icon"><i class="fas fa-motorcycle"></i></div>
+              <div>
+                <h3>Taxa de Entrega</h3>
+                <p>Defina a cobrança por delivery</p>
+              </div>
+            </div>
+            <div class="settings-section__body">
+              <form class="aform" id="deliveryForm">
+                <div class="aform__grid">
+                  <div class="aform__field">
+                    <label class="aform__label">Taxa fixa</label>
+                    <input type="number" id="cfgTaxaEntrega" class="aform__input" placeholder="8" step="0.01" min="0" />
+                  </div>
+                </div>
+                <div class="aform__field">
+                  <label class="aform__label">Raio de entrega (km)</label>
+                  <input type="number" id="cfgRaioEntrega" class="aform__input" placeholder="10" min="1" />
+                </div>
+                <div style="display:flex;justify-content:flex-end;margin-top:4px;">
+                  <button type="button" class="abtn abtn--primary save-form-btn" data-form="entrega" data-label="entrega">
+                    <i class="fas fa-check"></i> Salvar
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </main>
+  </div>
+
+</div>
+
+<div class="toast-stack" id="toastStack"></div>
+
+<script type="module" src="../js/firebase.js"></script>
+<script src="js/admin-common.js"></script>
+<script src="js/configuracoes.js"></script>
+</body>
+</html>

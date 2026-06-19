@@ -45,65 +45,103 @@ function renderCategories() {
 
 // ─── Renderização dos Produtos ───────────────────────────────────────────────
 let activeFilter = 'all';
+let _liveProducts = null; // produtos carregados do Firestore
+
+/**
+ * Monta o HTML de um card de produto
+ */
+function buildProductCard(product, index) {
+  const imgSrc = product.image || product.imagem || '';
+  const name   = product.name  || product.nome  || '';
+  const desc   = product.description || product.descCurta || product.descricao || '';
+  const price  = typeof product.price === 'number' ? product.price : (product.preco || 0);
+  const cat    = product.category || product.categoria || '';
+  const badge  = product.badge  || null;
+  const badgeT = product.badgeType || (product.destaque ? 'bestseller' : null);
+  const pid    = product.id || product._id || index;
+
+  return `
+    <article class="product__card reveal" style="--delay: ${index * 0.07}s" data-id="${pid}">
+      <div class="product__img-wrap">
+        <img src="${imgSrc}" alt="${name}" loading="lazy" />
+        ${badge ? `<span class="product__badge product__badge--${badgeT}">${badge}</span>` : (product.destaque ? '<span class="product__badge product__badge--bestseller">Destaque</span>' : '')}
+        <div class="product__img-overlay">
+          <button class="product__quick-add" onclick="addToCart('${pid}')" aria-label="Adicionar ${name} ao carrinho">
+            <i class="fas fa-plus"></i>
+          </button>
+        </div>
+      </div>
+      <div class="product__body">
+        <span class="product__category">${getCategoryName(cat)}</span>
+        <h3 class="product__name">${name}</h3>
+        <p class="product__desc">${desc}</p>
+        <div class="product__footer">
+          <span class="product__price">${formatCurrency(price)}</span>
+          <button class="btn btn--add-cart" onclick="addToCart('${pid}')" aria-label="Adicionar ao carrinho">
+            <i class="fas fa-basket-shopping"></i>
+            <span>Adicionar</span>
+          </button>
+        </div>
+      </div>
+    </article>`;
+}
 
 /**
  * Renderiza os cards de produto conforme o filtro ativo
  * @param {string} filter — id da categoria ou 'all'
+ * @param {Array}  source — lista de produtos (opcional, usa _liveProducts ou PRODUCTS)
  */
-function renderProducts(filter = 'all') {
+function renderProducts(filter = 'all', source) {
   const grid = document.getElementById('productsGrid');
   if (!grid) return;
 
+  const pool = source || (_liveProducts !== null ? _liveProducts : []);
   const filtered = filter === 'all'
-    ? PRODUCTS
-    : PRODUCTS.filter(p => p.category === filter);
+    ? pool
+    : pool.filter(p => (p.category || p.categoria) === filter);
 
   if (filtered.length === 0) {
     grid.innerHTML = '<p class="products__empty">Nenhum produto nesta categoria ainda.</p>';
     return;
   }
 
-  // Fade out -> re-render -> fade in
   grid.classList.add('products__grid--exit');
-
   setTimeout(() => {
-    grid.innerHTML = filtered.map((product, index) => `
-      <article class="product__card reveal" style="--delay: ${index * 0.07}s" data-id="${product.id}">
-        <div class="product__img-wrap">
-          <img src="${product.image}" alt="${product.name}" loading="lazy" />
-          ${product.badge ? `<span class="product__badge product__badge--${product.badgeType}">${product.badge}</span>` : ''}
-          <div class="product__img-overlay">
-            <button
-              class="product__quick-add"
-              onclick="addToCart(${product.id})"
-              aria-label="Adicionar ${product.name} ao carrinho"
-            >
-              <i class="fas fa-plus"></i>
-            </button>
-          </div>
-        </div>
-        <div class="product__body">
-          <span class="product__category">${getCategoryName(product.category)}</span>
-          <h3 class="product__name">${product.name}</h3>
-          <p class="product__desc">${product.description}</p>
-          <div class="product__footer">
-            <span class="product__price">${formatCurrency(product.price)}</span>
-            <button
-              class="btn btn--add-cart"
-              onclick="addToCart(${product.id})"
-              aria-label="Adicionar ao carrinho"
-            >
-              <i class="fas fa-basket-shopping"></i>
-              <span>Adicionar</span>
-            </button>
-          </div>
-        </div>
-      </article>
-    `).join('');
-
+    grid.innerHTML = filtered.map((p, i) => buildProductCard(p, i)).join('');
     grid.classList.remove('products__grid--exit');
     observeRevealElements();
   }, 200);
+}
+
+/**
+ * Inicializa o listener Firestore para produtos em destaque.
+ * Nunca usa dados estáticos — mostra spinner até Firestore responder.
+ */
+function initProductsFromFirestore() {
+  const grid = document.getElementById('productsGrid');
+
+  if (!window.Firebase || !window.Firebase.db) {
+    if (grid) grid.innerHTML = '<p class="products__empty">Catálogo em breve.</p>';
+    return;
+  }
+
+  if (grid) grid.innerHTML = '<p class="products__empty" style="opacity:.5"><i class="fas fa-spinner fa-spin"></i> Carregando catálogo…</p>';
+
+  const fs = window.Firebase.fs;
+  const q  = fs.query(
+    fs.collection(window.Firebase.db, 'produtos'),
+    fs.orderBy('ordem')
+  );
+
+  fs.onSnapshot(q, snapshot => {
+    _liveProducts = snapshot.docs
+      .map(d => Object.assign({ id: d.id }, d.data()))
+      .filter(p => p.ativo !== false && p.destaque === true);
+
+    renderProducts(activeFilter);
+  }, () => {
+    if (grid) grid.innerHTML = '<p class="products__empty">Não foi possível carregar o catálogo.</p>';
+  });
 }
 
 /**
@@ -157,24 +195,9 @@ function renderProcess() {
 
 // ─── Renderização dos Depoimentos ────────────────────────────────────────────
 function renderTestimonials() {
+  // Renderização dinâmica via avaliacoes.js (Firestore)
   const grid = document.getElementById('testimonialsGrid');
-  if (!grid) return;
-
-  grid.innerHTML = TESTIMONIALS.map((t, index) => `
-    <article class="testimonial__card reveal" style="--delay: ${index * 0.1}s">
-      <div class="testimonial__stars">
-        ${'<i class="fas fa-star"></i>'.repeat(t.rating)}
-      </div>
-      <p class="testimonial__text">"${t.text}"</p>
-      <div class="testimonial__author">
-        <img src="${t.avatar}" alt="${t.name}" loading="lazy" class="testimonial__avatar" />
-        <div>
-          <strong class="testimonial__name">${t.name}</strong>
-          <span class="testimonial__role">${t.role}</span>
-        </div>
-      </div>
-    </article>
-  `).join('');
+  if (grid) grid.innerHTML = '<p style="text-align:center;opacity:.5;padding:2rem;"><i class="fas fa-spinner fa-spin"></i> Carregando avaliações…</p>';
 }
 
 // ─── Header: scroll + sticky ─────────────────────────────────────────────────
@@ -350,9 +373,22 @@ function animateCounters() {
 document.addEventListener('DOMContentLoaded', () => {
   // Render dinâmico
   renderCategories();
-  renderProducts();
   renderProcess();
   renderTestimonials();
+
+  // Produtos: aguarda Firebase, sem fallback estático
+  function tryFirebaseProducts() {
+    if (window.Firebase && window.Firebase.db) {
+      initProductsFromFirestore();
+    } else if (window._firebaseInitAttempts > 30) {
+      const g = document.getElementById('productsGrid');
+      if (g) g.innerHTML = '<p class="products__empty">Catálogo em breve.</p>';
+    } else {
+      window._firebaseInitAttempts = (window._firebaseInitAttempts || 0) + 1;
+      setTimeout(tryFirebaseProducts, 150);
+    }
+  }
+  tryFirebaseProducts();
 
   // UI
   initHeader();

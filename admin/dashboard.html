@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard — Bella Massa Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@1,400;1,600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="css/admin.css" />
+  <link rel="stylesheet" href="css/admin-responsive.css" />
+
+  <style>
+  /* ================================================================
+     DASHBOARD — Layout Desktop-First
+     Referência: Shopify Admin / Stripe Dashboard
+     Sidebar 280px fixo · Conteúdo ocupa TODO o espaço restante
+  ================================================================ */
+
+  /* ── Topbar ── */
+  .dash-topbar-context {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    margin-left: auto;
+  }
+
+  .dash-topbar-date {
+    font-size: 0.82rem;
+    color: var(--a-text-muted);
+    font-weight: 500;
+    white-space: nowrap;
+    border-right: 1px solid var(--a-border);
+    padding-right: 20px;
+  }
+
+  /* ── Page body override: menos gap, mais denso ── */
+  .dash-body {
+    flex: 1;
+    min-width: 0;
+    padding: 28px 32px 48px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  /* ── Page header horizontal ── */
+  .dash-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .dash-header__title {
+    font-family: var(--a-ff-heading);
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--a-text-heading);
+    line-height: 1;
+  }
+
+  .dash-header__sub {
+    font-size: 0.83rem;
+    color: var(--a-text-muted);
+    margin-top: 4px;
+  }
+
+  .dash-header__actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+
+  /* ================================================================
+     FAIXA DE STATUS — 6 colunas sempre em desktop
+  ================================================================ */
+  .status-strip {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 14px;
+  }
+
+  .status-tile {
+    background: var(--a-bg-card);
+    border: 1px solid var(--a-border-soft);
+    border-radius: var(--a-radius-md);
+    padding: 16px 18px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    box-shadow: var(--a-shadow-card);
+    cursor: pointer;
+    transition: transform var(--a-ease), box-shadow var(--a-ease), border-color var(--a-ease);
+    text-decoration: none;
+  }
+
+  .status-tile:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--a-shadow-md);
+  }
+
+  .status-tile__icon {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--a-radius-sm);
+    display: grid;
+    place-items: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+
+  .status-tile__body { min-width: 0; }
+
+  .status-tile__num {
+    font-family: var(--a-ff-heading);
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--a-text-heading);
+    line-height: 1;
+  }
+
+  .status-tile__lbl {
+    font-size: 0.71rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    color: var(--a-text-soft);
+    margin-top: 3px;
+    white-space: nowrap;
+  }
+
+  /* cores por status */
+  .st--new      { border-left: 3px solid #2d7bbf; }
+  .st--prod     { border-left: 3px solid #c87a1a; }
+  .st--ready    { border-left: 3px solid #3d9e5f; }
+  .st--delivery { border-left: 3px solid var(--a-gold); }
+  .st--done     { border-left: 3px solid #3d9e5f; }
+  .st--cancel   { border-left: 3px solid #d94040; }
+
+  .st--new      .status-tile__icon { background: rgba(45,123,191,0.1);  color: #2d7bbf; }
+  .st--prod     .status-tile__icon { background: rgba(200,122,26,0.1);  color: #c87a1a; }
+  .st--ready    .status-tile__icon { background: rgba(61,158,95,0.1);   color: #3d9e5f; }
+  .st--delivery .status-tile__icon { background: rgba(200,150,62,0.12); color: var(--a-gold); }
+  .st--done     .status-tile__icon { background: rgba(61,158,95,0.1);   color: #3d9e5f; }
+  .st--cancel   .status-tile__icon { background: rgba(217,64,64,0.08);  color: #d94040; }
+
+  /* ================================================================
+     LINHA DE KPIs — 4 cards fixos lado a lado
+  ================================================================ */
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+  }
+
+  .kpi-tile {
+    background: var(--a-bg-card);
+    border: 1px solid var(--a-border-soft);
+    border-radius: var(--a-radius-md);
+    padding: 22px 24px;
+    box-shadow: var(--a-shadow-card);
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    position: relative;
+    overflow: hidden;
+    transition: transform var(--a-ease), box-shadow var(--a-ease);
+  }
+
+  .kpi-tile:hover { transform: translateY(-3px); box-shadow: var(--a-shadow-md); }
+
+  .kpi-tile--featured {
+    border-color: rgba(200,150,62,0.3);
+    background: linear-gradient(135deg, #fffdf8 0%, #fdf5e4 100%);
+  }
+
+  .kpi-tile__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+
+  .kpi-tile__icon {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--a-radius-sm);
+    display: grid;
+    place-items: center;
+    font-size: 1rem;
+    background: var(--a-gold-dim);
+    color: var(--a-gold);
+  }
+
+  .kpi-tile__icon--green { background: var(--a-success-bg); color: var(--a-success); }
+  .kpi-tile__icon--amber { background: var(--a-warning-bg); color: var(--a-warning); }
+  .kpi-tile__icon--blue  { background: var(--a-info-bg);    color: var(--a-info); }
+
+  .kpi-tile__trend {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.73rem;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: var(--a-radius-pill);
+  }
+
+  .kpi-tile__trend--up   { background: var(--a-success-bg); color: var(--a-success); }
+  .kpi-tile__trend--down { background: var(--a-danger-bg);  color: var(--a-danger); }
+
+  .kpi-tile__label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--a-text-soft);
+    margin-bottom: 6px;
+  }
+
+  .kpi-tile__value {
+    font-family: var(--a-ff-heading);
+    font-size: 2.1rem;
+    font-weight: 700;
+    color: var(--a-text-heading);
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+
+  .kpi-tile__sub {
+    font-size: 0.78rem;
+    color: var(--a-text-soft);
+    margin-top: 8px;
+  }
+
+  /* barra de progresso dentro do card faturamento */
+  .kpi-tile__progress {
+    margin-top: 12px;
+    height: 5px;
+    background: var(--a-border-soft);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  .kpi-tile__progress-fill {
+    height: 100%;
+    border-radius: 99px;
+    background: var(--a-gold-grad);
+    transition: width 1s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  /* ================================================================
+     LINHA DE GRÁFICOS — 60% faturamento + 40% pedidos
+  ================================================================ */
+  .charts-row {
+    display: grid;
+    grid-template-columns: 3fr 2fr;
+    gap: 18px;
+    align-items: start;
+  }
+
+  .dash-panel {
+    background: var(--a-bg-card);
+    border: 1px solid var(--a-border-soft);
+    border-radius: var(--a-radius-md);
+    box-shadow: var(--a-shadow-card);
+    overflow: hidden;
+  }
+
+  .dash-panel__head {
+    padding: 18px 24px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    border-bottom: 1px solid var(--a-border-soft);
+  }
+
+  .dash-panel__head h2 {
+    font-family: var(--a-ff-heading);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--a-text-heading);
+  }
+
+  .dash-panel__head p {
+    font-size: 0.8rem;
+    color: var(--a-text-soft);
+    margin-top: 2px;
+  }
+
+  .dash-panel__actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  /* Gráfico de barras — MAIOR em desktop */
+  .chart-wrap {
+    padding: 20px 24px 16px;
+  }
+
+  .chart-grid {
+    display: grid;
+    gap: 8px;
+    align-items: flex-end;
+    height: 220px;
+  }
+
+  .chart-grid--7  { grid-template-columns: repeat(7, 1fr); }
+  .chart-grid--30 { grid-template-columns: repeat(15, 1fr); }
+
+  .cbar {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 5px;
+    height: 100%;
+    cursor: pointer;
+  }
+
+  .cbar__fill {
+    width: 100%;
+    min-height: 6px;
+    border-radius: 6px 6px 3px 3px;
+    background: var(--a-border-soft);
+    height: var(--h);
+    transition: background var(--a-ease), transform var(--a-ease);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cbar__fill::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(255,255,255,0.18) 0%, transparent 60%);
+  }
+
+  .cbar:hover .cbar__fill,
+  .cbar--active .cbar__fill { background: var(--a-gold-grad); }
+
+  .cbar__fill--orders { background: rgba(45,123,191,0.18); }
+  .cbar:hover .cbar__fill--orders,
+  .cbar--active .cbar__fill--orders { background: #2d7bbf; }
+
+  .cbar__lbl {
+    font-size: 0.68rem;
+    color: var(--a-text-soft);
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  .cbar__tip {
+    position: absolute;
+    top: -28px;
+    background: var(--a-brown-dark);
+    color: #fff;
+    font-size: 0.68rem;
+    font-weight: 700;
+    padding: 3px 7px;
+    border-radius: 5px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--a-ease);
+    z-index: 10;
+  }
+
+  .cbar:hover .cbar__tip { opacity: 1; }
+
+  /* ================================================================
+     LINHA INFERIOR — Pedidos recentes + Mais vendidos
+  ================================================================ */
+  .bottom-row {
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    gap: 18px;
+    align-items: start;
+  }
+
+  /* Tabela de pedidos recentes compacta */
+  .recent-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+
+  .recent-table thead th {
+    padding: 9px 16px;
+    text-align: left;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--a-text-soft);
+    background: var(--a-bg-muted);
+    border-bottom: 1px solid var(--a-border-soft);
+    white-space: nowrap;
+  }
+
+  .recent-table tbody td {
+    padding: 11px 16px;
+    font-size: 0.85rem;
+    color: var(--a-text);
+    border-bottom: 1px solid var(--a-border-soft);
+    vertical-align: middle;
+  }
+
+  .recent-table tbody tr:last-child td { border-bottom: none; }
+  .recent-table tbody tr:hover { background: rgba(200,150,62,0.04); }
+
+  .rt-user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  .rt-user img {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1.5px solid var(--a-border);
+    flex-shrink: 0;
+  }
+
+  .rt-user__name { font-size: 0.85rem; font-weight: 600; color: var(--a-text-heading); white-space: nowrap; }
+  .rt-user__phone { font-size: 0.73rem; color: var(--a-text-soft); }
+
+  /* Ranking compacto */
+  .rank-compact { display: flex; flex-direction: column; }
+
+  .rank-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--a-border-soft);
+    transition: background var(--a-ease-fast);
+  }
+
+  .rank-row:last-child { border-bottom: none; }
+  .rank-row:hover { background: rgba(200,150,62,0.04); }
+
+  .rank-row__pos {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    background: var(--a-gold-dim);
+    color: var(--a-brown);
+    font-size: 0.75rem;
+    font-weight: 700;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+  }
+
+  .rank-row:first-child .rank-row__pos { background: var(--a-gold-grad); color: #fff; }
+
+  .rank-row__info { flex: 1; min-width: 0; }
+  .rank-row__name { font-size: 0.84rem; font-weight: 600; color: var(--a-text-heading); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .rank-row__meta { font-size: 0.72rem; color: var(--a-text-soft); margin-top: 1px; }
+
+  .rank-row__delta {
+    font-size: 0.75rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .rank-row__delta--up   { color: var(--a-success); }
+  .rank-row__delta--down { color: var(--a-danger); }
+
+  /* categoria líder footer */
+  .rank-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    background: var(--a-bg-muted);
+    border-top: 1px solid var(--a-border-soft);
+  }
+
+  .rank-footer__label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--a-text-soft); }
+  .rank-footer__val   { font-family: var(--a-ff-heading); font-size: 0.95rem; font-weight: 700; color: var(--a-brown-dark); margin-top: 1px; }
+  .rank-footer__rev   { text-align: right; }
+  .rank-footer__rev .rank-footer__val { color: var(--a-gold); }
+
+  /* ================================================================
+     RESPONSIVE — Tablet 1024px · Mobile 768px
+  ================================================================ */
+  @media (max-width: 1280px) {
+    .bottom-row { grid-template-columns: 1fr 320px; }
+  }
+
+  @media (max-width: 1100px) {
+    .status-strip { grid-template-columns: repeat(3, 1fr); }
+    .charts-row   { grid-template-columns: 1fr; }
+    .bottom-row   { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 880px) {
+    .dash-body { padding: 20px 20px 40px; gap: 18px; }
+    .kpi-row   { grid-template-columns: repeat(2, 1fr); }
+    .status-strip { grid-template-columns: repeat(2, 1fr); }
+    .dash-topbar-date { display: none; }
+  }
+
+  @media (max-width: 540px) {
+    .kpi-row { grid-template-columns: 1fr; }
+    .status-strip { grid-template-columns: 1fr 1fr; }
+    .dash-body { padding: 16px 14px 32px; }
+  }
+  </style>
+</head>
+<body>
+
+<div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+<div class="admin-shell">
+
+  <!-- ═══════════════════════════════════════════════════
+       SIDEBAR — 280px fixo
+  ═══════════════════════════════════════════════════ -->
+  <aside class="sidebar" id="sidebar">
+    <a href="dashboard.html" class="sidebar__brand">
+      <div class="sidebar__logo-icon"><i class="fas fa-wheat-awn"></i></div>
+      <div class="sidebar__logo-text">
+        <span class="sidebar__logo-name">Bella Massa</span>
+        <span class="sidebar__logo-sub">Painel Admin</span>
+      </div>
+    </a>
+    <div class="sidebar__scroll">
+      <div class="sidebar__section">
+        <span class="sidebar__section-label">Operação</span>
+        <nav class="sidebar__nav">
+          <a href="dashboard.html" class="sidebar__link sidebar__link--active">
+            <i class="fas fa-house"></i> Dashboard
+          </a>
+          <a href="pedidos.html" class="sidebar__link">
+            <i class="fas fa-bag-shopping"></i> Pedidos
+            <span class="badge badge--warning" style="margin-left:auto;font-size:0.68rem;" id="sidebarBadge">0</span>
+          </a>
+          <a href="produtos.html" class="sidebar__link">
+            <i class="fas fa-layer-group"></i> Produtos
+          </a>
+          <a href="clientes.html" class="sidebar__link">
+            <i class="fas fa-users"></i> Clientes
+          </a>
+          <a href="avaliacoes.html" class="sidebar__link"><i class="fas fa-star"></i> Avaliações</a>
+        </nav>
+      </div>
+      <div class="sidebar__divider"></div>
+      <div class="sidebar__section">
+        <span class="sidebar__section-label">Gestão</span>
+        <nav class="sidebar__nav">
+          <a href="financeiro.html" class="sidebar__link">
+            <i class="fas fa-chart-line"></i> Financeiro
+          </a>
+          <a href="configuracoes.html" class="sidebar__link">
+            <i class="fas fa-sliders"></i> Configurações
+          </a>
+        </nav>
+      </div>
+    </div>
+    <div class="sidebar__footer">
+      <a href="admin-login.html" class="sidebar__logout" id="logoutBtn">
+        <i class="fas fa-arrow-right-from-bracket"></i> Sair
+      </a>
+    </div>
+  </aside>
+
+  <!-- ═══════════════════════════════════════════════════
+       PAGE — ocupa todo o espaço restante
+  ═══════════════════════════════════════════════════ -->
+  <div class="page">
+
+    <!-- Topbar -->
+    <header class="topbar">
+      <button class="topbar__burger" id="burgerBtn" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="topbar__search">
+        <i class="fas fa-magnifying-glass"></i>
+        <input type="text" placeholder="Buscar pedido, cliente, produto…" />
+      </div>
+      <div class="topbar__right">
+        <span class="dash-topbar-date" id="topbarDate"></span>
+        <button class="topbar__icon-btn" id="notifBtn" title="Notificações">
+          <i class="fas fa-bell"></i>
+          <span class="topbar__notif-dot"></span>
+        </button>
+        <div class="topbar__profile" id="topbarProfile" style="opacity:0;">
+          <div class="topbar__avatar"></div>
+          <div class="topbar__profile-text">
+            <strong></strong>
+            <small></small>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Conteúdo principal -->
+    <main class="dash-body">
+
+      <!-- ── Cabeçalho da página ── -->
+      <div class="dash-header">
+        <div>
+          <div class="dash-header__title">Dashboard</div>
+          <div class="dash-header__sub" id="headerDate"></div>
+        </div>
+        <div class="dash-header__actions">
+          <a href="pedidos.html" class="abtn abtn--primary">
+            <i class="fas fa-bag-shopping"></i> Central de pedidos
+          </a>
+          <a href="financeiro.html" class="abtn abtn--secondary">
+            <i class="fas fa-chart-line"></i> Financeiro
+          </a>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════════
+           FAIXA DE STATUS — 6 tiles lado a lado
+      ══════════════════════════════════════════════ -->
+      <div class="status-strip">
+        <a href="pedidos.html" class="status-tile st--new">
+          <div class="status-tile__icon"><i class="fas fa-circle-dot"></i></div>
+          <div class="status-tile__body">
+            <div class="status-tile__num" id="stNew">0</div>
+            <div class="status-tile__lbl">Novos</div>
+          </div>
+        </a>
+        <a href="pedidos.html" class="status-tile st--prod">
+          <div class="status-tile__icon"><i class="fas fa-fire-burner"></i></div>
+          <div class="status-tile__body">
+            <div class="status-tile__num" id="stProd">0</div>
+            <div class="status-tile__lbl">Em Produção</div>
+          </div>
+        </a>
+        <a href="pedidos.html" class="status-tile st--ready">
+          <div class="status-tile__icon"><i class="fas fa-box-open"></i></div>
+          <div class="status-tile__body">
+            <div class="status-tile__num" id="stReady">0</div>
+            <div class="status-tile__lbl">Prontos</div>
+          </div>
+        </a>
+        <a href="pedidos.html" class="status-tile st--delivery">
+          <div class="status-tile__icon"><i class="fas fa-motorcycle"></i></div>
+          <div class="status-tile__body">
+            <div class="status-tile__num" id="stDelivery">0</div>
+            <div class="status-tile__lbl">Em Entrega</div>
+          </div>
+        </a>
+        <a href="pedidos.html" class="status-tile st--done">
+          <div class="status-tile__icon"><i class="fas fa-circle-check"></i></div>
+          <div class="status-tile__body">
+            <div class="status-tile__num" id="stDone">0</div>
+            <div class="status-tile__lbl">Entregues</div>
+          </div>
+        </a>
+        <a href="pedidos.html" class="status-tile st--cancel">
+          <div class="status-tile__icon"><i class="fas fa-circle-xmark"></i></div>
+          <div class="status-tile__body">
+            <div class="status-tile__num" id="stCancel">0</div>
+            <div class="status-tile__lbl">Cancelados</div>
+          </div>
+        </a>
+      </div>
+
+      <!-- ══════════════════════════════════════════════
+           LINHA DE KPIs — 4 cards sempre em desktop
+      ══════════════════════════════════════════════ -->
+      <div class="kpi-row">
+
+        <!-- Faturamento -->
+        <div class="kpi-tile kpi-tile--featured">
+          <div class="kpi-tile__top">
+            <div class="kpi-tile__icon"><i class="fas fa-brazilian-real-sign"></i></div>
+            <span class="kpi-tile__trend" id="trendRevenue" style="display:none"></span>
+          </div>
+          <div class="kpi-tile__label">Faturamento hoje</div>
+          <div class="kpi-tile__value" id="kpiRevenue">R$ 0</div>
+          <div class="kpi-tile__sub">Meta diária: R$ 3.200 &middot; <strong id="kpiPct">0%</strong> atingido</div>
+          <div class="kpi-tile__progress">
+            <div class="kpi-tile__progress-fill" id="kpiBar" style="width:0%"></div>
+          </div>
+        </div>
+
+        <!-- Pedidos -->
+        <div class="kpi-tile">
+          <div class="kpi-tile__top">
+            <div class="kpi-tile__icon kpi-tile__icon--green"><i class="fas fa-bag-shopping"></i></div>
+            <span class="kpi-tile__trend" id="trendOrders" style="display:none"></span>
+          </div>
+          <div class="kpi-tile__label">Pedidos hoje</div>
+          <div class="kpi-tile__value" id="kpiOrders">0</div>
+          <div class="kpi-tile__sub" id="kpiPending">— aguardando ação</div>
+        </div>
+
+        <!-- Ticket médio -->
+        <div class="kpi-tile">
+          <div class="kpi-tile__top">
+            <div class="kpi-tile__icon kpi-tile__icon--amber"><i class="fas fa-receipt"></i></div>
+            <span class="kpi-tile__trend" id="trendTicket" style="display:none"></span>
+          </div>
+          <div class="kpi-tile__label">Ticket médio</div>
+          <div class="kpi-tile__value" id="kpiTicket">R$ 0</div>
+          <div class="kpi-tile__sub">Por pedido entregue</div>
+        </div>
+
+        <!-- Entregas pendentes -->
+        <div class="kpi-tile">
+          <div class="kpi-tile__top">
+            <div class="kpi-tile__icon kpi-tile__icon--blue"><i class="fas fa-motorcycle"></i></div>
+          </div>
+          <div class="kpi-tile__label">Entregas pendentes</div>
+          <div class="kpi-tile__value" id="kpiDelivery">0</div>
+          <div class="kpi-tile__sub">Prontos + em rota agora</div>
+        </div>
+
+      </div>
+
+      <!-- ══════════════════════════════════════════════
+           GRÁFICOS — Faturamento largo + Pedidos
+      ══════════════════════════════════════════════ -->
+      <div class="charts-row">
+
+        <!-- Gráfico faturamento — 60% -->
+        <div class="dash-panel">
+          <div class="dash-panel__head">
+            <div>
+              <h2>Faturamento — últimos 7 dias</h2>
+              <p>Receita bruta em R$, incluindo taxas de entrega</p>
+            </div>
+            <div class="dash-panel__actions">
+              <button class="chip chip--active" data-range="7" id="rangeBtn7">7 dias</button>
+              <button class="chip" data-range="30" id="rangeBtn30">30 dias</button>
+            </div>
+          </div>
+          <div class="chart-wrap">
+            <div class="chart-grid chart-grid--7" id="revenueChart"></div>
+          </div>
+          <div class="chart-legend" style="padding:8px 24px 14px; display:flex; gap:20px; border-top:1px solid var(--a-border-soft);">
+            <div style="display:flex;align-items:center;gap:7px;font-size:0.78rem;color:var(--a-text-soft);">
+              <div style="width:10px;height:10px;border-radius:3px;background:var(--a-gold);"></div> Faturamento diário
+            </div>
+            <div style="display:flex;align-items:center;gap:7px;font-size:0.78rem;color:var(--a-text-soft);">
+              <div style="width:10px;height:10px;border-radius:3px;background:var(--a-gold-grad);"></div> Hoje (destacado)
+            </div>
+            <div style="margin-left:auto;font-size:0.82rem;font-weight:600;color:var(--a-text-muted);">
+              Semana: <strong style="color:var(--a-gold);font-family:var(--a-ff-heading);" id="weekRevenue">—</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- Gráfico pedidos — 40% -->
+        <div class="dash-panel">
+          <div class="dash-panel__head">
+            <div>
+              <h2>Pedidos — 7 dias</h2>
+              <p>Quantidade total de pedidos</p>
+            </div>
+          </div>
+          <div class="chart-wrap">
+            <div class="chart-grid chart-grid--7" id="ordersChart"></div>
+          </div>
+          <div style="padding:8px 24px 14px; border-top:1px solid var(--a-border-soft); display:flex; justify-content:space-between; align-items:center;">
+            <div style="font-size:0.78rem;color:var(--a-text-soft);">
+              <div style="display:flex;align-items:center;gap:7px;">
+                <div style="width:10px;height:10px;border-radius:3px;background:#2d7bbf;opacity:.5;"></div> Pedidos por dia
+              </div>
+            </div>
+            <div style="font-size:0.82rem;font-weight:600;color:var(--a-text-muted);">
+              Semana: <strong style="color:#2d7bbf;font-family:var(--a-ff-heading);" id="weekOrders">—</strong>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ══════════════════════════════════════════════
+           LINHA INFERIOR — Pedidos recentes + Mais vendidos
+      ══════════════════════════════════════════════ -->
+      <div class="bottom-row">
+
+        <!-- Pedidos recentes -->
+        <div class="dash-panel">
+          <div class="dash-panel__head">
+            <div>
+              <h2>Pedidos recentes</h2>
+              <p>Últimas atualizações de hoje</p>
+            </div>
+            <a href="pedidos.html" class="panel__link">Ver todos <i class="fas fa-arrow-right"></i></a>
+          </div>
+          <div style="overflow-x:auto;">
+            <table class="recent-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Cliente</th>
+                  <th>Endereço</th>
+                  <th>Pagto</th>
+                  <th style="text-align:right">Valor</th>
+                  <th>Hora</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="recentOrdersBody">
+                <tr><td colspan="7" style="text-align:center;padding:24px;color:var(--a-text-muted);font-size:0.85rem;"><i class="fas fa-spinner fa-spin"></i> Carregando…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Mais vendidos hoje -->
+        <div class="dash-panel">
+          <div class="dash-panel__head">
+            <div>
+              <h2>Mais vendidos hoje</h2>
+              <p>Quantidade e receita por produto</p>
+            </div>
+          </div>
+          <div class="rank-compact" id="topProductsList">
+            <div style="text-align:center;padding:24px;color:var(--a-text-muted);font-size:0.85rem;"><i class="fas fa-spinner fa-spin"></i> Carregando…</div>
+          </div>
+          <div class="rank-footer">
+            <div>
+              <div class="rank-footer__label">Categoria líder</div>
+              <div class="rank-footer__val" id="topCategory">—</div>
+            </div>
+            <div class="rank-footer__rev">
+              <div class="rank-footer__label">Receita da categoria</div>
+              <div class="rank-footer__val" id="topCategoryRevenue">—</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </main>
+  </div><!-- /page -->
+</div><!-- /admin-shell -->
+
+<div class="toast-stack" id="toastStack"></div>
+<script type="module" src="../js/firebase.js"></script>
+<script src="js/admin-common.js"></script>
+<script src="js/dashboard.js"></script>
+</body>
+</html>
