@@ -253,6 +253,7 @@
       : 'Retirada na loja';
     document.getElementById('detailItems').textContent    = (orderData.itens || []).map(function (i) { return (i.qty || i.quantidade || 1) + 'x ' + (i.nome || i.name || '—'); }).join(', ');
     document.getElementById('detailObs').textContent      = orderData.obs || '—';
+    document.getElementById('detailPaymentStatus').textContent = orderData.paymentStatus || '—';
     document.getElementById('detailPayment').textContent  = orderData.pagamento || '—';
     document.getElementById('detailValue').textContent    = 'R$ ' + (orderData.total || 0).toFixed(2).replace('.', ',');
     document.getElementById('detailTime').textContent     = orderData.criadoEm

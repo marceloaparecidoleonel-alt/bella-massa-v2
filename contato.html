@@ -74,7 +74,7 @@
               <div class="contato__item-icon"><i class="fas fa-location-dot"></i></div>
               <div>
                 <p class="contato__item-title">Endereço</p>
-                <p class="contato__item-text">Rua das Flores, 123<br>Vila Madalena — São Paulo/SP</p>
+                <p class="contato__item-text" id="contatoEndereco">Rua das Flores, 123<br>Vila Madalena — São Paulo/SP</p>
               </div>
             </div>
 
@@ -92,7 +92,7 @@
               <div class="contato__item-icon"><i class="fas fa-clock"></i></div>
               <div>
                 <p class="contato__item-title">Horário de funcionamento</p>
-                <p class="contato__item-text">
+                <p class="contato__item-text" id="contatoHorario">
                   Segunda a Sexta: 7h às 20h<br>
                   Sábado e Domingo: 7h às 18h
                 </p>
@@ -129,7 +129,7 @@
                 </div>
                 <div>
                   <p style="font-weight:700;font-size:.95rem;color:#1a6e3a;margin-bottom:2px;">WhatsApp</p>
-                  <p style="font-size:.88rem;color:var(--clr-text-muted);">(11) 99999-9999 &mdash; Resposta rápida</p>
+                  <p style="font-size:.88rem;color:var(--clr-text-muted);" id="contatoWaNumero">(11) 99999-9999 &mdash; Resposta rápida</p>
                 </div>
                 <i class="fas fa-arrow-right" style="margin-left:auto;color:#1da851;font-size:.85rem;"></i>
               </a>
@@ -140,7 +140,7 @@
                 </div>
                 <div>
                   <p style="font-weight:700;font-size:.95rem;color:#4a2fb5;margin-bottom:2px;">Telefone</p>
-                  <p style="font-size:.88rem;color:var(--clr-text-muted);">(11) 99999-9999 &mdash; Seg. a Sex. 7h–20h</p>
+                  <p style="font-size:.88rem;color:var(--clr-text-muted);" id="contatoTelNumero">(11) 99999-9999 &mdash; Seg. a Sex. 7h–20h</p>
                 </div>
                 <i class="fas fa-arrow-right" style="margin-left:auto;color:#7c4dff;font-size:.85rem;"></i>
               </a>
@@ -208,8 +208,10 @@
     </div>
   </footer>
 
+  <script type="module" src="js/firebase.js"></script>
   <script src="js/data.js"></script>
   <script src="js/store.js"></script>
+  <script src="js/config.js"></script>
   <script src="js/ui.js"></script>
 </body>
 </html>

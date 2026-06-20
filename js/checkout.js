@@ -168,33 +168,10 @@ function initForm() {
     btn.disabled = true;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processando…';
 
-    // Build WhatsApp message
-    const cart   = Store.getCart();
-    const total  = formatPrice(Store.getGrandTotal(isDelivery));
-    const payLabels = { pix: 'Pix', dinheiro: 'Dinheiro', cartao: 'Cartão' };
+    const cart = Store.getCart();
 
-    let msg = `🥖 *Pedido Bella Massa*\n\n`;
-    msg += `👤 *Cliente:* ${data.name}\n`;
-    msg += `📞 *Telefone:* ${data.phone}\n\n`;
-    msg += `📦 *Itens:*\n`;
-    cart.forEach(item => {
-      msg += `• ${item.qty}x ${item.name} — ${formatPrice(item.price * item.qty)}\n`;
-    });
-    msg += `\n💰 *Total: ${total}*\n`;
-    msg += `💳 *Pagamento:* ${payLabels[data.payment] || data.payment}`;
-    if (data.payment === 'dinheiro' && data.troco) msg += ` (troco para R$ ${data.troco})`;
-    msg += '\n\n';
-
-    if (isDelivery) {
-      msg += `🏠 *Entrega:* ${data.address}, ${data.neighborhood} — ${data.city}\n`;
-    } else {
-      msg += `🏪 *Retirada na loja*\n`;
-    }
-
-    if (data.obs) msg += `\n📝 *Obs:* ${data.obs}`;
-
-    // Save order to Firestore
-    const orderNumber = String(Date.now()).slice(-4); // Gera número de pedido (últimos 4 dígitos do timestamp)
+    // Save order to Firestore first
+    const orderNumber = String(Date.now()).slice(-4);
     const orderData = {
       numero: orderNumber,
       cliente: {
@@ -216,32 +193,41 @@ function initForm() {
       troco: data.troco || '',
       tipo: isDelivery ? 'delivery' : 'pickup',
       total: Store.getGrandTotal(isDelivery),
-      status: 'novo',
+      status: 'pendente', // Status inicial: aguardando pagamento
+      paymentStatus: 'pending',
       obs: data.obs || '',
       criadoEm: window.Firebase.fs.serverTimestamp(),
       atualizadoEm: window.Firebase.fs.serverTimestamp()
     };
 
-    // Save to Firestore (aguarda sucesso antes de prosseguir)
+    let orderId = null;
+
+    // Save to Firestore
     if (window.Firebase && window.Firebase.db) {
       try {
-        await window.Firebase.fs.addDoc(
+        const docRef = await window.Firebase.fs.addDoc(
           window.Firebase.fs.collection(window.Firebase.db, 'pedidos'),
           orderData
         );
-        console.log('✅ Pedido salvo no Firestore:', orderNumber);
+        orderId = docRef.id;
+        console.log('✅ Pedido salvo no Firestore:', orderNumber, orderId);
       } catch (err) {
         console.error('❌ Erro ao salvar pedido no Firestore:', err);
         showToast('Erro ao salvar pedido no banco. Verifique sua conexão e tente novamente.', 'error');
         btn.disabled = false;
         btn.innerHTML = 'Finalizar pedido';
-        return; // Não prossegue para WhatsApp/redirect
+        return;
       }
     } else {
       console.warn('⚠️ Firebase não inicializado — pedido não será salvo no banco');
+      showToast('Erro: Firebase não disponível.', 'error');
+      btn.disabled = false;
+      btn.innerHTML = 'Finalizar pedido';
+      return;
     }
 
     // Save order to session for success page
+    const total = formatPrice(Store.getGrandTotal(isDelivery));
     sessionStorage.setItem('bm_last_order', JSON.stringify({
       numero: orderNumber,
       name: data.name,
@@ -254,15 +240,99 @@ function initForm() {
       total,
     }));
 
-    // Simulate processing then clear cart and redirect
-    setTimeout(() => {
-      // Open WhatsApp
+    // Create Mercado Pago payment preference
+    try {
+      const response = await fetch('/api/create-payment', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          items: cart.map(item => ({
+            name: item.name,
+            qty: item.qty,
+            price: item.price
+          })),
+          payer: {
+            name: data.name,
+            phone: data.phone,
+            email: '' // Opcional: pode adicionar campo de email no checkout
+          },
+          orderId: orderId,
+          metadata: {
+            orderNumber: orderNumber,
+            tipo: isDelivery ? 'delivery' : 'pickup'
+          }
+        })
+      });
+
+      // Verifica se a resposta existe
+      if (!response) {
+        throw new Error('Sem resposta do servidor de pagamento');
+      }
+
+      // Verifica se o corpo da resposta não está vazio antes de parsear JSON
+      const text = await response.text();
+      let result;
+      try {
+        result = text ? JSON.parse(text) : {};
+      } catch (parseErr) {
+        console.error('Erro ao parsear JSON:', parseErr, 'Resposta:', text);
+        throw new Error('Resposta inválida do servidor');
+      }
+
+      if (!response.ok) {
+        const errorMsg = result.error || result.details || 'Erro ao criar pagamento';
+        console.error('Erro da API:', errorMsg);
+        throw new Error(errorMsg);
+      }
+
+      if (!result.init_point) {
+        console.error('Resposta sem init_point:', result);
+        throw new Error('Link de pagamento não recebido');
+      }
+
+      // Clear cart and redirect to Mercado Pago
+      Store.clearCart();
+      window.location.href = result.init_point;
+
+    } catch (err) {
+      console.error('❌ Erro ao criar pagamento Mercado Pago:', err);
+
+      // Fallback: se API não estiver disponível (ambiente local), usa WhatsApp
+      console.warn('⚠️ API de pagamento não disponível, usando fallback WhatsApp');
+
+      // Constrói mensagem de WhatsApp
+      const total = formatPrice(Store.getGrandTotal(isDelivery));
+      const payLabels = { pix: 'Pix', dinheiro: 'Dinheiro', cartao: 'Cartão' };
+
+      let msg = `🥖 *Pedido Bella Massa*\n\n`;
+      msg += `👤 *Cliente:* ${data.name}\n`;
+      msg += `📞 *Telefone:* ${data.phone}\n\n`;
+      msg += `📦 *Itens:*\n`;
+      cart.forEach(item => {
+        msg += `• ${item.qty}x ${item.name} — ${formatPrice(item.price * item.qty)}\n`;
+      });
+      msg += `\n💰 *Total: ${total}*\n`;
+      msg += `💳 *Pagamento:* ${payLabels[data.payment] || data.payment}`;
+      if (data.payment === 'dinheiro' && data.troco) msg += ` (troco para R$ ${data.troco})`;
+      msg += '\n\n';
+
+      if (isDelivery) {
+        msg += `🏠 *Entrega:* ${data.address}, ${data.neighborhood} — ${data.city}\n`;
+      } else {
+        msg += `🏪 *Retirada na loja*\n`;
+      }
+
+      if (data.obs) msg += `\n📝 *Obs:* ${data.obs}`;
+
+      // Abre WhatsApp e redireciona
       const waURL = `https://wa.me/${BM_CONFIG.whatsapp}?text=${encodeURIComponent(msg)}`;
       window.open(waURL, '_blank');
 
       Store.clearCart();
       window.location.href = 'pedido-confirmado.html';
-    }, 900);
+    }
   });
 }
 

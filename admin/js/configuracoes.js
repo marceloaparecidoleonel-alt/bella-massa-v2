@@ -53,6 +53,14 @@
     }
   }
 
+  /* ── Atualiza nome na sidebar e title do admin ── */
+  function applyStoreName(nome) {
+    if (!nome) return;
+    var el = document.querySelector('.sidebar__logo-name');
+    if (el) el.textContent = nome;
+    document.title = document.title.replace(/Bella Massa/g, nome);
+  }
+
   function applyConfig(docId, data) {
     if (docId === 'empresa') {
       setVal('cfgNomeEmpresa',    data.nome);
@@ -60,6 +68,7 @@
       setVal('cfgWhatsapp',       data.whatsapp);
       setVal('cfgEndereco',       data.endereco);
       setVal('cfgHorario',        data.horario);
+      applyStoreName(data.nome);
     }
     if (docId === 'entrega') {
       setVal('cfgTaxaEntrega',    data.taxaFixa);
@@ -121,6 +130,7 @@
       const fs = window.Firebase.fs;
       await fs.setDoc(fs.doc(window.Firebase.db, 'config', docId), Object.assign(data, { atualizadoEm: fs.serverTimestamp() }), { merge: true });
       toast(label.charAt(0).toUpperCase() + label.slice(1) + ' salvas com sucesso!', 'success');
+      if (docId === 'empresa') applyStoreName(data.nome);
     } catch (err) {
       console.error('Erro ao salvar config:', err);
       toast('Erro ao salvar: ' + err.message, 'error');

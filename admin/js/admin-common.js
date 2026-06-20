@@ -113,11 +113,35 @@
     tryAuth();
   }
 
+  /* ── Nome da empresa na sidebar ── */
+  function initSidebarStoreName() {
+    function applyName() {
+      if (!window.Firebase || !window.Firebase.db) {
+        setTimeout(applyName, 200);
+        return;
+      }
+      var fs = window.Firebase.fs;
+      var db = window.Firebase.db;
+      fs.getDoc(fs.doc(db, 'config', 'empresa'))
+        .then(function (snap) {
+          if (!snap.exists()) return;
+          var nome = snap.data().nome;
+          if (!nome) return;
+          var el = document.querySelector('.sidebar__logo-name');
+          if (el) el.textContent = nome;
+          document.title = document.title.replace(/Bella Massa/g, nome);
+        })
+        .catch(function () {});
+    }
+    applyName();
+  }
+
   /* ── Inicialização ── */
   function init() {
     initLogout();
     initSidebarBadge();
     initAdminProfile();
+    initSidebarStoreName();
   }
 
   if (document.readyState === 'loading') {
