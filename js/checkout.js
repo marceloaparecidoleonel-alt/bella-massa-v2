@@ -298,7 +298,7 @@ function initForm() {
 
     } catch (err) {
       console.error('❌ Erro ao criar pagamento Mercado Pago:', err);
-      showToast('Erro ao processar pagamento: ' + err.message + '. Por favor, tente novamente ou entre em contato pelo WhatsApp.', 'error');
+      showToast('Erro ao processar pagamento: ' + err.message + '. Por favor, tente novamente.', 'error');
       btn.disabled = false;
       btn.innerHTML = 'Finalizar pedido';
     }
