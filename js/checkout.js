@@ -298,40 +298,9 @@ function initForm() {
 
     } catch (err) {
       console.error('❌ Erro ao criar pagamento Mercado Pago:', err);
-
-      // Fallback: se API não estiver disponível (ambiente local), usa WhatsApp
-      console.warn('⚠️ API de pagamento não disponível, usando fallback WhatsApp');
-
-      // Constrói mensagem de WhatsApp
-      const total = formatPrice(Store.getGrandTotal(isDelivery));
-      const payLabels = { pix: 'Pix', dinheiro: 'Dinheiro', cartao: 'Cartão' };
-
-      let msg = `🥖 *Pedido Bella Massa*\n\n`;
-      msg += `👤 *Cliente:* ${data.name}\n`;
-      msg += `📞 *Telefone:* ${data.phone}\n\n`;
-      msg += `📦 *Itens:*\n`;
-      cart.forEach(item => {
-        msg += `• ${item.qty}x ${item.name} — ${formatPrice(item.price * item.qty)}\n`;
-      });
-      msg += `\n💰 *Total: ${total}*\n`;
-      msg += `💳 *Pagamento:* ${payLabels[data.payment] || data.payment}`;
-      if (data.payment === 'dinheiro' && data.troco) msg += ` (troco para R$ ${data.troco})`;
-      msg += '\n\n';
-
-      if (isDelivery) {
-        msg += `🏠 *Entrega:* ${data.address}, ${data.neighborhood} — ${data.city}\n`;
-      } else {
-        msg += `🏪 *Retirada na loja*\n`;
-      }
-
-      if (data.obs) msg += `\n📝 *Obs:* ${data.obs}`;
-
-      // Abre WhatsApp e redireciona
-      const waURL = `https://wa.me/${BM_CONFIG.whatsapp}?text=${encodeURIComponent(msg)}`;
-      window.open(waURL, '_blank');
-
-      Store.clearCart();
-      window.location.href = 'pedido-confirmado.html';
+      showToast('Erro ao processar pagamento: ' + err.message + '. Por favor, tente novamente ou entre em contato pelo WhatsApp.', 'error');
+      btn.disabled = false;
+      btn.innerHTML = 'Finalizar pedido';
     }
   });
 }

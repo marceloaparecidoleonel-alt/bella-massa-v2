@@ -251,39 +251,6 @@ function animateCartBtn() {
   setTimeout(() => btn.classList.remove('cart-btn--pulse'), 600);
 }
 
-// ─── Checkout via WhatsApp ────────────────────────────────────────────────────
-/**
- * Monta uma mensagem com os itens do carrinho e abre o WhatsApp
- */
-function checkoutWhatsApp() {
-  if (cart.length === 0) {
-    showToast('Adicione produtos antes de finalizar!', 'error');
-    return;
-  }
-
-  const lines = cart.map(
-    item => `• ${item.quantity}x ${item.name} — ${formatCurrency(item.price * item.quantity)}`
-  );
-
-  const total    = getCartTotal();
-  const delivery = getDeliveryFee();
-
-  const message = [
-    '🥐 *Pedido — Bella Massa*',
-    '',
-    ...lines,
-    '',
-    `*Subtotal:* ${formatCurrency(getCartSubtotal())}`,
-    `*Entrega:* ${delivery === 0 ? 'Grátis' : formatCurrency(delivery)}`,
-    `*Total: ${formatCurrency(total)}*`,
-    '',
-    'Aguardo confirmação! 😊',
-  ].join('\n');
-
-  const encoded = encodeURIComponent(message);
-  window.open(`https://wa.me/5511999999999?text=${encoded}`, '_blank');
-}
-
 // ─── Inicialização ───────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   // Botão abrir carrinho
