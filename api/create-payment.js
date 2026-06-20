@@ -3,14 +3,14 @@
  * POST /api/create-payment
  */
 
-const mercadopago = require('mercadopago');
+import mercadopago from 'mercadopago';
 
 // Configura Mercado Pago com ACCESS_TOKEN do ambiente
 mercadopago.configure({
   access_token: process.env.MERCADO_PAGO_ACCESS_TOKEN
 });
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   // Habilita CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -75,4 +75,4 @@ module.exports = async function handler(req, res) {
     console.error('Erro ao criar preferência Mercado Pago:', error);
     res.status(500).json({ error: 'Erro ao criar pagamento', details: error.message });
   }
-};
+}

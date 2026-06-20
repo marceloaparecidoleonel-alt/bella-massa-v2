@@ -2,6 +2,7 @@
   "name": "bella-massa-padaria",
   "version": "1.0.0",
   "description": "Site de padaria com integração Mercado Pago",
+  "type": "module",
   "scripts": {
     "dev": "vercel dev"
   },

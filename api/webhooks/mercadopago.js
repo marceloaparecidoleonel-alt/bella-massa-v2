@@ -4,8 +4,9 @@
  * Recebe notificações de pagamento e atualiza o pedido no Firestore
  */
 
-const { initializeApp, cert } = require('firebase-admin/app');
-const { getFirestore } = require('firebase-admin/firestore');
+import { initializeApp, cert } from 'firebase-admin/app';
+import { getFirestore } from 'firebase-admin/firestore';
+import mercadopago from 'mercadopago';
 
 // Inicializa Firebase Admin (usando variáveis de ambiente do Vercel)
 let db;
@@ -23,7 +24,7 @@ try {
   console.error('Erro ao inicializar Firebase Admin:', error);
 }
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   // Habilita CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -51,8 +52,7 @@ module.exports = async function handler(req, res) {
         return res.status(400).json({ error: 'Payment ID não fornecido' });
       }
 
-      // Busca informações do pagamento no Mercado Pago
-      const mercadopago = require('mercadopago');
+      // Configura Mercado Pago
       mercadopago.configure({
         access_token: process.env.MERCADO_PAGO_ACCESS_TOKEN
       });
@@ -115,4 +115,4 @@ module.exports = async function handler(req, res) {
     console.error('Erro no webhook Mercado Pago:', error);
     res.status(500).json({ error: 'Erro interno' });
   }
-};
+}

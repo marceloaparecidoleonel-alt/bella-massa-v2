@@ -60,15 +60,6 @@ Adicione as seguintes variáveis de ambiente no painel do Vercel (Settings > Env
 7. Backend atualiza o pedido no Firestore com status `pago`
 8. Pedido aparece no painel admin com status atualizado
 
-## Fallback WhatsApp (Ambiente Local)
-
-Se a API de pagamento não estiver disponível (ex: ambiente local sem Vercel), o sistema usa automaticamente o fluxo de WhatsApp como fallback:
-- Mensagem do pedido é enviada via WhatsApp
-- Pedido continua sendo salvo no Firestore
-- Cliente é redirecionado para página de confirmação
-
-Isso garante que o site continue funcionando mesmo em desenvolvimento local.
-
 ## Status de Pagamento
 
 | Status Mercado Pago | Status Firestore |
