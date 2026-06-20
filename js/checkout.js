@@ -142,6 +142,12 @@ function initForm() {
   form.addEventListener('submit', async e => {
     e.preventDefault();
 
+    // Evita múltiplas submissões
+    if (btn.disabled) {
+      console.log('Formulário já está sendo processado');
+      return;
+    }
+
     const data = {
       name:         document.getElementById('clientName').value,
       phone:        document.getElementById('clientPhone').value,
@@ -291,6 +297,14 @@ function initForm() {
         console.error('Resposta sem init_point:', result);
         throw new Error('Link de pagamento não recebido');
       }
+
+      // Valida que init_point é uma URL válida
+      if (typeof result.init_point !== 'string' || !result.init_point.startsWith('http')) {
+        console.error('init_point inválido:', result.init_point);
+        throw new Error('Link de pagamento inválido');
+      }
+
+      console.log('✅ Redirecionando para Mercado Pago:', result.init_point);
 
       // Clear cart and redirect to Mercado Pago
       Store.clearCart();
