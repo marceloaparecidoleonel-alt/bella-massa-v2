@@ -42,14 +42,25 @@ export default async function handler(req, res) {
       currency_id: 'BRL'
     }));
 
+    // Valida e normaliza email
+    const email = payer.email && payer.email.includes('@') ? payer.email : 'cliente@bellamassa.com';
+
+    // Limpa telefone removendo tudo que não for número
+    const cleanPhone = String(payer.phone || '').replace(/\D/g, '');
+
+    // Logs para depuração
+    console.log('PAYER RECEBIDO:', payer);
+    console.log('EMAIL ENVIADO:', email);
+    console.log('PHONE ENVIADO:', cleanPhone);
+
     // Cria preferência de pagamento
     const preference = {
       items: mpItems,
       payer: {
         name: payer.name,
-        email: payer.email || '',
+        email: email,
         phone: {
-          number: payer.phone || ''
+          number: Number(cleanPhone)
         }
       },
       back_urls: {
