@@ -87,17 +87,40 @@
   <script src="js/ui.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
+      // Lê status retornado pelo Mercado Pago na URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const mpStatus  = urlParams.get('status');
+
+      const iconEl    = document.querySelector('.confirmado__icon i');
+      const titleEl   = document.querySelector('.confirmado__title');
+      const msgEl     = document.getElementById('confirmMsg');
+
+      if (mpStatus === 'failure') {
+        if (iconEl)  { iconEl.className = 'fas fa-times-circle'; iconEl.style.color = '#e53e3e'; }
+        if (titleEl) titleEl.textContent = 'Pagamento não aprovado';
+        if (msgEl)   msgEl.innerHTML = 'Seu pagamento não foi concluído.<br>Tente novamente com outro método de pagamento.';
+        return;
+      }
+
+      if (mpStatus === 'pending') {
+        if (iconEl)  { iconEl.className = 'fas fa-clock'; iconEl.style.color = '#d4a040'; }
+        if (titleEl) titleEl.textContent = 'Pagamento em análise';
+        if (msgEl)   msgEl.innerHTML = 'Seu pagamento está sendo validado pelo banco.<br>Você receberá a confirmação em breve.';
+      }
+
+      // Exibe detalhes do pedido do sessionStorage (success ou pending)
       const raw = sessionStorage.getItem('bm_last_order');
       if (!raw) return;
 
       const order = JSON.parse(raw);
-      const info = document.getElementById('confirmInfo');
-      const msg  = document.getElementById('confirmMsg');
+      const info  = document.getElementById('confirmInfo');
 
       const isDelivery = order.delivery === 'delivery';
       const payLabels  = { pix: 'Pix', dinheiro: 'Dinheiro', cartao: 'Cartão' };
 
-      msg.innerHTML = `Olá, <strong>${order.name}</strong>! Seu pedido foi recebido com sucesso.<br>Entraremos em contato em breve para confirmar.`;
+      if (mpStatus === 'success' || !mpStatus) {
+        msgEl.innerHTML = `Olá, <strong>${order.name}</strong>! Seu pedido foi recebido com sucesso.<br>Entraremos em contato em breve para confirmar.`;
+      }
 
       info.innerHTML = `
         <div class="confirmado__info-row">

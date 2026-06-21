@@ -68,7 +68,7 @@ export default async function handler(req, res) {
         failure: `${process.env.SITE_URL}/pedido-confirmado.html?status=failure`,
         pending: `${process.env.SITE_URL}/pedido-confirmado.html?status=pending`
       },
-      auto_return: 'approved',
+      auto_return: 'all',
       external_reference: orderId, // ID do pedido no Firestore
       metadata: metadata || {}
     };
