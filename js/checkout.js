@@ -206,8 +206,28 @@ function initForm() {
 
     let orderId = null;
 
+    // Aguarda Firebase inicializar (máx 5s) antes de tentar salvar
+    const waitForFirebase = () => new Promise((resolve) => {
+      if (window.Firebase && window.Firebase.db && window.Firebase.fs) {
+        return resolve(true);
+      }
+      let attempts = 0;
+      const interval = setInterval(() => {
+        attempts++;
+        if (window.Firebase && window.Firebase.db && window.Firebase.fs) {
+          clearInterval(interval);
+          resolve(true);
+        } else if (attempts >= 25) { // 25 * 200ms = 5s
+          clearInterval(interval);
+          resolve(false);
+        }
+      }, 200);
+    });
+
+    const firebaseReady = await waitForFirebase();
+
     // Save to Firestore
-    if (window.Firebase && window.Firebase.db && window.Firebase.fs) {
+    if (firebaseReady) {
       try {
         // Adiciona timestamps apenas quando Firebase está disponível
         orderData.criadoEm = window.Firebase.fs.serverTimestamp();
