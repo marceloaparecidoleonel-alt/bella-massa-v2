@@ -4,11 +4,11 @@
  * Recebe notificações de pagamento e atualiza o pedido no Firestore
  */
 
-import { initializeApp, cert } from 'firebase-admin/app';
+import { initializeApp, cert, getApps, getApp } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 import mercadopago from 'mercadopago';
 
-// Inicializa Firebase Admin (usando variáveis de ambiente do Vercel)
+// Inicializa Firebase Admin — reutiliza instância existente em ambiente serverless
 let db;
 try {
   const firebaseConfig = {
@@ -16,15 +16,19 @@ try {
     privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
     clientEmail: process.env.FIREBASE_CLIENT_EMAIL
   };
-  const app = initializeApp({
-    credential: cert(firebaseConfig)
-  });
+  const app = getApps().length === 0
+    ? initializeApp({ credential: cert(firebaseConfig) })
+    : getApp();
   db = getFirestore(app);
 } catch (error) {
   console.error('Erro ao inicializar Firebase Admin:', error);
 }
 
 export default async function handler(req, res) {
+  // Diagnóstico de variáveis de ambiente
+  console.log('ENV check — PROJECT_ID:', !!process.env.FIREBASE_PROJECT_ID, '| CLIENT_EMAIL:', !!process.env.FIREBASE_CLIENT_EMAIL, '| PRIVATE_KEY:', !!process.env.FIREBASE_PRIVATE_KEY, '| MP_TOKEN:', !!process.env.MERCADO_PAGO_ACCESS_TOKEN);
+  console.log('DB disponível:', !!db);
+
   // Habilita CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
