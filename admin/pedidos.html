@@ -96,6 +96,8 @@
       <!-- Filtros de status -->
       <div class="panel__filters" id="statusFilters">
         <button class="chip chip--active" data-filter="todos">Todos <span class="chip-count">0</span></button>
+        <button class="chip chip--pending" data-filter="pendente">Aguard. Pagto <span class="chip-count">0</span></button>
+        <button class="chip chip--paid" data-filter="pago">Pagos <span class="chip-count">0</span></button>
         <button class="chip chip--new" data-filter="novo">Novos <span class="chip-count">0</span></button>
         <button class="chip chip--prod" data-filter="producao">Em Produção <span class="chip-count">0</span></button>
         <button class="chip chip--ready" data-filter="pronto">Prontos <span class="chip-count">0</span></button>
@@ -213,6 +215,8 @@
 
 .chip--active .chip-count { background: rgba(255,255,255,0.25); }
 
+.chip--pending  { border-color: #888; color: #888; }
+.chip--paid     { border-color: #3d9e5f; color: #3d9e5f; }
 .chip--new      { border-color: #2d7bbf; color: #2d7bbf; }
 .chip--prod     { border-color: #c87a1a; color: #c87a1a; }
 .chip--ready    { border-color: #3d9e5f; color: #3d9e5f; }

@@ -41,74 +41,82 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { topic, resource } = req.query;
+    const { topic } = req.query;
     const body = req.body;
 
-    // Mercado Pago envia notificações via topic
-    if (topic === 'payment') {
-      const paymentId = body.id || body.data?.id;
+    // Suporta formato IPN v2 (body.type) e legacy (topic query param)
+    const isPaymentNotification =
+      topic === 'payment' ||
+      (body && body.type === 'payment') ||
+      (body && body.action && body.action.startsWith('payment'));
 
-      if (!paymentId) {
-        return res.status(400).json({ error: 'Payment ID não fornecido' });
-      }
-
-      // Configura Mercado Pago
-      mercadopago.configure({
-        access_token: process.env.MERCADO_PAGO_ACCESS_TOKEN
-      });
-
-      const payment = await mercadopago.payment.findById(paymentId);
-      const paymentData = payment.body;
-
-      // Obtém o external_reference (ID do pedido no Firestore)
-      const orderId = paymentData.external_reference;
-
-      if (!orderId) {
-        console.log('Pagamento sem external_reference:', paymentId);
-        return res.status(200).json({ received: true });
-      }
-
-      // Atualiza o pedido no Firestore
-      if (db) {
-        const orderRef = db.collection('pedidos').doc(orderId);
-        const orderDoc = await orderRef.get();
-
-        if (orderDoc.exists) {
-          const statusMap = {
-            'approved': 'pago',
-            'pending': 'pendente',
-            'rejected': 'cancelado',
-            'cancelled': 'cancelado',
-            'refunded': 'reembolsado'
-          };
-
-          const paymentStatus = paymentData.status;
-          const newStatus = statusMap[paymentStatus] || paymentStatus;
-
-          await orderRef.update({
-            paymentId: paymentId,
-            paymentStatus: paymentStatus,
-            status: newStatus,
-            paymentDetails: {
-              payment_method: paymentData.payment_method_id,
-              payment_type: paymentData.payment_type,
-              transaction_amount: paymentData.transaction_amount,
-              date_approved: paymentData.date_approved,
-              date_created: paymentData.date_created
-            },
-            atualizadoEm: new Date()
-          });
-
-          console.log(`Pedido ${orderId} atualizado: ${newStatus}`);
-        } else {
-          console.log(`Pedido ${orderId} não encontrado no Firestore`);
-        }
-      }
-
+    if (!isPaymentNotification) {
+      console.log('Webhook ignorado — tipo:', topic || body?.type || 'desconhecido');
       return res.status(200).json({ received: true });
     }
 
-    // Outros tipos de notificação (merchant_order, etc.)
+    // Extrai payment ID — IPN v2 usa body.data.id, legacy usa body.id
+    const paymentId = (body.data && body.data.id) || body.id || body.resource;
+
+    if (!paymentId) {
+      console.warn('Webhook sem paymentId:', JSON.stringify(body));
+      return res.status(400).json({ error: 'Payment ID não fornecido' });
+    }
+
+    // Configura Mercado Pago
+    mercadopago.configure({
+      access_token: process.env.MERCADO_PAGO_ACCESS_TOKEN
+    });
+
+    console.log('Consultando pagamento MP:', paymentId);
+    const payment = await mercadopago.payment.findById(paymentId);
+    const paymentData = payment.body;
+
+    // Obtém o external_reference (ID do pedido no Firestore)
+    const orderId = paymentData.external_reference;
+
+    if (!orderId) {
+      console.log('Pagamento sem external_reference:', paymentId);
+      return res.status(200).json({ received: true });
+    }
+
+    const statusMap = {
+      'approved':   'pago',
+      'pending':    'pendente',
+      'in_process': 'pendente',
+      'rejected':   'cancelado',
+      'cancelled':  'cancelado',
+      'refunded':   'reembolsado'
+    };
+
+    const paymentStatus = paymentData.status;
+    const newStatus = statusMap[paymentStatus] || paymentStatus;
+
+    // Atualiza o pedido no Firestore
+    if (db) {
+      const orderRef = db.collection('pedidos').doc(orderId);
+      const orderDoc = await orderRef.get();
+
+      if (orderDoc.exists) {
+        await orderRef.update({
+          paymentId: String(paymentId),
+          paymentStatus: paymentStatus,
+          status: newStatus,
+          paymentDetails: {
+            payment_method: paymentData.payment_method_id,
+            payment_type: paymentData.payment_type_id,
+            transaction_amount: paymentData.transaction_amount,
+            date_approved: paymentData.date_approved,
+            date_created: paymentData.date_created
+          },
+          atualizadoEm: new Date()
+        });
+        console.log(`Pedido ${orderId} atualizado: ${paymentStatus} → ${newStatus}`);
+      } else {
+        console.warn(`Pedido ${orderId} não encontrado no Firestore`);
+      }
+    }
+
     return res.status(200).json({ received: true });
 
   } catch (error) {

@@ -28,15 +28,18 @@
   if (backdrop)  backdrop.addEventListener('click', function () { sidebar.classList.remove('is-open'); backdrop.classList.remove('is-visible'); });
 
   /* ── Status config ── */
-  var STATUS_CYCLE = ['novo', 'producao', 'pronto', 'entrega', 'entregue'];
+  var STATUS_CYCLE = ['pendente', 'pago', 'producao', 'pronto', 'entrega', 'entregue'];
 
   var STATUS_META = {
-    novo:      { label: 'Novo',        badgeClass: 'badge--info',    next: 'Em Produção' },
-    producao:  { label: 'Em Produção', badgeClass: 'badge--warning', next: 'Pronto' },
-    pronto:    { label: 'Pronto',      badgeClass: 'badge--success', next: 'Em Entrega' },
-    entrega:   { label: 'Em Entrega',  badgeClass: 'badge--info',    next: 'Entregue' },
-    entregue:  { label: 'Entregue',    badgeClass: 'badge--success', next: null },
-    cancelado: { label: 'Cancelado',   badgeClass: 'badge--danger',  next: null }
+    pendente:  { label: 'Aguard. Pagto', badgeClass: 'badge--muted',   next: 'Pago' },
+    pago:      { label: 'Pago',          badgeClass: 'badge--success', next: 'Em Produção' },
+    novo:      { label: 'Novo',          badgeClass: 'badge--info',    next: 'Em Produção' },
+    producao:  { label: 'Em Produção',   badgeClass: 'badge--warning', next: 'Pronto' },
+    pronto:    { label: 'Pronto',        badgeClass: 'badge--success', next: 'Em Entrega' },
+    entrega:   { label: 'Em Entrega',    badgeClass: 'badge--info',    next: 'Entregue' },
+    entregue:  { label: 'Entregue',      badgeClass: 'badge--success', next: null },
+    cancelado: { label: 'Cancelado',     badgeClass: 'badge--danger',  next: null },
+    reembolsado: { label: 'Reembolsado', badgeClass: 'badge--muted',   next: null }
   };
 
   var ALL_BADGE = ['badge--info', 'badge--warning', 'badge--success', 'badge--danger', 'badge--muted'];
@@ -316,7 +319,7 @@
   /* ── Pending count + chip counts ── */
   function updateChipCounts(orders) {
     // Conta por status
-    var counts = { novo: 0, producao: 0, pronto: 0, entrega: 0, entregue: 0, cancelado: 0 };
+    var counts = { pendente: 0, pago: 0, novo: 0, producao: 0, pronto: 0, entrega: 0, entregue: 0, cancelado: 0 };
     orders.forEach(function (o) {
       var s = o.status || 'novo';
       if (counts[s] !== undefined) counts[s]++;
@@ -333,6 +336,8 @@
     // Atualiza contadores nos chips
     var map = {
       'todos':     total,
+      'pendente':  counts.pendente,
+      'pago':      counts.pago,
       'novo':      counts.novo,
       'producao':  counts.producao,
       'pronto':    counts.pronto,
