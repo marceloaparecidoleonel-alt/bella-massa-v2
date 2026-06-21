@@ -12,7 +12,7 @@ const BM_CONFIG = {
   address: 'Rua Dr Xavier da Silva, Centro — Ribeirão Claro/PR',
   openHours: 'Seg–Sex 7h–20h · Sáb–Dom 7h–18h',
   minOrderDelivery: 30,
-  deliveryFee: 8,
+  deliveryFee: 5,
   freeDeliveryAbove: 80,
 };
 

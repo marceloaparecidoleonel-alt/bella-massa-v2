@@ -202,15 +202,17 @@ function initForm() {
       status: 'pendente', // Status inicial: aguardando pagamento
       paymentStatus: 'pending',
       obs: data.obs || '',
-      criadoEm: window.Firebase.fs.serverTimestamp(),
-      atualizadoEm: window.Firebase.fs.serverTimestamp()
     };
 
     let orderId = null;
 
     // Save to Firestore
-    if (window.Firebase && window.Firebase.db) {
+    if (window.Firebase && window.Firebase.db && window.Firebase.fs) {
       try {
+        // Adiciona timestamps apenas quando Firebase está disponível
+        orderData.criadoEm = window.Firebase.fs.serverTimestamp();
+        orderData.atualizadoEm = window.Firebase.fs.serverTimestamp();
+
         const docRef = await window.Firebase.fs.addDoc(
           window.Firebase.fs.collection(window.Firebase.db, 'pedidos'),
           orderData
@@ -262,7 +264,7 @@ function initForm() {
           payer: {
             name: data.name,
             phone: data.phone,
-            email: '' // Opcional: pode adicionar campo de email no checkout
+            email: 'cliente@bellamassa.com'
           },
           orderId: orderId,
           metadata: {
