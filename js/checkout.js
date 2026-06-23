@@ -268,10 +268,11 @@ function initForm() {
       total,
     }));
 
-    // PIX → Mercado Pago API | Cartão/Dinheiro → confirmação direta
+    // PIX → QR Code no modal | Cartão/Dinheiro → confirmação direta
     if (data.payment === 'pix') {
       try {
-        const response = await fetch('/api/create-payment', {
+        openPixModal();
+        const response = await fetch('/api/create-pix', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -281,16 +282,8 @@ function initForm() {
               price: item.price
             })),
             deliveryFee: isDelivery ? Store.getDeliveryFee(true) : 0,
-            payer: {
-              name: data.name,
-              phone: data.phone,
-              email: 'cliente@bellamassa.com'
-            },
-            orderId: orderId,
-            metadata: {
-              orderNumber: orderNumber,
-              tipo: isDelivery ? 'delivery' : 'pickup'
-            }
+            payer: { name: data.name, email: 'cliente@bellamassa.com' },
+            orderId: orderId
           })
         });
 
@@ -298,30 +291,22 @@ function initForm() {
         let result;
         try {
           result = text ? JSON.parse(text) : {};
-        } catch (parseErr) {
-          console.error('Erro ao parsear JSON:', parseErr, 'Resposta:', text);
+        } catch (e) {
           throw new Error('Resposta inválida do servidor');
         }
 
         if (!response.ok) {
-          const errorMsg = result.error || result.details || 'Erro ao criar pagamento';
-          const mpDetail = result.mp_error ? ' | MP: ' + result.mp_error : '';
-          console.error('Erro da API:', errorMsg, mpDetail);
-          throw new Error(errorMsg + mpDetail);
+          throw new Error(result.error || result.details || 'Erro ao gerar PIX');
         }
 
-        if (!result.init_point || typeof result.init_point !== 'string' || !result.init_point.startsWith('http')) {
-          console.error('init_point inválido:', result.init_point);
-          throw new Error('Link de pagamento inválido');
-        }
-
-        console.log('✅ Redirecionando para Mercado Pago (PIX):', result.init_point);
-        Store.clearCart();
-        window.location.href = result.init_point;
+        showPixQr(result.qr_code_base64, result.qr_code, result.payment_id, orderId);
+        btn.disabled = false;
+        btn.innerHTML = 'Finalizar pedido';
 
       } catch (err) {
-        console.error('❌ Erro ao criar pagamento PIX:', err);
-        showToast('Erro ao processar PIX: ' + err.message + '. Tente novamente.', 'error');
+        console.error('❌ Erro ao gerar PIX:', err);
+        closePixModal();
+        showToast('Erro ao gerar PIX: ' + err.message + '. Tente novamente.', 'error');
         btn.disabled = false;
         btn.innerHTML = 'Finalizar pedido';
       }
@@ -332,6 +317,88 @@ function initForm() {
       window.location.href = 'pedido-confirmado.html?status=success';
     }
   });
+}
+
+// ── PIX Modal ────────────────────────────────────────────────────────────────
+let _pixPollInterval = null;
+
+function openPixModal() {
+  const modal = document.getElementById('pixModal');
+  if (!modal) return;
+  document.getElementById('pixLoading').style.display = 'block';
+  document.getElementById('pixContent').style.display = 'none';
+  document.getElementById('pixPaidMsg').style.display = 'none';
+  modal.style.display = 'flex';
+}
+
+function closePixModal() {
+  const modal = document.getElementById('pixModal');
+  if (modal) modal.style.display = 'none';
+  if (_pixPollInterval) { clearInterval(_pixPollInterval); _pixPollInterval = null; }
+}
+
+function showPixQr(base64, copyCode, paymentId, orderId) {
+  document.getElementById('pixLoading').style.display = 'none';
+  const content = document.getElementById('pixContent');
+  content.style.display = 'block';
+
+  const img = document.getElementById('pixQrImg');
+  if (base64) {
+    img.src = 'data:image/png;base64,' + base64;
+    img.style.display = 'block';
+  } else {
+    img.style.display = 'none';
+  }
+
+  document.getElementById('pixCopyCode').value = copyCode || '';
+  startPixPolling(paymentId, orderId);
+}
+
+function copyPixCode() {
+  const input = document.getElementById('pixCopyCode');
+  if (!input || !input.value) return;
+  navigator.clipboard.writeText(input.value).then(() => {
+    const btn = document.getElementById('pixCopyBtn');
+    btn.textContent = 'Copiado!';
+    btn.style.background = '#2d7a3a';
+    setTimeout(() => { btn.textContent = 'Copiar'; btn.style.background = '#c8963e'; }, 2000);
+  });
+}
+
+function startPixPolling(paymentId, orderId) {
+  if (!paymentId) return;
+  let attempts = 0;
+  const maxAttempts = 60; // 5 minutos (5s * 60)
+
+  _pixPollInterval = setInterval(async () => {
+    attempts++;
+    if (attempts > maxAttempts) {
+      clearInterval(_pixPollInterval);
+      document.getElementById('pixStatusMsg').innerHTML = '<i class="fas fa-exclamation-circle"></i> Tempo expirado. Feche e tente novamente.';
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/check-pix-status?payment_id=${paymentId}`);
+      const { status } = await res.json();
+
+      if (status === 'approved') {
+        clearInterval(_pixPollInterval);
+        document.getElementById('pixContent').style.display = 'none';
+        document.getElementById('pixPaidMsg').style.display = 'block';
+        Store.clearCart();
+        setTimeout(() => { window.location.href = 'pedido-confirmado.html?status=success'; }, 2000);
+      } else if (status === 'rejected' || status === 'cancelled') {
+        clearInterval(_pixPollInterval);
+        document.getElementById('pixStatusMsg').innerHTML = '<i class="fas fa-times-circle"></i> Pagamento recusado. Feche e tente novamente.';
+        document.getElementById('pixStatusMsg').style.background = '#fff0f0';
+        document.getElementById('pixStatusMsg').style.borderColor = '#f0a0a0';
+        document.getElementById('pixStatusMsg').style.color = '#8b0000';
+      }
+    } catch (e) {
+      // ignora erros de rede no polling
+    }
+  }, 5000);
 }
 
 // ── Phone mask ───────────────────────────────────────────────────────────────

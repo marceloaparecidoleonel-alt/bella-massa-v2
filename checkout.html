@@ -223,6 +223,40 @@
     </section>
   </main>
 
+  <!-- MODAL PIX -->
+  <div id="pixModal" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.55);align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:16px;padding:2rem;max-width:420px;width:90%;text-align:center;box-shadow:0 8px 40px rgba(0,0,0,.18);position:relative;">
+      <button onclick="closePixModal()" style="position:absolute;top:1rem;right:1rem;background:none;border:none;font-size:1.4rem;cursor:pointer;color:#666;">&times;</button>
+      <div style="font-size:2rem;margin-bottom:.5rem;">⚡</div>
+      <h2 style="font-family:'Playfair Display',serif;color:#3b2000;margin-bottom:.25rem;">Pague com PIX</h2>
+      <p style="color:#666;font-size:.88rem;margin-bottom:1.25rem;">Escaneie o QR Code ou copie o código abaixo. O pagamento é confirmado em segundos.</p>
+
+      <div id="pixLoading" style="padding:2rem 0;">
+        <i class="fas fa-spinner fa-spin" style="font-size:2rem;color:#c8963e;"></i>
+        <p style="color:#666;margin-top:.75rem;font-size:.9rem;">Gerando PIX…</p>
+      </div>
+
+      <div id="pixContent" style="display:none;">
+        <img id="pixQrImg" src="" alt="QR Code PIX" style="width:200px;height:200px;border:2px solid #eee;border-radius:8px;margin-bottom:1rem;" />
+        <p style="font-size:.8rem;color:#888;margin-bottom:.5rem;">Ou copie o código PIX:</p>
+        <div style="display:flex;gap:.5rem;align-items:center;margin-bottom:1rem;">
+          <input id="pixCopyCode" readonly style="flex:1;padding:.6rem .75rem;border:1px solid #ddd;border-radius:8px;font-size:.78rem;color:#333;background:#f9f9f9;" />
+          <button onclick="copyPixCode()" id="pixCopyBtn" style="padding:.6rem 1rem;background:#c8963e;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:.82rem;white-space:nowrap;">Copiar</button>
+        </div>
+        <div id="pixStatusMsg" style="padding:.75rem;border-radius:8px;background:#fff8ec;border:1px solid #f0d9a0;color:#7a5500;font-size:.85rem;margin-bottom:1rem;">
+          <i class="fas fa-clock"></i> Aguardando pagamento…
+        </div>
+        <p style="font-size:.75rem;color:#aaa;">O pedido será confirmado automaticamente após o pagamento.</p>
+      </div>
+
+      <div id="pixPaidMsg" style="display:none;padding:1.5rem 0;">
+        <div style="font-size:3rem;margin-bottom:.5rem;">✅</div>
+        <h3 style="color:#2d7a3a;margin-bottom:.5rem;">Pagamento confirmado!</h3>
+        <p style="color:#555;font-size:.9rem;">Redirecionando…</p>
+      </div>
+    </div>
+  </div>
+
   <!-- FOOTER -->
   <footer class="footer">
     <div class="footer__main container">
