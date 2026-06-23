@@ -254,7 +254,7 @@ function initForm() {
       return;
     }
 
-    // Save order to session for success page
+    // Salva dados do pedido na sessão para página de confirmação
     const total = formatPrice(Store.getGrandTotal(isDelivery));
     sessionStorage.setItem('bm_last_order', JSON.stringify({
       numero: orderNumber,
@@ -268,75 +268,66 @@ function initForm() {
       total,
     }));
 
-    // Create Mercado Pago payment preference
-    try {
-      const response = await fetch('/api/create-payment', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          items: cart.map(item => ({
-            name: item.name,
-            qty: item.qty,
-            price: item.price
-          })),
-          payer: {
-            name: data.name,
-            phone: data.phone,
-            email: 'cliente@bellamassa.com'
-          },
-          orderId: orderId,
-          metadata: {
-            orderNumber: orderNumber,
-            tipo: isDelivery ? 'delivery' : 'pickup'
-          }
-        })
-      });
-
-      // Verifica se a resposta existe
-      if (!response) {
-        throw new Error('Sem resposta do servidor de pagamento');
-      }
-
-      // Verifica se o corpo da resposta não está vazio antes de parsear JSON
-      const text = await response.text();
-      let result;
+    // PIX → Mercado Pago API | Cartão/Dinheiro → confirmação direta
+    if (data.payment === 'pix') {
       try {
-        result = text ? JSON.parse(text) : {};
-      } catch (parseErr) {
-        console.error('Erro ao parsear JSON:', parseErr, 'Resposta:', text);
-        throw new Error('Resposta inválida do servidor');
+        const response = await fetch('/api/create-payment', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            items: cart.map(item => ({
+              name: item.name,
+              qty: item.qty,
+              price: item.price
+            })),
+            payer: {
+              name: data.name,
+              phone: data.phone,
+              email: 'cliente@bellamassa.com'
+            },
+            orderId: orderId,
+            metadata: {
+              orderNumber: orderNumber,
+              tipo: isDelivery ? 'delivery' : 'pickup'
+            }
+          })
+        });
+
+        const text = await response.text();
+        let result;
+        try {
+          result = text ? JSON.parse(text) : {};
+        } catch (parseErr) {
+          console.error('Erro ao parsear JSON:', parseErr, 'Resposta:', text);
+          throw new Error('Resposta inválida do servidor');
+        }
+
+        if (!response.ok) {
+          const errorMsg = result.error || result.details || 'Erro ao criar pagamento';
+          console.error('Erro da API:', errorMsg);
+          throw new Error(errorMsg);
+        }
+
+        if (!result.init_point || typeof result.init_point !== 'string' || !result.init_point.startsWith('http')) {
+          console.error('init_point inválido:', result.init_point);
+          throw new Error('Link de pagamento inválido');
+        }
+
+        console.log('✅ Redirecionando para Mercado Pago (PIX):', result.init_point);
+        Store.clearCart();
+        window.location.href = result.init_point;
+
+      } catch (err) {
+        console.error('❌ Erro ao criar pagamento PIX:', err);
+        showToast('Erro ao processar PIX: ' + err.message + '. Tente novamente.', 'error');
+        btn.disabled = false;
+        btn.innerHTML = 'Finalizar pedido';
       }
-
-      if (!response.ok) {
-        const errorMsg = result.error || result.details || 'Erro ao criar pagamento';
-        console.error('Erro da API:', errorMsg);
-        throw new Error(errorMsg);
-      }
-
-      if (!result.init_point) {
-        console.error('Resposta sem init_point:', result);
-        throw new Error('Link de pagamento não recebido');
-      }
-
-      // Valida que init_point é uma URL válida
-      if (typeof result.init_point !== 'string' || !result.init_point.startsWith('http')) {
-        console.error('init_point inválido:', result.init_point);
-        throw new Error('Link de pagamento inválido');
-      }
-
-      console.log('✅ Redirecionando para Mercado Pago:', result.init_point);
-
-      // Clear cart and redirect to Mercado Pago
+    } else {
+      // Cartão ou Dinheiro → pagamento presencial, vai direto para confirmação
+      console.log('✅ Pedido registrado — pagamento presencial:', data.payment);
       Store.clearCart();
-      window.location.href = result.init_point;
-
-    } catch (err) {
-      console.error('❌ Erro ao criar pagamento Mercado Pago:', err);
-      showToast('Erro ao processar pagamento: ' + err.message + '. Por favor, tente novamente.', 'error');
-      btn.disabled = false;
-      btn.innerHTML = 'Finalizar pedido';
+      window.location.href = 'pedido-confirmado.html?status=success';
     }
   });
 }

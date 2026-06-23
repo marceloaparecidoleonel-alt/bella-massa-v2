@@ -68,8 +68,18 @@ export default async function handler(req, res) {
         failure: `${process.env.SITE_URL}/pedido-confirmado.html?status=failure`,
         pending: `${process.env.SITE_URL}/pedido-confirmado.html?status=pending`
       },
+      payment_methods: {
+        excluded_payment_types: [
+          { id: 'credit_card' },
+          { id: 'debit_card' },
+          { id: 'ticket' },
+          { id: 'atm' },
+          { id: 'prepaid_card' }
+        ],
+        default_payment_method_id: 'pix'
+      },
       auto_return: 'all',
-      external_reference: orderId, // ID do pedido no Firestore
+      external_reference: orderId,
       metadata: metadata || {}
     };
 
