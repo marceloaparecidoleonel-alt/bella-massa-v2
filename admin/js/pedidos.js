@@ -208,28 +208,7 @@
     if (cancelBtn) {
       var row = cancelBtn.closest('tr');
       if (!row) return;
-      if (!confirm('Cancelar este pedido?')) return;
-      var orderId = row.dataset.orderId;
-
-      if (window.Firebase && window.Firebase.db) {
-        var fs = window.Firebase.fs;
-        fs.updateDoc(
-          fs.doc(window.Firebase.db, 'pedidos', orderId),
-          { status: 'cancelado', atualizadoEm: fs.serverTimestamp() }
-        ).then(function () {
-          toast('Pedido cancelado.', 'warning');
-        }).catch(function (err) {
-          console.error('Erro ao cancelar pedido:', err);
-          toast('Erro ao cancelar pedido.', 'error');
-        });
-      } else {
-        row.dataset.status = 'cancelado';
-        row.style.opacity = '0.5';
-        updateBadge(row, 'cancelado');
-        rebuildActions(row, 'cancelado');
-        toast('Pedido cancelado.', 'warning');
-        updatePendingCount();
-      }
+      openCancelModal(row.dataset.orderId);
       return;
     }
 
@@ -462,5 +441,58 @@
     });
   }
   initAfterAuth();
+
+  /* ── Modal de Cancelamento com Motivo ── */
+  var cancelModal     = document.getElementById('cancelReasonModal');
+  var cancelInput     = document.getElementById('cancelReasonInput');
+  var cancelErr       = document.getElementById('cancelReasonErr');
+  var cancelConfirm   = document.getElementById('cancelReasonConfirm');
+  var cancelAbort     = document.getElementById('cancelReasonAbort');
+  var closeCancelBtn  = document.getElementById('closeCancelModal');
+  var _pendingCancelId = null;
+
+  function openCancelModal(orderId) {
+    _pendingCancelId = orderId;
+    if (cancelInput)  cancelInput.value = '';
+    if (cancelErr)    cancelErr.style.display = 'none';
+    if (cancelModal)  { cancelModal.style.display = 'flex'; }
+  }
+
+  function closeCancelModal() {
+    if (cancelModal) cancelModal.style.display = 'none';
+    _pendingCancelId = null;
+  }
+
+  if (closeCancelBtn)  closeCancelBtn.addEventListener('click', closeCancelModal);
+  if (cancelAbort)     cancelAbort.addEventListener('click', closeCancelModal);
+  if (cancelModal)     cancelModal.addEventListener('click', function(e) { if (e.target === cancelModal) closeCancelModal(); });
+
+  if (cancelConfirm) {
+    cancelConfirm.addEventListener('click', function () {
+      var motivo = cancelInput ? cancelInput.value.trim() : '';
+      if (!motivo) {
+        if (cancelErr) cancelErr.style.display = 'block';
+        return;
+      }
+      if (cancelErr) cancelErr.style.display = 'none';
+      if (!_pendingCancelId) return;
+
+      var orderId = _pendingCancelId;
+      closeCancelModal();
+
+      if (window.Firebase && window.Firebase.db) {
+        var fs = window.Firebase.fs;
+        fs.updateDoc(
+          fs.doc(window.Firebase.db, 'pedidos', orderId),
+          { status: 'cancelado', motivoCancelamento: motivo, atualizadoEm: fs.serverTimestamp() }
+        ).then(function () {
+          toast('Pedido cancelado.', 'warning');
+        }).catch(function (err) {
+          console.error('Erro ao cancelar pedido:', err);
+          toast('Erro ao cancelar pedido.', 'error');
+        });
+      }
+    });
+  }
 
 })();

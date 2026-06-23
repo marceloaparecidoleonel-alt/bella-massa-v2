@@ -200,6 +200,28 @@
   </div>
 </div>
 
+<!-- Modal: Motivo de Cancelamento -->
+<div class="modal-overlay" id="cancelReasonModal" style="display:none;align-items:center;justify-content:center;">
+  <div class="modal" style="width:min(480px,100%)">
+    <div class="modal__head">
+      <h2>Cancelar pedido</h2>
+      <button class="modal__close" id="closeCancelModal"><i class="fas fa-xmark"></i></button>
+    </div>
+    <div class="modal__body">
+      <p style="margin-bottom:1rem;font-size:.92rem;color:var(--a-text-muted);">Informe o motivo do cancelamento. Esta mensagem será exibida para o cliente.</p>
+      <label class="a-label" for="cancelReasonInput" style="display:block;margin-bottom:.4rem;font-weight:600;font-size:.85rem;">Motivo <span style="color:var(--a-danger)">*</span></label>
+      <textarea id="cancelReasonInput" rows="3" placeholder="Ex: Produto esgotado, endereço fora da área de entrega…" style="width:100%;border:1.5px solid var(--a-border);border-radius:8px;padding:.65em .8em;font-size:.9rem;font-family:inherit;resize:vertical;outline:none;"></textarea>
+      <span id="cancelReasonErr" style="color:var(--a-danger);font-size:.8rem;display:none;">Informe um motivo antes de cancelar.</span>
+    </div>
+    <div class="modal__footer">
+      <button class="abtn abtn--ghost" id="cancelReasonAbort">Voltar</button>
+      <button class="abtn" id="cancelReasonConfirm" style="background:var(--a-danger,#d94040);color:#fff;border:none;">
+        <i class="fas fa-xmark"></i> Confirmar cancelamento
+      </button>
+    </div>
+  </div>
+</div>
+
 <style>
 .orders-table-wrap { overflow-x: auto; }
 

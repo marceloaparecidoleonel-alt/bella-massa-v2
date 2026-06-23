@@ -153,12 +153,12 @@ function initOrderBanner() {
   banner.style.cssText = [
     'position:fixed','bottom:1rem','left:50%','transform:translateX(-50%)',
     'z-index:9999','background:var(--clr-primary,#c8963e)','color:#fff',
-    'border-radius:99px','padding:.65em 1.2em .65em 1em',
+    'border-radius:99px','padding:.65em 1.4em',
     'display:flex','align-items:center','gap:.6em',
     'box-shadow:0 4px 20px rgba(0,0,0,.18)','font-size:.88rem',
     'font-family:Inter,sans-serif','cursor:pointer',
     'white-space:nowrap','max-width:calc(100vw - 2rem)',
-    'animation:slideUpIn .35s ease'
+    'animation:slideUpIn .35s ease','text-decoration:none'
   ].join(';');
 
   const style = document.createElement('style');
@@ -168,21 +168,38 @@ function initOrderBanner() {
   banner.innerHTML = `
     <i class="fas fa-motorcycle" style="font-size:1rem;"></i>
     <span><strong>Pedido #${order.numero}</strong> em andamento</span>
-    <a href="acompanhar-pedido.html?orderId=${order.orderId}" style="color:#fff;text-decoration:underline;font-weight:600;margin-left:.3em;">Acompanhar</a>
-    <button id="closeBanner" title="Fechar" style="background:none;border:none;color:#fff;font-size:1.1rem;cursor:pointer;margin-left:.2em;padding:0;line-height:1;">&times;</button>
+    <span style="text-decoration:underline;font-weight:600;margin-left:.3em;">Acompanhar</span>
   `;
 
   document.body.appendChild(banner);
 
-  document.getElementById('closeBanner').addEventListener('click', (e) => {
-    e.stopPropagation();
-    banner.remove();
-    localStorage.removeItem('bm_active_order');
-  });
-
   banner.addEventListener('click', () => {
     window.location.href = `acompanhar-pedido.html?orderId=${order.orderId}`;
   });
+
+  // Monitorar via Firebase: some se pedido for excluído ou finalizado
+  function watchOrderForBanner() {
+    if (!window.Firebase || !window.Firebase.db) {
+      setTimeout(watchOrderForBanner, 500);
+      return;
+    }
+    const fs = window.Firebase.fs;
+    const db = window.Firebase.db;
+    fs.onSnapshot(fs.doc(db, 'pedidos', order.orderId), (snap) => {
+      if (!snap.exists()) {
+        // Pedido excluído pelo admin
+        banner.remove();
+        localStorage.removeItem('bm_active_order');
+        return;
+      }
+      const st = snap.data().status;
+      if (st === 'entregue' || st === 'cancelado') {
+        banner.remove();
+        localStorage.removeItem('bm_active_order');
+      }
+    });
+  }
+  watchOrderForBanner();
 }
 
 // ── Init all shared UI ───────────────────────────────────────────────────────

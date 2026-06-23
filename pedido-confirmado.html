@@ -109,16 +109,14 @@
   <script>
     // ── Etapas da timeline ──────────────────────────────────────────────────
     const STEPS_DELIVERY = [
-      { statuses: ['pendente'],                        icon: 'fa-clock',              label: 'Aguardando pagamento',  desc: 'Confirme o pagamento para prosseguir.' },
-      { statuses: ['pago','novo'],                     icon: 'fa-circle-check',       label: 'Pagamento confirmado',  desc: 'Pagamento recebido com sucesso.' },
+      { statuses: ['pendente','pago','novo'],           icon: 'fa-clock',              label: 'Pedido recebido',       desc: 'Seu pedido foi registrado e aguarda preparo.' },
       { statuses: ['producao'],                        icon: 'fa-fire-burner',        label: 'Em produção',           desc: 'Seu pedido está sendo preparado.' },
       { statuses: ['pronto'],                          icon: 'fa-box-open',           label: 'Pronto',                desc: 'Pedido pronto, aguardando entregador.' },
       { statuses: ['entrega'],                         icon: 'fa-motorcycle',         label: 'Saiu para entrega',     desc: 'Seu pedido está a caminho!' },
       { statuses: ['entregue'],                        icon: 'fa-house-circle-check', label: 'Entregue',              desc: 'Pedido entregue. Bom apetite! 🎉' }
     ];
     const STEPS_PICKUP = [
-      { statuses: ['pendente'],                        icon: 'fa-clock',              label: 'Aguardando pagamento',  desc: 'Confirme o pagamento para prosseguir.' },
-      { statuses: ['pago','novo'],                     icon: 'fa-circle-check',       label: 'Pagamento confirmado',  desc: 'Pagamento recebido com sucesso.' },
+      { statuses: ['pendente','pago','novo'],           icon: 'fa-clock',              label: 'Pedido recebido',       desc: 'Seu pedido foi registrado e aguarda preparo.' },
       { statuses: ['producao'],                        icon: 'fa-fire-burner',        label: 'Em produção',           desc: 'Seu pedido está sendo preparado.' },
       { statuses: ['pronto','entrega','entregue'],     icon: 'fa-store',              label: 'Pronto para retirada',  desc: 'Venha buscar seu pedido na loja! 🎉' }
     ];
@@ -129,7 +127,7 @@
       return active;
     }
 
-    function renderTimeline(status, isDelivery) {
+    function renderTimeline(status, isDelivery, motivo) {
       const tl   = document.getElementById('confirmTimeline');
       const sec  = document.getElementById('trackSection');
       if (!tl || !sec) return;
@@ -153,8 +151,16 @@
           </div>`;
         tl.appendChild(li);
       });
+      // Mensagem de cancelamento com motivo
+      const old = document.getElementById('confirmCancelMsg');
+      if (old) old.remove();
       if (cancelled) {
-        sec.innerHTML += `<div style="text-align:center;padding:.75rem;background:#fff0f0;border-radius:10px;color:#8b0000;font-size:.85rem;margin-top:1rem;"><i class="fas fa-times-circle"></i> Este pedido foi cancelado.</div>`;
+        const motivoEl = document.createElement('div');
+        motivoEl.style.cssText = 'text-align:center;padding:.75rem;background:#fff0f0;border-radius:10px;color:#8b0000;font-size:.85rem;margin-top:1rem;';
+        motivoEl.id = 'confirmCancelMsg';
+        const motivoTxt = motivo ? `<br><em style="font-size:.85rem;opacity:.85">${motivo}</em>` : '';
+        motivoEl.innerHTML = `<i class="fas fa-times-circle"></i> Este pedido foi cancelado.${motivoTxt}`;
+        sec.appendChild(motivoEl);
       }
     }
 
@@ -229,8 +235,14 @@
         const fs  = window.Firebase.fs;
         const db  = window.Firebase.db;
         fs.onSnapshot(fs.doc(db, 'pedidos', pid), (snap) => {
-          if (!snap.exists()) return;
-          renderTimeline(snap.data().status || 'novo', isDelivery);
+          if (!snap.exists()) {
+            // Pedido excluído
+            localStorage.removeItem('bm_active_order');
+            renderTimeline('cancelado', isDelivery, 'Pedido removido pelo estabelecimento.');
+            return;
+          }
+          const d = snap.data();
+          renderTimeline(d.status || 'novo', isDelivery, d.motivoCancelamento || '');
         });
       }
 

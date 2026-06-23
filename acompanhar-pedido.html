@@ -217,10 +217,9 @@
     const urlParams = new URLSearchParams(window.location.search);
     const orderId   = urlParams.get('orderId');
 
-    // Etapas para delivery
+    // Etapas para delivery (sem aguardando pagamento / pagamento confirmado)
     const STEPS_DELIVERY = [
-      { statuses: ['pendente'],                        icon: 'fa-clock',              label: 'Aguardando pagamento',  desc: 'Confirme o pagamento para prosseguir.' },
-      { statuses: ['pago','novo'],                     icon: 'fa-circle-check',       label: 'Pagamento confirmado',  desc: 'Pagamento recebido com sucesso.' },
+      { statuses: ['pendente','pago','novo'],           icon: 'fa-clock',              label: 'Pedido recebido',       desc: 'Seu pedido foi registrado e aguarda preparo.' },
       { statuses: ['producao'],                        icon: 'fa-fire-burner',        label: 'Em produção',           desc: 'Seu pedido está sendo preparado.' },
       { statuses: ['pronto'],                          icon: 'fa-box-open',           label: 'Pronto',                desc: 'Pedido pronto, aguardando entregador.' },
       { statuses: ['entrega'],                         icon: 'fa-motorcycle',         label: 'Saiu para entrega',     desc: 'Seu pedido está a caminho!' },
@@ -229,8 +228,7 @@
 
     // Etapas para retirada
     const STEPS_PICKUP = [
-      { statuses: ['pendente'],                        icon: 'fa-clock',              label: 'Aguardando pagamento',  desc: 'Confirme o pagamento para prosseguir.' },
-      { statuses: ['pago','novo'],                     icon: 'fa-circle-check',       label: 'Pagamento confirmado',  desc: 'Pagamento recebido com sucesso.' },
+      { statuses: ['pendente','pago','novo'],           icon: 'fa-clock',              label: 'Pedido recebido',       desc: 'Seu pedido foi registrado e aguarda preparo.' },
       { statuses: ['producao'],                        icon: 'fa-fire-burner',        label: 'Em produção',           desc: 'Seu pedido está sendo preparado.' },
       { statuses: ['pronto','entrega','entregue'],     icon: 'fa-store',              label: 'Pronto para retirada',  desc: 'Venha buscar seu pedido na loja! 🎉' }
     ];
@@ -277,7 +275,16 @@
       document.getElementById('trackNum').textContent = `Pedido #${order.numero || order.id?.slice(-4) || '—'}`;
       document.getElementById('trackLoading').style.display  = 'none';
       document.getElementById('trackContent').style.display  = 'block';
-      document.getElementById('trackCancelMsg').style.display = cancelled ? 'block' : 'none';
+
+      // Cancelamento com motivo
+      const cancelEl = document.getElementById('trackCancelMsg');
+      if (cancelled) {
+        const motivo = order.motivoCancelamento ? `<br><em style="font-size:.85rem;opacity:.85">${order.motivoCancelamento}</em>` : '';
+        cancelEl.innerHTML = `<i class="fas fa-times-circle"></i> Este pedido foi cancelado.${motivo}`;
+        cancelEl.style.display = 'block';
+      } else {
+        cancelEl.style.display = 'none';
+      }
 
       renderTimeline(steps, activeIdx, cancelled);
     }
@@ -294,6 +301,18 @@
       setTimeout(() => waitForFirebase(cb, tries + 1), 300);
     }
 
+    function showDeleted() {
+      document.getElementById('trackLoading').style.display  = 'none';
+      document.getElementById('trackNotFound').style.display = 'none';
+      const content = document.getElementById('trackContent');
+      content.style.display = 'block';
+      const cancelEl = document.getElementById('trackCancelMsg');
+      cancelEl.innerHTML = '<i class="fas fa-times-circle"></i> Este pedido foi removido.';
+      cancelEl.style.display = 'block';
+      document.getElementById('trackTimeline').innerHTML = '';
+      localStorage.removeItem('bm_active_order');
+    }
+
     if (!orderId) {
       showNotFound();
     } else {
@@ -304,7 +323,7 @@
 
         // Listener em tempo real
         fs.onSnapshot(ref, (snap) => {
-          if (!snap.exists()) { showNotFound(); return; }
+          if (!snap.exists()) { showDeleted(); return; }
           renderOrder({ id: snap.id, ...snap.data() });
         }, () => showNotFound());
       });
