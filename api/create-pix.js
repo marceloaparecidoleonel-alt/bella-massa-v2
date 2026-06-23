@@ -35,18 +35,18 @@ export default async function handler(req, res) {
 
     console.log('Criando PIX — total:', total, '| orderId:', orderId, '| email:', email);
 
+    const nameParts = String(payer?.name || 'Cliente').trim().split(' ');
+    const firstName = nameParts[0];
+    const lastName = nameParts.slice(1).join(' ') || firstName;
+
     const payload = {
       transaction_amount: Number(total.toFixed(2)),
       description: description.slice(0, 60),
       payment_method_id: 'pix',
       payer: {
         email: email,
-        first_name: String(payer?.name || 'Cliente').split(' ')[0],
-        last_name: String(payer?.name || 'Cliente').split(' ').slice(1).join(' ') || 'Cliente',
-        identification: {
-          type: 'CPF',
-          number: '00000000000'
-        }
+        first_name: firstName,
+        last_name: lastName
       },
       external_reference: orderId || '',
       notification_url: `${(process.env.SITE_URL || 'https://bella-massa-app.vercel.app').replace(/\/$/, '')}/api/webhooks/mercadopago`
