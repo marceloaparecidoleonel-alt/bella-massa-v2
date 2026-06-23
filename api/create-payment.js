@@ -75,8 +75,7 @@ export default async function handler(req, res) {
           { id: 'ticket' },
           { id: 'atm' },
           { id: 'prepaid_card' }
-        ],
-        default_payment_method_id: 'pix'
+        ]
       },
       auto_return: 'all',
       external_reference: orderId,
@@ -93,7 +92,8 @@ export default async function handler(req, res) {
     });
 
   } catch (error) {
-    console.error('Erro ao criar preferência Mercado Pago:', error);
+    console.error('Erro ao criar preferência Mercado Pago:', error?.message);
+    console.error('Detalhes MP:', JSON.stringify(error?.cause || error?.response || {}));
     res.status(500).json({ error: 'Erro ao criar pagamento', details: error.message });
   }
 }
