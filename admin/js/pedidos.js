@@ -28,21 +28,39 @@
   if (backdrop)  backdrop.addEventListener('click', function () { sidebar.classList.remove('is-open'); backdrop.classList.remove('is-visible'); });
 
   /* ── Status config (espelha steps do cliente) ── */
-  // Delivery: Recebido → Em Produção → Pronto → Saiu p/ Entrega → Entregue
-  // Pickup:   Recebido → Em Produção → Pronto p/ Retirada (pula entrega)
-  var STATUS_CYCLE = ['pendente', 'producao', 'pronto', 'entrega', 'entregue'];
 
   var STATUS_META = {
-    aguardando_pix: { label: 'Aguard. PIX',     badgeClass: 'badge--muted',   next: 'Em Produção' },
-    pendente:    { label: 'Pedido Recebido', badgeClass: 'badge--info',    next: 'Em Produção' },
-    pago:        { label: 'Pedido Recebido', badgeClass: 'badge--info',    next: 'Em Produção' },
-    novo:        { label: 'Pedido Recebido', badgeClass: 'badge--info',    next: 'Em Produção' },
-    producao:    { label: 'Em Produção',     badgeClass: 'badge--warning', next: 'Pronto' },
-    pronto:      { label: 'Pronto',          badgeClass: 'badge--success', next: 'Saiu p/ Entrega' },
-    entrega:     { label: 'Em Entrega',      badgeClass: 'badge--info',    next: 'Entregue' },
-    entregue:    { label: 'Entregue',        badgeClass: 'badge--success', next: null },
-    cancelado:   { label: 'Cancelado',       badgeClass: 'badge--danger',  next: null },
-    reembolsado: { label: 'Reembolsado',     badgeClass: 'badge--muted',   next: null }
+    aguardando_pix: { label: 'Aguard. PIX',     badgeClass: 'badge--muted'    },
+    pendente:       { label: 'Pedido Recebido', badgeClass: 'badge--info'     },
+    pago:           { label: 'Pedido Recebido', badgeClass: 'badge--info'     },
+    novo:           { label: 'Pedido Recebido', badgeClass: 'badge--info'     },
+    producao:       { label: 'Em Produção',     badgeClass: 'badge--warning'  },
+    pronto:         { label: 'Pronto',          badgeClass: 'badge--success'  },
+    entrega:        { label: 'Em Entrega',      badgeClass: 'badge--info'     },
+    entregue:       { label: 'Entregue',        badgeClass: 'badge--success'  },
+    cancelado:      { label: 'Cancelado',       badgeClass: 'badge--danger'   },
+    reembolsado:    { label: 'Reembolsado',     badgeClass: 'badge--muted'    }
+  };
+
+  // Mapa explícito: status atual → próximo status (delivery)
+  var NEXT_DELIVERY = {
+    aguardando_pix: 'producao',
+    pendente:       'producao',
+    pago:           'producao',
+    novo:           'producao',
+    producao:       'pronto',
+    pronto:         'entrega',
+    entrega:        'entregue'
+  };
+
+  // Mapa explícito: status atual → próximo status (pickup — pula entrega)
+  var NEXT_PICKUP = {
+    aguardando_pix: 'producao',
+    pendente:       'producao',
+    pago:           'producao',
+    novo:           'producao',
+    producao:       'pronto',
+    pronto:         'entregue'
   };
 
   var ALL_BADGE = ['badge--info', 'badge--warning', 'badge--success', 'badge--danger', 'badge--muted'];
@@ -56,14 +74,8 @@
   }
 
   function getNextStatus(status, isPickup) {
-    var cycle = STATUS_CYCLE.slice();
-    // Retirada: pula 'entrega', vai de pronto direto para entregue
-    if (isPickup) cycle = cycle.filter(function(s) { return s !== 'entrega'; });
-    // Normaliza variantes para 'pendente' (equivalente no ciclo)
-    var normalized = (status === 'pago' || status === 'novo' || status === 'aguardando_pix') ? 'pendente' : status;
-    var idx = cycle.indexOf(normalized);
-    if (idx === -1 || idx === cycle.length - 1) return null;
-    return cycle[idx + 1];
+    var map = isPickup ? NEXT_PICKUP : NEXT_DELIVERY;
+    return map[status] || null;
   }
 
   function rebuildActions(row, status) {
