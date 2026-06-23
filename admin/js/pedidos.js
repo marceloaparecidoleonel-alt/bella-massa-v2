@@ -279,6 +279,13 @@
     document.getElementById('detailObs').textContent      = orderData.obs || '—';
     document.getElementById('detailPaymentStatus').textContent = orderData.paymentStatus || '—';
     document.getElementById('detailPayment').textContent  = orderData.pagamento || '—';
+    var trocoSec = document.getElementById('detailTrocoSection');
+    var trocoVal = document.getElementById('detailTroco');
+    if (trocoSec && trocoVal) {
+      var hasTroco = orderData.pagamento === 'dinheiro' && orderData.troco && String(orderData.troco).trim() !== '';
+      trocoSec.style.display = hasTroco ? '' : 'none';
+      trocoVal.textContent   = hasTroco ? 'R$ ' + parseFloat(orderData.troco).toFixed(2).replace('.', ',') : '—';
+    }
     document.getElementById('detailValue').textContent    = 'R$ ' + (orderData.total || 0).toFixed(2).replace('.', ',');
     document.getElementById('detailTime').textContent     = orderData.criadoEm
       ? new Date(orderData.criadoEm.seconds * 1000).toLocaleString('pt-BR')

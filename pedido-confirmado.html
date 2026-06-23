@@ -10,6 +10,21 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <link rel="stylesheet" href="css/style.css" />
   <link rel="stylesheet" href="css/pages.css" />
+  <style>
+    .track-section { max-width: 480px; margin: 1.5rem auto 0; }
+    .track-section h3 { font-family:'Playfair Display',serif; font-size:1.1rem; color:var(--clr-heading,#3b2000); margin-bottom:1.25rem; text-align:center; }
+    .timeline { list-style:none; padding:0; margin:0; position:relative; }
+    .timeline::before { content:''; position:absolute; left:19px; top:0; bottom:0; width:2px; background:var(--clr-border,#eee); }
+    .timeline__item { display:flex; align-items:flex-start; gap:1rem; padding-bottom:1.25rem; position:relative; }
+    .timeline__item:last-child { padding-bottom:0; }
+    .timeline__dot { width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:.9rem; flex-shrink:0; position:relative; z-index:1; background:var(--clr-border,#eee); color:#aaa; border:2px solid transparent; transition:all .3s; }
+    .timeline__dot.done { background:#e8f5e9; color:#2d7a3a; border-color:#2d7a3a; }
+    .timeline__dot.active { background:var(--clr-primary,#c8963e); color:#fff; border-color:var(--clr-primary,#c8963e); box-shadow:0 0 0 4px rgba(200,150,62,.18); }
+    .timeline__content h4 { font-size:.93rem; font-weight:600; color:var(--clr-heading,#3b2000); margin:0 0 .1rem; }
+    .timeline__content p { font-size:.8rem; color:var(--clr-text-muted,#888); margin:0; }
+    .timeline__content.muted h4 { color:#ccc; }
+    .track-live-badge { display:inline-flex; align-items:center; gap:.35em; font-size:.75rem; color:var(--clr-primary,#c8963e); background:var(--clr-primary-light,#fff5e6); padding:.25em .7em; border-radius:99px; margin-bottom:1rem; }
+  </style>
 </head>
 <body>
 
@@ -55,6 +70,12 @@
 
         <div class="confirmado__info" id="confirmInfo"></div>
 
+        <!-- Timeline de acompanhamento -->
+        <div class="track-section" id="trackSection" style="display:none;">
+          <span class="track-live-badge"><i class="fas fa-circle" style="font-size:.5rem;"></i> Acompanhamento em tempo real</span>
+          <ul class="timeline" id="confirmTimeline"></ul>
+        </div>
+
         <div class="confirmado__actions" id="confirmActions">
           <a id="btnAcompanhar" href="acompanhar-pedido.html" class="btn btn--primary btn--lg btn--block" style="text-decoration:none;display:none;align-items:center;justify-content:center;gap:.5em;padding:.9em;">
             <i class="fas fa-magnifying-glass"></i> Acompanhar meu pedido
@@ -86,15 +107,67 @@
   <script src="js/config.js"></script>
   <script src="js/ui.js"></script>
   <script>
+    // ── Etapas da timeline ──────────────────────────────────────────────────
+    const STEPS_DELIVERY = [
+      { statuses: ['pendente'],                        icon: 'fa-clock',              label: 'Aguardando pagamento',  desc: 'Confirme o pagamento para prosseguir.' },
+      { statuses: ['pago','novo'],                     icon: 'fa-circle-check',       label: 'Pagamento confirmado',  desc: 'Pagamento recebido com sucesso.' },
+      { statuses: ['producao'],                        icon: 'fa-fire-burner',        label: 'Em produção',           desc: 'Seu pedido está sendo preparado.' },
+      { statuses: ['pronto'],                          icon: 'fa-box-open',           label: 'Pronto',                desc: 'Pedido pronto, aguardando entregador.' },
+      { statuses: ['entrega'],                         icon: 'fa-motorcycle',         label: 'Saiu para entrega',     desc: 'Seu pedido está a caminho!' },
+      { statuses: ['entregue'],                        icon: 'fa-house-circle-check', label: 'Entregue',              desc: 'Pedido entregue. Bom apetite! 🎉' }
+    ];
+    const STEPS_PICKUP = [
+      { statuses: ['pendente'],                        icon: 'fa-clock',              label: 'Aguardando pagamento',  desc: 'Confirme o pagamento para prosseguir.' },
+      { statuses: ['pago','novo'],                     icon: 'fa-circle-check',       label: 'Pagamento confirmado',  desc: 'Pagamento recebido com sucesso.' },
+      { statuses: ['producao'],                        icon: 'fa-fire-burner',        label: 'Em produção',           desc: 'Seu pedido está sendo preparado.' },
+      { statuses: ['pronto','entrega','entregue'],     icon: 'fa-store',              label: 'Pronto para retirada',  desc: 'Venha buscar seu pedido na loja! 🎉' }
+    ];
+
+    function getActiveIdx(steps, status) {
+      let active = 0;
+      steps.forEach((s, i) => { if (s.statuses.includes(status)) active = i; });
+      return active;
+    }
+
+    function renderTimeline(status, isDelivery) {
+      const tl   = document.getElementById('confirmTimeline');
+      const sec  = document.getElementById('trackSection');
+      if (!tl || !sec) return;
+      const steps = isDelivery ? STEPS_DELIVERY : STEPS_PICKUP;
+      const cancelled = status === 'cancelado';
+      const activeIdx = cancelled ? -1 : getActiveIdx(steps, status);
+      sec.style.display = 'block';
+      tl.innerHTML = '';
+      steps.forEach((step, i) => {
+        const done   = i < activeIdx;
+        const active = i === activeIdx && !cancelled;
+        const li = document.createElement('li');
+        li.className = 'timeline__item';
+        li.innerHTML = `
+          <div class="timeline__dot ${done ? 'done' : active ? 'active' : ''}">
+            <i class="fas ${step.icon}"></i>
+          </div>
+          <div class="timeline__content ${!done && !active ? 'muted' : ''}">
+            <h4>${step.label}</h4>
+            <p>${done || active ? step.desc : ''}</p>
+          </div>`;
+        tl.appendChild(li);
+      });
+      if (cancelled) {
+        sec.innerHTML += `<div style="text-align:center;padding:.75rem;background:#fff0f0;border-radius:10px;color:#8b0000;font-size:.85rem;margin-top:1rem;"><i class="fas fa-times-circle"></i> Este pedido foi cancelado.</div>`;
+      }
+    }
+
+    // ── Init ────────────────────────────────────────────────────────────────
     document.addEventListener('DOMContentLoaded', () => {
       const urlParams = new URLSearchParams(window.location.search);
       const mpStatus  = urlParams.get('status');
-      const orderId   = urlParams.get('orderId');
-
       const iconEl    = document.querySelector('.confirmado__icon i');
       const titleEl   = document.querySelector('.confirmado__title');
       const msgEl     = document.getElementById('confirmMsg');
       const btnAcomp  = document.getElementById('btnAcompanhar');
+      const fyEl      = document.getElementById('footerYear');
+      if (fyEl) fyEl.textContent = new Date().getFullYear();
 
       // Failure
       if (mpStatus === 'failure') {
@@ -111,60 +184,62 @@
         if (msgEl)   msgEl.innerHTML = 'Seu pagamento está sendo validado.<br>Você receberá a confirmação em breve.';
       }
 
-      // Dados do pedido no sessionStorage
+      // Dados do sessionStorage
       const raw = sessionStorage.getItem('bm_last_order');
       if (!raw) return;
-      const order = JSON.parse(raw);
-      const info  = document.getElementById('confirmInfo');
-
+      const order      = JSON.parse(raw);
+      const info       = document.getElementById('confirmInfo');
       const isDelivery = order.delivery === 'delivery';
       const payLabels  = { pix: 'Pix', dinheiro: 'Dinheiro', cartao: 'Cartão' };
-      const pid = orderId || order.orderId;
+      const pid        = urlParams.get('orderId') || order.orderId;
 
-      // Success / PIX aprovado
+      // Mensagem de sucesso
       if (mpStatus === 'success' || !mpStatus) {
         if (order.payment === 'pix') {
           if (iconEl)  { iconEl.className = 'fas fa-circle-check'; iconEl.style.color = '#2d7a3a'; }
           if (titleEl) titleEl.textContent = 'Pagamento PIX aprovado!';
           msgEl.innerHTML = `Olá, <strong>${order.name}</strong>! Seu PIX foi confirmado.<br>Seu pedido já está sendo preparado. 🎉`;
         } else {
-          msgEl.innerHTML = `Olá, <strong>${order.name}</strong>! Seu pedido foi recebido com sucesso.<br>Entraremos em contato em breve para confirmar.`;
+          msgEl.innerHTML = `Olá, <strong>${order.name}</strong>! Seu pedido foi recebido.<br>O pagamento será feito na ${isDelivery ? 'entrega' : 'retirada'}.`;
         }
       }
 
-      // Mostrar botão acompanhar se tiver orderId
-      if (btnAcomp && pid) {
-        btnAcomp.href = `acompanhar-pedido.html?orderId=${pid}`;
-        btnAcomp.style.display = 'flex';
-      }
+      // Troco info
+      const trocoRow = (order.payment === 'dinheiro' && isDelivery && order.troco)
+        ? `<div class="confirmado__info-row"><i class="fas fa-money-bill-wave"></i><span>Troco para: <strong>R$ ${parseFloat(order.troco).toFixed(2).replace('.',',')}</strong></span></div>`
+        : '';
 
       info.innerHTML = `
-        <div class="confirmado__info-row">
-          <i class="fas fa-hashtag"></i>
-          <span>Pedido <strong>#${order.numero || '—'}</strong></span>
-        </div>
-        <div class="confirmado__info-row">
-          <i class="fas fa-user"></i>
-          <span>${order.name} &mdash; ${order.phone}</span>
-        </div>
-        ${isDelivery ? `
-        <div class="confirmado__info-row">
-          <i class="fas fa-location-dot"></i>
-          <span>${order.address}, ${order.neighborhood} &mdash; ${order.city}</span>
-        </div>` : `
-        <div class="confirmado__info-row">
-          <i class="fas fa-store"></i>
-          <span>Retirada na loja</span>
-        </div>`}
-        <div class="confirmado__info-row">
-          <i class="fas fa-credit-card"></i>
-          <span>Pagamento: <strong>${payLabels[order.payment] || order.payment}</strong></span>
-        </div>
-        <div class="confirmado__info-row">
-          <i class="fas fa-brazilian-real-sign"></i>
-          <span>Total: <strong>${order.total}</strong></span>
-        </div>
+        <div class="confirmado__info-row"><i class="fas fa-hashtag"></i><span>Pedido <strong>#${order.numero || '—'}</strong></span></div>
+        <div class="confirmado__info-row"><i class="fas fa-user"></i><span>${order.name} &mdash; ${order.phone}</span></div>
+        ${isDelivery
+          ? `<div class="confirmado__info-row"><i class="fas fa-location-dot"></i><span>${order.address}, ${order.neighborhood} &mdash; ${order.city}</span></div>`
+          : `<div class="confirmado__info-row"><i class="fas fa-store"></i><span>Retirada na loja</span></div>`}
+        <div class="confirmado__info-row"><i class="fas fa-credit-card"></i><span>Pagamento: <strong>${payLabels[order.payment] || order.payment}</strong></span></div>
+        ${trocoRow}
+        <div class="confirmado__info-row"><i class="fas fa-brazilian-real-sign"></i><span>Total: <strong>${order.total}</strong></span></div>
       `;
+
+      // Ocultar botão separado (timeline está embutida)
+      if (btnAcomp) btnAcomp.style.display = 'none';
+
+      // Firebase: timeline em tempo real
+      if (!pid) return;
+      function startTracking() {
+        const fs  = window.Firebase.fs;
+        const db  = window.Firebase.db;
+        fs.onSnapshot(fs.doc(db, 'pedidos', pid), (snap) => {
+          if (!snap.exists()) return;
+          renderTimeline(snap.data().status || 'novo', isDelivery);
+        });
+      }
+
+      function waitFB(tries) {
+        if (window.Firebase && window.Firebase.db) { startTracking(); return; }
+        if (tries > 30) return;
+        setTimeout(() => waitFB(tries + 1), 300);
+      }
+      waitFB(0);
     });
   </script>
 </body>

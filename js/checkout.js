@@ -69,22 +69,30 @@ function initDeliveryToggle() {
       }
 
       updateCheckoutTotals();
+      if (typeof updateTrocoVisibility === 'function') updateTrocoVisibility();
     });
   });
 }
 
 // ── Payment toggle (troco) ───────────────────────────────────────────────────
-function initPaymentToggle() {
-  const payRadios  = document.querySelectorAll('input[name="payment"]');
-  const trocoField = document.getElementById('trocoPara');
+function updateTrocoVisibility() {
+  const trocoField   = document.getElementById('trocoPara');
+  if (!trocoField) return;
+  const paySelected  = document.querySelector('input[name="payment"]:checked')?.value;
+  const showTroco    = paySelected === 'dinheiro' && isDelivery;
+  trocoField.classList.toggle('visible', showTroco);
+  if (!showTroco) {
+    const inp = document.getElementById('trocoVal');
+    if (inp) inp.value = '';
+  }
+}
 
+function initPaymentToggle() {
+  const payRadios = document.querySelectorAll('input[name="payment"]');
   payRadios.forEach(radio => {
-    radio.addEventListener('change', () => {
-      if (trocoField) {
-        trocoField.classList.toggle('visible', radio.value === 'dinheiro');
-      }
-    });
+    radio.addEventListener('change', updateTrocoVisibility);
   });
+  updateTrocoVisibility();
 }
 
 // ── Validation ───────────────────────────────────────────────────────────────
@@ -266,6 +274,7 @@ function initForm() {
       city: data.city,
       delivery: data.delivery,
       payment: data.payment,
+      troco: data.troco || '',
       total,
     }));
 
@@ -316,7 +325,7 @@ function initForm() {
       // Cartão ou Dinheiro → pagamento presencial, vai direto para confirmação
       console.log('✅ Pedido registrado — pagamento presencial:', data.payment);
       Store.clearCart();
-      window.location.href = 'pedido-confirmado.html?status=success';
+      window.location.href = `pedido-confirmado.html?status=success&orderId=${orderId}`;
     }
   });
 }
