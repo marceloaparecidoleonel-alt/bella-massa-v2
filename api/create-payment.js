@@ -40,7 +40,11 @@ export default async function handler(req, res) {
 
     const email = payer?.email?.includes('@') ? payer.email : 'cliente@bellamassa.com';
 
-    console.log('Criando preferência MP — items:', mpItems.length, '| orderId:', orderId, '| fee:', fee);
+    // SITE_URL com fallback para a URL do Vercel
+    const siteUrl = (process.env.SITE_URL || 'https://bella-massa-app.vercel.app').replace(/\/$/, '');
+    const hasToken = !!process.env.MERCADO_PAGO_ACCESS_TOKEN;
+
+    console.log('SITE_URL:', siteUrl, '| TOKEN presente:', hasToken, '| items:', mpItems.length, '| fee:', fee);
 
     const preference = {
       items: mpItems,
@@ -49,9 +53,9 @@ export default async function handler(req, res) {
         email: email
       },
       back_urls: {
-        success: `${process.env.SITE_URL}/pedido-confirmado.html?status=success`,
-        failure: `${process.env.SITE_URL}/pedido-confirmado.html?status=failure`,
-        pending: `${process.env.SITE_URL}/pedido-confirmado.html?status=pending`
+        success: `${siteUrl}/pedido-confirmado.html?status=success`,
+        failure: `${siteUrl}/pedido-confirmado.html?status=failure`,
+        pending: `${siteUrl}/pedido-confirmado.html?status=pending`
       },
       auto_return: 'all',
       payment_methods: {
@@ -68,6 +72,8 @@ export default async function handler(req, res) {
       metadata: metadata || {}
     };
 
+    console.log('Payload enviado ao MP:', JSON.stringify(preference));
+
     const mpRes = await fetch('https://api.mercadopago.com/checkout/preferences', {
       method: 'POST',
       headers: {
@@ -78,9 +84,9 @@ export default async function handler(req, res) {
     });
 
     const data = await mpRes.json();
+    console.log('Resposta MP status:', mpRes.status, '| body:', JSON.stringify(data));
 
     if (!mpRes.ok) {
-      console.error('Erro MP status:', mpRes.status, '| body:', JSON.stringify(data));
       return res.status(500).json({
         error: 'Erro ao criar pagamento',
         details: data.message || data.error || JSON.stringify(data)
