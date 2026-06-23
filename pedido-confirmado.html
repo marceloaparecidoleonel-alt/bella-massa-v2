@@ -55,9 +55,9 @@
 
         <div class="confirmado__info" id="confirmInfo"></div>
 
-        <div class="confirmado__actions">
-          <a href="https://wa.me/5511999999999" target="_blank" class="btn--whatsapp btn btn--lg btn--block" style="text-decoration:none;display:flex;align-items:center;justify-content:center;gap:.5em;padding:.9em;">
-            <i class="fab fa-whatsapp"></i> Acompanhar pelo WhatsApp
+        <div class="confirmado__actions" id="confirmActions">
+          <a id="btnAcompanhar" href="acompanhar-pedido.html" class="btn btn--primary btn--lg btn--block" style="text-decoration:none;display:none;align-items:center;justify-content:center;gap:.5em;padding:.9em;">
+            <i class="fas fa-magnifying-glass"></i> Acompanhar meu pedido
           </a>
           <a href="cardapio.html" class="btn btn--ghost btn--block" style="text-decoration:none;display:flex;align-items:center;justify-content:center;gap:.5em;padding:.85em;">
             <i class="fas fa-bag-shopping"></i> Continuar comprando
@@ -87,14 +87,16 @@
   <script src="js/ui.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      // Lê status retornado pelo Mercado Pago na URL
       const urlParams = new URLSearchParams(window.location.search);
       const mpStatus  = urlParams.get('status');
+      const orderId   = urlParams.get('orderId');
 
       const iconEl    = document.querySelector('.confirmado__icon i');
       const titleEl   = document.querySelector('.confirmado__title');
       const msgEl     = document.getElementById('confirmMsg');
+      const btnAcomp  = document.getElementById('btnAcompanhar');
 
+      // Failure
       if (mpStatus === 'failure') {
         if (iconEl)  { iconEl.className = 'fas fa-times-circle'; iconEl.style.color = '#e53e3e'; }
         if (titleEl) titleEl.textContent = 'Pagamento não aprovado';
@@ -102,27 +104,45 @@
         return;
       }
 
+      // Pending
       if (mpStatus === 'pending') {
         if (iconEl)  { iconEl.className = 'fas fa-clock'; iconEl.style.color = '#d4a040'; }
         if (titleEl) titleEl.textContent = 'Pagamento em análise';
-        if (msgEl)   msgEl.innerHTML = 'Seu pagamento está sendo validado pelo banco.<br>Você receberá a confirmação em breve.';
+        if (msgEl)   msgEl.innerHTML = 'Seu pagamento está sendo validado.<br>Você receberá a confirmação em breve.';
       }
 
-      // Exibe detalhes do pedido do sessionStorage (success ou pending)
+      // Dados do pedido no sessionStorage
       const raw = sessionStorage.getItem('bm_last_order');
       if (!raw) return;
-
       const order = JSON.parse(raw);
       const info  = document.getElementById('confirmInfo');
 
       const isDelivery = order.delivery === 'delivery';
       const payLabels  = { pix: 'Pix', dinheiro: 'Dinheiro', cartao: 'Cartão' };
+      const pid = orderId || order.orderId;
 
+      // Success / PIX aprovado
       if (mpStatus === 'success' || !mpStatus) {
-        msgEl.innerHTML = `Olá, <strong>${order.name}</strong>! Seu pedido foi recebido com sucesso.<br>Entraremos em contato em breve para confirmar.`;
+        if (order.payment === 'pix') {
+          if (iconEl)  { iconEl.className = 'fas fa-circle-check'; iconEl.style.color = '#2d7a3a'; }
+          if (titleEl) titleEl.textContent = 'Pagamento PIX aprovado!';
+          msgEl.innerHTML = `Olá, <strong>${order.name}</strong>! Seu PIX foi confirmado.<br>Seu pedido já está sendo preparado. 🎉`;
+        } else {
+          msgEl.innerHTML = `Olá, <strong>${order.name}</strong>! Seu pedido foi recebido com sucesso.<br>Entraremos em contato em breve para confirmar.`;
+        }
+      }
+
+      // Mostrar botão acompanhar se tiver orderId
+      if (btnAcomp && pid) {
+        btnAcomp.href = `acompanhar-pedido.html?orderId=${pid}`;
+        btnAcomp.style.display = 'flex';
       }
 
       info.innerHTML = `
+        <div class="confirmado__info-row">
+          <i class="fas fa-hashtag"></i>
+          <span>Pedido <strong>#${order.numero || '—'}</strong></span>
+        </div>
         <div class="confirmado__info-row">
           <i class="fas fa-user"></i>
           <span>${order.name} &mdash; ${order.phone}</span>

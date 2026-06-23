@@ -31,15 +31,15 @@
   var STATUS_CYCLE = ['pendente', 'pago', 'producao', 'pronto', 'entrega', 'entregue'];
 
   var STATUS_META = {
-    pendente:  { label: 'Aguard. Pagto', badgeClass: 'badge--muted',   next: 'Pago' },
-    pago:      { label: 'Pago',          badgeClass: 'badge--success', next: 'Em Produção' },
-    novo:      { label: 'Novo',          badgeClass: 'badge--info',    next: 'Em Produção' },
-    producao:  { label: 'Em Produção',   badgeClass: 'badge--warning', next: 'Pronto' },
-    pronto:    { label: 'Pronto',        badgeClass: 'badge--success', next: 'Em Entrega' },
-    entrega:   { label: 'Em Entrega',    badgeClass: 'badge--info',    next: 'Entregue' },
-    entregue:  { label: 'Entregue',      badgeClass: 'badge--success', next: null },
-    cancelado: { label: 'Cancelado',     badgeClass: 'badge--danger',  next: null },
-    reembolsado: { label: 'Reembolsado', badgeClass: 'badge--muted',   next: null }
+    pendente:    { label: 'Aguard. Pagto', badgeClass: 'badge--muted',    next: 'Confirmar' },
+    pago:        { label: 'Pago',          badgeClass: 'badge--success',  next: 'Em Produção' },
+    novo:        { label: 'Recebido',      badgeClass: 'badge--info',     next: 'Em Produção' },
+    producao:    { label: 'Em Produção',   badgeClass: 'badge--warning',  next: 'Pronto' },
+    pronto:      { label: 'Pronto',        badgeClass: 'badge--success',  next: 'Saiu p/ Entrega' },
+    entrega:     { label: 'Em Entrega',    badgeClass: 'badge--info',     next: 'Entregue' },
+    entregue:    { label: 'Entregue',      badgeClass: 'badge--success',  next: null },
+    cancelado:   { label: 'Cancelado',     badgeClass: 'badge--danger',   next: null },
+    reembolsado: { label: 'Reembolsado',   badgeClass: 'badge--muted',    next: null }
   };
 
   var ALL_BADGE = ['badge--info', 'badge--warning', 'badge--success', 'badge--danger', 'badge--muted'];
@@ -52,10 +52,22 @@
     if (meta) { badge.classList.add(meta.badgeClass); badge.textContent = meta.label; }
   }
 
+  function getNextStatus(status, isPickup) {
+    var cycle = STATUS_CYCLE.slice();
+    // Retirada: pula 'entrega', vai de pronto direto para entregue
+    if (isPickup) cycle = cycle.filter(function(s) { return s !== 'entrega'; });
+    var idx = cycle.indexOf(status);
+    if (idx === -1 || idx === cycle.length - 1) return null;
+    return cycle[idx + 1];
+  }
+
   function rebuildActions(row, status) {
     var cell = row.querySelector('.cell-actions');
     if (!cell) return;
-    var canCancel  = status !== 'entregue' && status !== 'cancelado';
+    var canCancel = status !== 'entregue' && status !== 'cancelado';
+    var isPickup  = row.dataset.tipo === 'pickup';
+    var nextSt    = getNextStatus(status, isPickup);
+    var meta      = STATUS_META[status] || {};
     cell.innerHTML = '';
 
     var eye = document.createElement('button');
@@ -63,6 +75,15 @@
     eye.title = 'Ver detalhes';
     eye.innerHTML = '<i class="fas fa-eye"></i>';
     cell.appendChild(eye);
+
+    if (nextSt) {
+      var advBtn = document.createElement('button');
+      advBtn.className = 'abtn abtn--sm abtn--primary advance-btn';
+      advBtn.title = 'Avançar para: ' + (STATUS_META[nextSt] || {}).label;
+      advBtn.innerHTML = '<i class="fas fa-arrow-right"></i> ' + (STATUS_META[nextSt] || {}).label;
+      advBtn.style.cssText = 'font-size:.75rem;gap:.3em;padding:.35em .7em;';
+      cell.appendChild(advBtn);
+    }
 
     if (canCancel) {
       var xBtn = document.createElement('button');
@@ -85,7 +106,8 @@
   function renderOrderRow(order) {
     var tr = document.createElement('tr');
     tr.dataset.orderId = order.id;
-    tr.dataset.status = order.status || 'novo';
+    tr.dataset.status  = order.status || 'novo';
+    tr.dataset.tipo    = (order.tipo === 'pickup' || !order.endereco || !order.endereco.rua) ? 'pickup' : 'delivery';
 
     var statusMeta = STATUS_META[order.status] || STATUS_META.novo;
     var paymentIcon = {
@@ -150,13 +172,13 @@
     /* Advance */
     var advBtn = e.target.closest('.advance-btn');
     if (advBtn) {
-      var row = advBtn.closest('tr');
+      var row      = advBtn.closest('tr');
       if (!row) return;
-      var orderId = row.dataset.orderId;
-      var cur = row.dataset.status;
-      var idx = STATUS_CYCLE.indexOf(cur);
-      if (idx === -1 || idx === STATUS_CYCLE.length - 1) return;
-      var next = STATUS_CYCLE[idx + 1];
+      var orderId  = row.dataset.orderId;
+      var cur      = row.dataset.status;
+      var isPickup = row.dataset.tipo === 'pickup';
+      var next     = getNextStatus(cur, isPickup);
+      if (!next) return;
 
       // Update Firestore
       if (window.Firebase && window.Firebase.db) {
@@ -165,18 +187,17 @@
           fs.doc(window.Firebase.db, 'pedidos', orderId),
           { status: next, atualizadoEm: fs.serverTimestamp() }
         ).then(function () {
-          toast('Pedido avançado para: ' + STATUS_META[next].label, 'success');
+          toast('Pedido avançado para: ' + (STATUS_META[next] || {}).label, 'success');
         }).catch(function (err) {
           console.error('Erro ao atualizar pedido:', err);
           toast('Erro ao atualizar pedido.', 'error');
         });
       } else {
-        // Fallback UI-only
         row.dataset.status = next;
         updateBadge(row, next);
         rebuildActions(row, next);
         if (next === 'entregue') row.style.opacity = '0.7';
-        toast('Pedido avançado para: ' + STATUS_META[next].label, 'success');
+        toast('Pedido avançado para: ' + (STATUS_META[next] || {}).label, 'success');
         updatePendingCount();
       }
       return;

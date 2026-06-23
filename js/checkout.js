@@ -258,6 +258,7 @@ function initForm() {
     const total = formatPrice(Store.getGrandTotal(isDelivery));
     sessionStorage.setItem('bm_last_order', JSON.stringify({
       numero: orderNumber,
+      orderId: orderId,
       name: data.name,
       phone: data.phone,
       address: data.address,
@@ -388,7 +389,7 @@ function startPixPolling(paymentId, orderId) {
         document.getElementById('pixContent').style.display = 'none';
         document.getElementById('pixPaidMsg').style.display = 'block';
         Store.clearCart();
-        setTimeout(() => { window.location.href = 'pedido-confirmado.html?status=success'; }, 2000);
+        setTimeout(() => { window.location.href = `pedido-confirmado.html?status=success&orderId=${orderId}`; }, 2000);
       } else if (status === 'rejected' || status === 'cancelled') {
         clearInterval(_pixPollInterval);
         document.getElementById('pixStatusMsg').innerHTML = '<i class="fas fa-times-circle"></i> Pagamento recusado. Feche e tente novamente.';
