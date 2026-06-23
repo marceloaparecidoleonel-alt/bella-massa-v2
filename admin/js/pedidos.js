@@ -33,6 +33,7 @@
   var STATUS_CYCLE = ['pendente', 'producao', 'pronto', 'entrega', 'entregue'];
 
   var STATUS_META = {
+    aguardando_pix: { label: 'Aguard. PIX',     badgeClass: 'badge--muted',   next: 'Em Produção' },
     pendente:    { label: 'Pedido Recebido', badgeClass: 'badge--info',    next: 'Em Produção' },
     pago:        { label: 'Pedido Recebido', badgeClass: 'badge--info',    next: 'Em Produção' },
     novo:        { label: 'Pedido Recebido', badgeClass: 'badge--info',    next: 'Em Produção' },
@@ -58,8 +59,8 @@
     var cycle = STATUS_CYCLE.slice();
     // Retirada: pula 'entrega', vai de pronto direto para entregue
     if (isPickup) cycle = cycle.filter(function(s) { return s !== 'entrega'; });
-    // pendente/pago/novo → todos equivalem a 'pendente' no ciclo
-    var normalized = (status === 'pago' || status === 'novo') ? 'pendente' : status;
+    // Normaliza variantes para 'pendente' (equivalente no ciclo)
+    var normalized = (status === 'pago' || status === 'novo' || status === 'aguardando_pix') ? 'pendente' : status;
     var idx = cycle.indexOf(normalized);
     if (idx === -1 || idx === cycle.length - 1) return null;
     return cycle[idx + 1];
