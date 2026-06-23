@@ -27,19 +27,21 @@
   if (burgerBtn) burgerBtn.addEventListener('click', function () { sidebar.classList.toggle('is-open'); backdrop.classList.toggle('is-visible'); });
   if (backdrop)  backdrop.addEventListener('click', function () { sidebar.classList.remove('is-open'); backdrop.classList.remove('is-visible'); });
 
-  /* ── Status config ── */
-  var STATUS_CYCLE = ['pendente', 'pago', 'producao', 'pronto', 'entrega', 'entregue'];
+  /* ── Status config (espelha steps do cliente) ── */
+  // Delivery: Recebido → Em Produção → Pronto → Saiu p/ Entrega → Entregue
+  // Pickup:   Recebido → Em Produção → Pronto p/ Retirada (pula entrega)
+  var STATUS_CYCLE = ['pendente', 'producao', 'pronto', 'entrega', 'entregue'];
 
   var STATUS_META = {
-    pendente:    { label: 'Aguard. Pagto', badgeClass: 'badge--muted',    next: 'Confirmar' },
-    pago:        { label: 'Pago',          badgeClass: 'badge--success',  next: 'Em Produção' },
-    novo:        { label: 'Recebido',      badgeClass: 'badge--info',     next: 'Em Produção' },
-    producao:    { label: 'Em Produção',   badgeClass: 'badge--warning',  next: 'Pronto' },
-    pronto:      { label: 'Pronto',        badgeClass: 'badge--success',  next: 'Saiu p/ Entrega' },
-    entrega:     { label: 'Em Entrega',    badgeClass: 'badge--info',     next: 'Entregue' },
-    entregue:    { label: 'Entregue',      badgeClass: 'badge--success',  next: null },
-    cancelado:   { label: 'Cancelado',     badgeClass: 'badge--danger',   next: null },
-    reembolsado: { label: 'Reembolsado',   badgeClass: 'badge--muted',    next: null }
+    pendente:    { label: 'Pedido Recebido', badgeClass: 'badge--info',    next: 'Em Produção' },
+    pago:        { label: 'Pedido Recebido', badgeClass: 'badge--info',    next: 'Em Produção' },
+    novo:        { label: 'Pedido Recebido', badgeClass: 'badge--info',    next: 'Em Produção' },
+    producao:    { label: 'Em Produção',     badgeClass: 'badge--warning', next: 'Pronto' },
+    pronto:      { label: 'Pronto',          badgeClass: 'badge--success', next: 'Saiu p/ Entrega' },
+    entrega:     { label: 'Em Entrega',      badgeClass: 'badge--info',    next: 'Entregue' },
+    entregue:    { label: 'Entregue',        badgeClass: 'badge--success', next: null },
+    cancelado:   { label: 'Cancelado',       badgeClass: 'badge--danger',  next: null },
+    reembolsado: { label: 'Reembolsado',     badgeClass: 'badge--muted',   next: null }
   };
 
   var ALL_BADGE = ['badge--info', 'badge--warning', 'badge--success', 'badge--danger', 'badge--muted'];
@@ -56,7 +58,9 @@
     var cycle = STATUS_CYCLE.slice();
     // Retirada: pula 'entrega', vai de pronto direto para entregue
     if (isPickup) cycle = cycle.filter(function(s) { return s !== 'entrega'; });
-    var idx = cycle.indexOf(status);
+    // pendente/pago/novo → todos equivalem a 'pendente' no ciclo
+    var normalized = (status === 'pago' || status === 'novo') ? 'pendente' : status;
+    var idx = cycle.indexOf(normalized);
     if (idx === -1 || idx === cycle.length - 1) return null;
     return cycle[idx + 1];
   }
@@ -77,10 +81,13 @@
     cell.appendChild(eye);
 
     if (nextSt) {
+      var nextLabel = isPickup && nextSt === 'entregue' && status === 'pronto'
+        ? 'Pronto p/ Retirada'
+        : (STATUS_META[nextSt] || {}).label;
       var advBtn = document.createElement('button');
       advBtn.className = 'abtn abtn--sm abtn--primary advance-btn';
-      advBtn.title = 'Avançar para: ' + (STATUS_META[nextSt] || {}).label;
-      advBtn.innerHTML = '<i class="fas fa-arrow-right"></i> ' + (STATUS_META[nextSt] || {}).label;
+      advBtn.title = 'Avançar para: ' + nextLabel;
+      advBtn.innerHTML = '<i class="fas fa-arrow-right"></i> ' + nextLabel;
       advBtn.style.cssText = 'font-size:.75rem;gap:.3em;padding:.35em .7em;';
       cell.appendChild(advBtn);
     }
@@ -455,11 +462,11 @@
     _pendingCancelId = orderId;
     if (cancelInput)  cancelInput.value = '';
     if (cancelErr)    cancelErr.style.display = 'none';
-    if (cancelModal)  { cancelModal.style.display = 'flex'; }
+    if (cancelModal)  cancelModal.classList.add('is-open');
   }
 
   function closeCancelModal() {
-    if (cancelModal) cancelModal.style.display = 'none';
+    if (cancelModal) cancelModal.classList.remove('is-open');
     _pendingCancelId = null;
   }
 
