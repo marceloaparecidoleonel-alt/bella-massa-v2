@@ -217,6 +217,8 @@ function initForm() {
       status: 'pendente', // Status inicial: aguardando pagamento
       paymentStatus: 'pending',
       obs: data.obs || '',
+      // PIX fica oculto no admin até confirmação do pagamento
+      ...(data.payment === 'pix' && { status: 'aguardando_pix', paymentStatus: 'pending' }),
     };
 
     let orderId = null;
@@ -271,7 +273,7 @@ function initForm() {
 
     // Salva dados do pedido na sessão para página de confirmação
     const total = formatPrice(Store.getGrandTotal(isDelivery));
-    sessionStorage.setItem('bm_last_order', JSON.stringify({
+    const sessionOrder = {
       numero: orderNumber,
       orderId: orderId,
       name: data.name,
@@ -283,13 +285,18 @@ function initForm() {
       payment: data.payment,
       troco: data.troco || '',
       total,
-    }));
-    // Persiste acompanhamento no localStorage para exibir em qualquer página
-    localStorage.setItem('bm_active_order', JSON.stringify({
-      orderId: orderId,
-      numero: orderNumber,
-      delivery: data.delivery,
-    }));
+    };
+    sessionStorage.setItem('bm_last_order', JSON.stringify(sessionOrder));
+
+    // Para PIX: banner só aparece após pagamento confirmado (ver startPixPolling)
+    // Para cartão/dinheiro: persiste imediatamente
+    if (data.payment !== 'pix') {
+      localStorage.setItem('bm_active_order', JSON.stringify({
+        orderId: orderId,
+        numero: orderNumber,
+        delivery: data.delivery,
+      }));
+    }
 
     // PIX → QR Code no modal | Cartão/Dinheiro → confirmação direta
     if (data.payment === 'pix') {
@@ -410,6 +417,15 @@ function startPixPolling(paymentId, orderId) {
         clearInterval(_pixPollInterval);
         document.getElementById('pixContent').style.display = 'none';
         document.getElementById('pixPaidMsg').style.display = 'block';
+        // Salva banner agora que pagamento foi confirmado
+        const lastOrder = JSON.parse(sessionStorage.getItem('bm_last_order') || 'null');
+        if (lastOrder) {
+          localStorage.setItem('bm_active_order', JSON.stringify({
+            orderId: lastOrder.orderId || orderId,
+            numero: lastOrder.numero,
+            delivery: lastOrder.delivery,
+          }));
+        }
         Store.clearCart();
         setTimeout(() => { window.location.href = `pedido-confirmado.html?status=success&orderId=${orderId}`; }, 2000);
       } else if (status === 'rejected' || status === 'cancelled') {

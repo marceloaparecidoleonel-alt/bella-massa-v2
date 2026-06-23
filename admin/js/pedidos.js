@@ -415,7 +415,10 @@
         tbody.innerHTML = '';
         var orders = [];
         snapshot.forEach(function (doc) {
-          orders.push(Object.assign({ id: doc.id }, doc.data()));
+          var data = doc.data();
+          // Ocultar pedidos PIX aguardando confirmação de pagamento
+          if (data.status === 'aguardando_pix') return;
+          orders.push(Object.assign({ id: doc.id }, data));
         });
 
         orders.forEach(function (order) {

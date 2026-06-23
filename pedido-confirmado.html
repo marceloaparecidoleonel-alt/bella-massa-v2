@@ -109,14 +109,14 @@
   <script>
     // ── Etapas da timeline ──────────────────────────────────────────────────
     const STEPS_DELIVERY = [
-      { statuses: ['pendente','pago','novo'],           icon: 'fa-clock',              label: 'Pedido recebido',       desc: 'Seu pedido foi registrado e aguarda preparo.' },
+      { statuses: ['aguardando_pix','pendente','pago','novo'], icon: 'fa-clock',        label: 'Pedido recebido',       desc: 'Seu pedido foi registrado e aguarda preparo.' },
       { statuses: ['producao'],                        icon: 'fa-fire-burner',        label: 'Em produção',           desc: 'Seu pedido está sendo preparado.' },
       { statuses: ['pronto'],                          icon: 'fa-box-open',           label: 'Pronto',                desc: 'Pedido pronto, aguardando entregador.' },
       { statuses: ['entrega'],                         icon: 'fa-motorcycle',         label: 'Saiu para entrega',     desc: 'Seu pedido está a caminho!' },
       { statuses: ['entregue'],                        icon: 'fa-house-circle-check', label: 'Entregue',              desc: 'Pedido entregue. Bom apetite! 🎉' }
     ];
     const STEPS_PICKUP = [
-      { statuses: ['pendente','pago','novo'],           icon: 'fa-clock',              label: 'Pedido recebido',       desc: 'Seu pedido foi registrado e aguarda preparo.' },
+      { statuses: ['aguardando_pix','pendente','pago','novo'], icon: 'fa-clock',        label: 'Pedido recebido',       desc: 'Seu pedido foi registrado e aguarda preparo.' },
       { statuses: ['producao'],                        icon: 'fa-fire-burner',        label: 'Em produção',           desc: 'Seu pedido está sendo preparado.' },
       { statuses: ['pronto','entrega','entregue'],     icon: 'fa-store',              label: 'Pronto para retirada',  desc: 'Venha buscar seu pedido na loja! 🎉' }
     ];

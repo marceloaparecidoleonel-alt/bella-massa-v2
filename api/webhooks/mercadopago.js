@@ -84,17 +84,20 @@ export default async function handler(req, res) {
       return res.status(200).json({ received: true });
     }
 
+    const paymentStatus = paymentData.status;
+
+    // PIX aprovado → 'pendente' (aparece no admin para ser processado)
+    // PIX rejeitado/cancelado → 'cancelado'
+    // PIX ainda pendente → mantém 'aguardando_pix' (invisível no admin)
     const statusMap = {
-      'approved':   'pago',
-      'pending':    'pendente',
-      'in_process': 'pendente',
+      'approved':   'pendente',
+      'pending':    'aguardando_pix',
+      'in_process': 'aguardando_pix',
       'rejected':   'cancelado',
       'cancelled':  'cancelado',
       'refunded':   'reembolsado'
     };
-
-    const paymentStatus = paymentData.status;
-    const newStatus = statusMap[paymentStatus] || paymentStatus;
+    const newStatus = statusMap[paymentStatus] || 'aguardando_pix';
 
     // Atualiza o pedido no Firestore
     if (db) {
@@ -115,7 +118,7 @@ export default async function handler(req, res) {
           },
           atualizadoEm: new Date()
         });
-        console.log(`Pedido ${orderId} atualizado: ${paymentStatus} → ${newStatus}`);
+        console.log(`Pedido ${orderId} atualizado: MP:${paymentStatus} → Firestore:${newStatus}`);
       } else {
         console.warn(`Pedido ${orderId} não encontrado no Firestore`);
       }
