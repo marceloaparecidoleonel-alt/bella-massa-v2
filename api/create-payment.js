@@ -1,48 +1,33 @@
 /**
  * API Vercel — Criar preferência de pagamento Mercado Pago
  * POST /api/create-payment
+ * Usa fetch direto à API REST do MP (mais confiável que SDK v1 em serverless)
  */
 
-import mercadopago from 'mercadopago';
-
-// Configura Mercado Pago com ACCESS_TOKEN do ambiente
-mercadopago.configure({
-  access_token: process.env.MERCADO_PAGO_ACCESS_TOKEN
-});
-
 export default async function handler(req, res) {
-  // Habilita CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  // Responde a preflight OPTIONS
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
-
-  // Apenas POST
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
+  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   try {
     const { items, payer, orderId, metadata, deliveryFee } = req.body;
 
-    // Validação básica
     if (!items || !Array.isArray(items) || items.length === 0) {
       return res.status(400).json({ error: 'Items inválidos' });
     }
 
-    // Constrói array de itens para Mercado Pago
+    // Itens do carrinho
     const mpItems = items.map(item => ({
-      title: item.name,
-      quantity: item.qty,
+      title: String(item.name),
+      quantity: Number(item.qty),
       unit_price: Number(item.price),
       currency_id: 'BRL'
     }));
 
-    // Adiciona taxa de entrega como item separado se houver
+    // Taxa de entrega como item separado
     const fee = Number(deliveryFee || 0);
     if (fee > 0) {
       mpItems.push({
@@ -53,32 +38,22 @@ export default async function handler(req, res) {
       });
     }
 
-    // Valida e normaliza email
-    const email = payer.email && payer.email.includes('@') ? payer.email : 'cliente@bellamassa.com';
+    const email = payer?.email?.includes('@') ? payer.email : 'cliente@bellamassa.com';
 
-    // Limpa telefone removendo tudo que não for número
-    const cleanPhone = String(payer.phone || '').replace(/\D/g, '');
+    console.log('Criando preferência MP — items:', mpItems.length, '| orderId:', orderId, '| fee:', fee);
 
-    // Logs para depuração
-    console.log('PAYER RECEBIDO:', payer);
-    console.log('EMAIL ENVIADO:', email);
-    console.log('PHONE ENVIADO:', cleanPhone);
-
-    // Cria preferência de pagamento
     const preference = {
       items: mpItems,
       payer: {
-        name: payer.name,
-        email: email,
-        phone: {
-          number: Number(cleanPhone)
-        }
+        name: String(payer?.name || 'Cliente'),
+        email: email
       },
       back_urls: {
         success: `${process.env.SITE_URL}/pedido-confirmado.html?status=success`,
         failure: `${process.env.SITE_URL}/pedido-confirmado.html?status=failure`,
         pending: `${process.env.SITE_URL}/pedido-confirmado.html?status=pending`
       },
+      auto_return: 'all',
       payment_methods: {
         excluded_payment_types: [
           { id: 'credit_card' },
@@ -87,40 +62,40 @@ export default async function handler(req, res) {
           { id: 'atm' },
           { id: 'prepaid_card' },
           { id: 'account_money' }
-        ],
-        excluded_payment_methods: [
-          { id: 'master' },
-          { id: 'visa' },
-          { id: 'amex' },
-          { id: 'hipercard' },
-          { id: 'elo' },
-          { id: 'bolbradesco' },
-          { id: 'pec' }
-        ],
-        installments: 1
+        ]
       },
-      auto_return: 'all',
-      external_reference: orderId,
+      external_reference: orderId || '',
       metadata: metadata || {}
     };
 
-    const result = await mercadopago.preferences.create(preference);
+    const mpRes = await fetch('https://api.mercadopago.com/checkout/preferences', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.MERCADO_PAGO_ACCESS_TOKEN}`
+      },
+      body: JSON.stringify(preference)
+    });
 
-    // Retorna init_point e preference_id
-    res.status(200).json({
-      init_point: result.body.init_point,
-      preference_id: result.body.id,
-      sandbox_init_point: result.body.sandbox_init_point
+    const data = await mpRes.json();
+
+    if (!mpRes.ok) {
+      console.error('Erro MP status:', mpRes.status, '| body:', JSON.stringify(data));
+      return res.status(500).json({
+        error: 'Erro ao criar pagamento',
+        details: data.message || data.error || JSON.stringify(data)
+      });
+    }
+
+    console.log('Preferência criada:', data.id);
+    return res.status(200).json({
+      init_point: data.init_point,
+      preference_id: data.id,
+      sandbox_init_point: data.sandbox_init_point
     });
 
   } catch (error) {
-    const mpError = error?.cause || error?.response?.data || error?.message || String(error);
-    console.error('Erro MP completo:', JSON.stringify(mpError));
-    console.error('Stack:', error?.stack);
-    res.status(500).json({
-      error: 'Erro ao criar pagamento',
-      details: error.message,
-      mp_error: typeof mpError === 'object' ? JSON.stringify(mpError) : mpError
-    });
+    console.error('Exceção em create-payment:', error?.message, error?.stack);
+    return res.status(500).json({ error: 'Erro interno', details: error.message });
   }
 }
