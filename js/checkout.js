@@ -305,8 +305,9 @@ function initForm() {
 
         if (!response.ok) {
           const errorMsg = result.error || result.details || 'Erro ao criar pagamento';
-          console.error('Erro da API:', errorMsg);
-          throw new Error(errorMsg);
+          const mpDetail = result.mp_error ? ' | MP: ' + result.mp_error : '';
+          console.error('Erro da API:', errorMsg, mpDetail);
+          throw new Error(errorMsg + mpDetail);
         }
 
         if (!result.init_point || typeof result.init_point !== 'string' || !result.init_point.startsWith('http')) {

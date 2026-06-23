@@ -114,8 +114,13 @@ export default async function handler(req, res) {
     });
 
   } catch (error) {
-    console.error('Erro ao criar preferência Mercado Pago:', error?.message);
-    console.error('Detalhes MP:', JSON.stringify(error?.cause || error?.response || {}));
-    res.status(500).json({ error: 'Erro ao criar pagamento', details: error.message });
+    const mpError = error?.cause || error?.response?.data || error?.message || String(error);
+    console.error('Erro MP completo:', JSON.stringify(mpError));
+    console.error('Stack:', error?.stack);
+    res.status(500).json({
+      error: 'Erro ao criar pagamento',
+      details: error.message,
+      mp_error: typeof mpError === 'object' ? JSON.stringify(mpError) : mpError
+    });
   }
 }
