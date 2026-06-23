@@ -280,6 +280,7 @@ function initForm() {
               qty: item.qty,
               price: item.price
             })),
+            deliveryFee: isDelivery ? Store.getDeliveryFee(true) : 0,
             payer: {
               name: data.name,
               phone: data.phone,

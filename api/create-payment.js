@@ -27,7 +27,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { items, payer, orderId, metadata } = req.body;
+    const { items, payer, orderId, metadata, deliveryFee } = req.body;
 
     // Validação básica
     if (!items || !Array.isArray(items) || items.length === 0) {
@@ -41,6 +41,17 @@ export default async function handler(req, res) {
       unit_price: Number(item.price),
       currency_id: 'BRL'
     }));
+
+    // Adiciona taxa de entrega como item separado se houver
+    const fee = Number(deliveryFee || 0);
+    if (fee > 0) {
+      mpItems.push({
+        title: 'Taxa de entrega',
+        quantity: 1,
+        unit_price: fee,
+        currency_id: 'BRL'
+      });
+    }
 
     // Valida e normaliza email
     const email = payer.email && payer.email.includes('@') ? payer.email : 'cliente@bellamassa.com';
@@ -74,8 +85,19 @@ export default async function handler(req, res) {
           { id: 'debit_card' },
           { id: 'ticket' },
           { id: 'atm' },
-          { id: 'prepaid_card' }
-        ]
+          { id: 'prepaid_card' },
+          { id: 'account_money' }
+        ],
+        excluded_payment_methods: [
+          { id: 'master' },
+          { id: 'visa' },
+          { id: 'amex' },
+          { id: 'hipercard' },
+          { id: 'elo' },
+          { id: 'bolbradesco' },
+          { id: 'pec' }
+        ],
+        installments: 1
       },
       auto_return: 'all',
       external_reference: orderId,
