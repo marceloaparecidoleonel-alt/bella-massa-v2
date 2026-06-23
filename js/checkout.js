@@ -296,7 +296,8 @@ function initForm() {
         }
 
         if (!response.ok) {
-          throw new Error(result.error || result.details || 'Erro ao gerar PIX');
+          const detail = result.details || result.error || JSON.stringify(result);
+          throw new Error(detail);
         }
 
         showPixQr(result.qr_code_base64, result.qr_code, result.payment_id, orderId);
