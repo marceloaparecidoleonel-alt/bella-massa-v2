@@ -219,26 +219,26 @@
 
     // Etapas para delivery
     const STEPS_DELIVERY = [
-      { status: ['pendente'],                   icon: 'fa-clock',         label: 'Aguardando pagamento',  desc: 'Confirme o PIX para prosseguir.' },
-      { status: ['pago', 'novo'],               icon: 'fa-circle-check',  label: 'Pagamento confirmado',  desc: 'Seu pagamento foi recebido.' },
-      { status: ['producao'],                   icon: 'fa-fire-burner',   label: 'Em produção',           desc: 'Seu pedido está sendo preparado.' },
-      { status: ['pronto'],                     icon: 'fa-box-open',      label: 'Pronto',                desc: 'Pedido pronto, aguardando entregador.' },
-      { status: ['entrega'],                    icon: 'fa-motorcycle',    label: 'Saiu para entrega',     desc: 'Seu pedido está a caminho!' },
-      { status: ['entregue'],                   icon: 'fa-house-circle-check', label: 'Entregue',         desc: 'Pedido entregue. Bom apetite! 🎉' }
+      { statuses: ['pendente'],                        icon: 'fa-clock',              label: 'Aguardando pagamento',  desc: 'Confirme o pagamento para prosseguir.' },
+      { statuses: ['pago','novo'],                     icon: 'fa-circle-check',       label: 'Pagamento confirmado',  desc: 'Pagamento recebido com sucesso.' },
+      { statuses: ['producao'],                        icon: 'fa-fire-burner',        label: 'Em produção',           desc: 'Seu pedido está sendo preparado.' },
+      { statuses: ['pronto'],                          icon: 'fa-box-open',           label: 'Pronto',                desc: 'Pedido pronto, aguardando entregador.' },
+      { statuses: ['entrega'],                         icon: 'fa-motorcycle',         label: 'Saiu para entrega',     desc: 'Seu pedido está a caminho!' },
+      { statuses: ['entregue'],                        icon: 'fa-house-circle-check', label: 'Entregue',              desc: 'Pedido entregue. Bom apetite! 🎉' }
     ];
 
     // Etapas para retirada
     const STEPS_PICKUP = [
-      { status: ['pendente'],                   icon: 'fa-clock',         label: 'Aguardando pagamento',  desc: 'Confirme o PIX para prosseguir.' },
-      { status: ['pago', 'novo'],               icon: 'fa-circle-check',  label: 'Pagamento confirmado',  desc: 'Seu pagamento foi recebido.' },
-      { status: ['producao'],                   icon: 'fa-fire-burner',   label: 'Em produção',           desc: 'Seu pedido está sendo preparado.' },
-      { status: ['pronto', 'entrega', 'entregue'], icon: 'fa-store',      label: 'Pronto para retirada',  desc: 'Venha buscar seu pedido na loja! 🎉' }
+      { statuses: ['pendente'],                        icon: 'fa-clock',              label: 'Aguardando pagamento',  desc: 'Confirme o pagamento para prosseguir.' },
+      { statuses: ['pago','novo'],                     icon: 'fa-circle-check',       label: 'Pagamento confirmado',  desc: 'Pagamento recebido com sucesso.' },
+      { statuses: ['producao'],                        icon: 'fa-fire-burner',        label: 'Em produção',           desc: 'Seu pedido está sendo preparado.' },
+      { statuses: ['pronto','entrega','entregue'],     icon: 'fa-store',              label: 'Pronto para retirada',  desc: 'Venha buscar seu pedido na loja! 🎉' }
     ];
 
     function getActiveStep(steps, currentStatus) {
       let active = 0;
       steps.forEach((step, i) => {
-        if (step.status.includes(currentStatus)) active = i;
+        if (step.statuses.includes(currentStatus)) active = i;
       });
       return active;
     }
@@ -268,7 +268,11 @@
       const steps      = isDelivery ? STEPS_DELIVERY : STEPS_PICKUP;
       const status     = order.status || 'novo';
       const cancelled  = status === 'cancelado';
+      const done       = status === 'entregue' || cancelled;
       const activeIdx  = cancelled ? -1 : getActiveStep(steps, status);
+
+      // Remove banner do localStorage quando pedido finalizado
+      if (done) localStorage.removeItem('bm_active_order');
 
       document.getElementById('trackNum').textContent = `Pedido #${order.numero || order.id?.slice(-4) || '—'}`;
       document.getElementById('trackLoading').style.display  = 'none';

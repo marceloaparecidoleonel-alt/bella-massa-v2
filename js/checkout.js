@@ -104,7 +104,7 @@ function showFieldError(fieldId, errId, message) {
 }
 
 function clearErrors() {
-  document.querySelectorAll('.form-input.error, .form-select.error').forEach(el => el.classList.remove('error'));
+  document.querySelectorAll('.form-input.error, .form-select.error, .form-textarea.error').forEach(el => el.classList.remove('error'));
   document.querySelectorAll('.form-error').forEach(el => el.textContent = '');
 }
 
@@ -135,6 +135,13 @@ function validateForm(data) {
     if (!data.city.trim()) {
       showFieldError('clientCity', 'err-city', 'Informe sua cidade.');
       valid = false;
+    }
+    if (data.payment === 'dinheiro') {
+      const trocoNum = parseFloat(data.troco);
+      if (!data.troco || data.troco.trim() === '' || isNaN(trocoNum) || trocoNum < 0) {
+        showFieldError('trocoVal', 'err-troco', 'Informe o valor para o troco (pode ser R$ 0,00 se não precisar).');
+        valid = false;
+      }
     }
   }
 
@@ -276,6 +283,12 @@ function initForm() {
       payment: data.payment,
       troco: data.troco || '',
       total,
+    }));
+    // Persiste acompanhamento no localStorage para exibir em qualquer página
+    localStorage.setItem('bm_active_order', JSON.stringify({
+      orderId: orderId,
+      numero: orderNumber,
+      delivery: data.delivery,
     }));
 
     // PIX → QR Code no modal | Cartão/Dinheiro → confirmação direta

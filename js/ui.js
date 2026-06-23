@@ -135,6 +135,56 @@ function setFooterYear() {
   if (el) el.textContent = new Date().getFullYear();
 }
 
+// ── Banner pedido ativo ───────────────────────────────────────────────────────
+function initOrderBanner() {
+  const raw = localStorage.getItem('bm_active_order');
+  if (!raw) return;
+
+  // Não exibir na própria página de confirmação (já tem a timeline embutida)
+  const page = location.pathname.split('/').pop() || 'index.html';
+  if (page === 'pedido-confirmado.html' || page === 'acompanhar-pedido.html') return;
+
+  let order;
+  try { order = JSON.parse(raw); } catch(e) { return; }
+  if (!order || !order.orderId) return;
+
+  const banner = document.createElement('div');
+  banner.id = 'orderTrackBanner';
+  banner.style.cssText = [
+    'position:fixed','bottom:1rem','left:50%','transform:translateX(-50%)',
+    'z-index:9999','background:var(--clr-primary,#c8963e)','color:#fff',
+    'border-radius:99px','padding:.65em 1.2em .65em 1em',
+    'display:flex','align-items:center','gap:.6em',
+    'box-shadow:0 4px 20px rgba(0,0,0,.18)','font-size:.88rem',
+    'font-family:Inter,sans-serif','cursor:pointer',
+    'white-space:nowrap','max-width:calc(100vw - 2rem)',
+    'animation:slideUpIn .35s ease'
+  ].join(';');
+
+  const style = document.createElement('style');
+  style.textContent = '@keyframes slideUpIn{from{transform:translateX(-50%) translateY(100%);opacity:0}to{transform:translateX(-50%) translateY(0);opacity:1}}';
+  document.head.appendChild(style);
+
+  banner.innerHTML = `
+    <i class="fas fa-motorcycle" style="font-size:1rem;"></i>
+    <span><strong>Pedido #${order.numero}</strong> em andamento</span>
+    <a href="acompanhar-pedido.html?orderId=${order.orderId}" style="color:#fff;text-decoration:underline;font-weight:600;margin-left:.3em;">Acompanhar</a>
+    <button id="closeBanner" title="Fechar" style="background:none;border:none;color:#fff;font-size:1.1rem;cursor:pointer;margin-left:.2em;padding:0;line-height:1;">&times;</button>
+  `;
+
+  document.body.appendChild(banner);
+
+  document.getElementById('closeBanner').addEventListener('click', (e) => {
+    e.stopPropagation();
+    banner.remove();
+    localStorage.removeItem('bm_active_order');
+  });
+
+  banner.addEventListener('click', () => {
+    window.location.href = `acompanhar-pedido.html?orderId=${order.orderId}`;
+  });
+}
+
 // ── Init all shared UI ───────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   initHeader();
@@ -143,4 +193,5 @@ document.addEventListener('DOMContentLoaded', () => {
   initSmoothScroll();
   setFooterYear();
   setTimeout(observeReveal, 80);
+  initOrderBanner();
 });
