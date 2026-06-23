@@ -64,8 +64,7 @@ export default async function handler(req, res) {
           { id: 'debit_card' },
           { id: 'ticket' },
           { id: 'atm' },
-          { id: 'prepaid_card' },
-          { id: 'account_money' }
+          { id: 'prepaid_card' }
         ]
       },
       external_reference: orderId || '',
