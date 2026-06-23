@@ -49,7 +49,7 @@ export default async function handler(req, res) {
         last_name: lastName
       },
       external_reference: orderId || '',
-      notification_url: `${(process.env.SITE_URL || 'https://bella-massa-app.vercel.app').replace(/\/$/, '')}/api/webhooks/mercadopago`
+      notification_url: 'https://bella-massa-app.vercel.app/api/webhooks/mercadopago'
     };
 
     console.log('Payload PIX:', JSON.stringify(payload));
