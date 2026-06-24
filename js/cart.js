@@ -127,6 +127,14 @@ function updateCartUI() {
 
 // ─── Inicialização ───────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
+  // Garante que o offcanvas começa fechado ao carregar a página
+  const cartEl = document.getElementById('cart');
+  if (cartEl) {
+    cartEl.classList.remove('cart--open');
+    cartEl.setAttribute('aria-hidden', 'true');
+  }
+  document.getElementById('cartOverlay')?.classList.remove('cart-overlay--visible');
+
   document.getElementById('cartBtn')?.addEventListener('click', openCart);
   document.getElementById('cartClose')?.addEventListener('click', closeCart);
   document.getElementById('cartOverlay')?.addEventListener('click', closeCart);
@@ -145,6 +153,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') closeCart();
+  });
+
+  // Fecha o offcanvas ao clicar em qualquer link de navegação interna
+  document.querySelectorAll('a.nav__link, .header__logo, .footer__links a').forEach(link => {
+    link.addEventListener('click', closeCart);
   });
 
   // Sincroniza UI sempre que Store mudar
