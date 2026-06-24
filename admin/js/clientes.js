@@ -38,16 +38,28 @@
   const searchInput  = document.getElementById('searchInput');
 
   /* ── Segmento ── */
-  function getSegmento(pedidos, totalGasto) {
-    if (pedidos >= 15 || totalGasto >= 500) return 'vip';
+  function getSegmento(pedidos) {
+    if (pedidos >= 10) return 'vip';
     if (pedidos >= 5)  return 'frequente';
     if (pedidos >= 1)  return 'novo';
-    return 'inativo';
+    return 'novo';
   }
 
-  const SEG_LABEL = { vip: 'VIP', frequente: 'Frequente', novo: 'Novo', inativo: 'Inativo' };
-  const SEG_BADGE = { vip: 'badge--gold', frequente: 'badge--info', novo: 'badge--success', inativo: 'badge--muted' };
-  const SEG_ICON  = { vip: '<i class="fas fa-crown"></i> ', frequente: '', novo: '', inativo: '' };
+  /* ── Status ativo/inativo (30 dias) ── */
+  const TRINTA_DIAS_MS = 30 * 24 * 60 * 60 * 1000;
+  function getStatus(ultimoPedido) {
+    if (!ultimoPedido) return 'inativo';
+    const diff = Date.now() - ultimoPedido.seconds * 1000;
+    return diff <= TRINTA_DIAS_MS ? 'ativo' : 'inativo';
+  }
+
+  const SEG_LABEL = { vip: 'VIP', frequente: 'Frequente', novo: 'Novo' };
+  const SEG_BADGE = { vip: 'badge--gold', frequente: 'badge--info', novo: 'badge--success' };
+  const SEG_ICON  = { vip: '<i class="fas fa-crown"></i> ', frequente: '', novo: '' };
+
+  const STATUS_LABEL = { ativo: 'Ativo', inativo: 'Inativo' };
+  const STATUS_BADGE = { ativo: 'badge--success', inativo: 'badge--muted' };
+  const STATUS_ICON  = { ativo: '<i class="fas fa-circle" style="font-size:.55em;vertical-align:middle;"></i> ', inativo: '' };
 
   /* ── Render card ── */
   function renderCard(c, i) {
@@ -68,7 +80,8 @@
         '<div>' +
           '<div class="customer-card__name">' + c.nome + '</div>' +
           '<div class="customer-card__phone">' + c.telefone + '</div>' +
-          '<span class="badge ' + SEG_BADGE[seg] + '" style="margin-top:6px;">' + SEG_ICON[seg] + SEG_LABEL[seg] + '</span>' +
+          '<span class="badge ' + SEG_BADGE[seg] + '" style="margin-top:6px;margin-right:4px;">' + SEG_ICON[seg] + SEG_LABEL[seg] + '</span>' +
+          '<span class="badge ' + STATUS_BADGE[c.status] + '" style="margin-top:6px;">' + STATUS_ICON[c.status] + STATUS_LABEL[c.status] + '</span>' +
         '</div>' +
       '</div>' +
       '<div class="customer-card__stats">' +
@@ -90,8 +103,11 @@
     customerGrid.innerHTML = '';
 
     const filtered = allClients.filter(c => {
-      const matchSeg = currentSeg === 'todos' || c.segmento === currentSeg;
-      const matchQ   = !currentSearch || (c.nome + ' ' + c.telefone + ' ' + (c.email || '')).toLowerCase().includes(currentSearch);
+      let matchSeg;
+      if (currentSeg === 'todos')    matchSeg = true;
+      else if (currentSeg === 'inativo') matchSeg = c.status === 'inativo';
+      else                           matchSeg = c.segmento === currentSeg;
+      const matchQ = !currentSearch || (c.nome + ' ' + c.telefone + ' ' + (c.email || '')).toLowerCase().includes(currentSearch);
       return matchSeg && matchQ;
     });
 
@@ -180,7 +196,8 @@
       });
 
       allClients = Object.values(map).map(c => {
-        c.segmento = getSegmento(c.totalPedidos, c.totalGasto);
+        c.segmento = getSegmento(c.totalPedidos);
+        c.status   = getStatus(c.ultimoPedido);
         return c;
       });
 
