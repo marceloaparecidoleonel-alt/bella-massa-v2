@@ -158,6 +158,48 @@
 }
 
 /* ==========================================================================
+   Tabelas: scroll horizontal controlado (não quebra layout)
+   ==========================================================================
+*/
+.atable-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: var(--a-radius-lg);
+}
+
+@media (max-width: 768px) {
+  /* Tabelas com scroll interno — previne overflow da página */
+  .panel .atable-wrap,
+  .panel > .atable { overflow-x: auto; display: block; width: 100%; }
+  .atable { min-width: 520px; }
+
+  /* Modal: não ultrapassa a viewport em mobile */
+  .modal-overlay { align-items: flex-end; padding: 0; }
+  .modal {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    border-radius: var(--a-radius-xl) var(--a-radius-xl) 0 0;
+    max-height: 92dvh;
+    overflow-y: auto;
+  }
+
+  /* Topbar: garante alinhamento sem overflow */
+  .topbar { gap: 8px; }
+}
+
+/* ==========================================================================
+   Extra small — até 320px
+   ==========================================================================
+*/
+@media (max-width: 320px) {
+  .kpi-grid { grid-template-columns: 1fr; }
+  .page-body { padding: 14px 12px 48px; }
+  .kpi-card { padding: 14px; }
+  .kpi-card__value { font-size: 1.4rem; }
+  .topbar { padding: 0 12px; }
+}
+
+/* ==========================================================================
    Login page — responsividade específica
    ==========================================================================
 */

@@ -3,6 +3,12 @@
    Breakpoints: 1200px · 1024px · 768px · 580px · 480px · 360px
    ================================================================ */
 
+/* ─── Global: previne scroll horizontal em qualquer breakpoint ──── */
+html, body {
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
 /* ─── Large Desktop (≤ 1200px) ──────────────────────────────────── */
 @media (max-width: 1200px) {
   :root { --section-py: 5rem; }
@@ -250,6 +256,25 @@
 
   /* Footer */
   .footer__bottom-inner { font-size: 0.75rem; }
+
+  /* Toast: evita overflow em telas pequenas */
+  .toast-container { right: 0.75rem; left: 0.75rem; bottom: 1rem; }
+  .toast { min-width: unset; max-width: 100%; width: 100%; }
+
+  /* Carrinho page: qty controls stack */
+  .cart-row__controls { flex-wrap: wrap; gap: 0.35rem; }
+
+  /* Produto page: botão adicionar full width */
+  .produto__qty-row { flex-direction: column; align-items: stretch; gap: 1rem; }
+  .produto__add-btn { flex: unset; width: 100%; }
+
+  /* Confirmado card */
+  .confirmado__card { padding: 2rem 1.25rem; margin-inline: 0.75rem; }
+
+  /* Checkout: opções de pagamento 3 cols → podem ficar estreitas */
+  .payment-options { grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
+  .payment-option__label { padding: 0.75rem 0.4rem; }
+  .payment-option__label span { font-size: 0.7rem; }
 }
 
 /* ─── Small Mobile (≤ 360px) ────────────────────────────────────── */
@@ -265,6 +290,46 @@
 
   .cart__header, .cart__footer { padding-inline: 1rem; }
   .cart__body   { padding: 0.875rem 1rem; }
+
+  /* pages.css: catálogo grid 1 coluna em telas muito pequenas */
+  .catalogo__grid { grid-template-columns: 1fr; }
+
+  /* cart-row: imagem menor */
+  .cart-row { grid-template-columns: 60px 1fr auto; gap: 0.5rem; padding: 0.875rem 0.875rem; }
+  .cart-row__img { width: 60px; height: 50px; }
+
+  /* checkout payment 3 cols → 1 col */
+  .payment-options { grid-template-columns: 1fr; }
+
+  /* confirmado */
+  .confirmado__card { padding: 1.5rem 1rem; margin-inline: 0.5rem; }
+  .confirmado__title { font-size: 1.5rem; }
+}
+
+/* ─── Extra Small (≤ 320px) ─────────────────────────────────────── */
+@media (max-width: 320px) {
+  .hero__title { font-size: 1.6rem; }
+
+  .catalogo__grid { grid-template-columns: 1fr; }
+  .produto__related-grid { grid-template-columns: 1fr; }
+
+  .cart-row { grid-template-columns: 56px 1fr auto; }
+  .cart-row__img { width: 56px; height: 46px; }
+  .cart-row__name { font-size: 0.85rem; }
+
+  .order-summary { padding: 1rem; }
+
+  .checkout__section-body { padding: 1rem; }
+  .form-grid { grid-template-columns: 1fr; }
+
+  .payment-options { grid-template-columns: 1fr; }
+
+  .confirmado__card { padding: 1.25rem 0.875rem; margin-inline: 0.25rem; }
+  .confirmado__icon { width: 64px; height: 64px; font-size: 1.6rem; }
+
+  .sobre__values-grid, .sobre__team-grid { grid-template-columns: 1fr; }
+
+  .contato__layout { grid-template-columns: 1fr; }
 }
 
 /* ─── Print ─────────────────────────────────────────────────────── */
