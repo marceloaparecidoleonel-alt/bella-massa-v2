@@ -58,6 +58,10 @@ function getProductById(id) {
     const found = _liveProducts.find(p => String(p.id) === strId);
     if (found) return found;
   }
+  if (typeof BM_PRODUCTS !== 'undefined') {
+    const found = BM_PRODUCTS.find(p => String(p.id) === strId);
+    if (found) return found;
+  }
   if (typeof PRODUCTS !== 'undefined') {
     const found = PRODUCTS.find(p => String(p.id) === strId);
     if (found) return found;

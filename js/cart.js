@@ -2,200 +2,93 @@
  * cart.js
  * Bella Massa — Padaria Artesanal
  *
- * Gerenciamento completo do carrinho de compras (offcanvas).
- * Preparado para futura integração com Firebase / API de pagamento.
+ * Offcanvas de carrinho da home. Usa Store como única fonte de verdade,
+ * garantindo sincronismo com a página carrinho.html.
  */
 
-// ─── Estado do Carrinho ─────────────────────────────────────────────────────
-let cart = JSON.parse(localStorage.getItem('bellaMassaCart')) || [];
-
-// ─── Utilitários ────────────────────────────────────────────────────────────
-/**
- * Formata valor em Reais (BRL)
- * @param {number} value
- * @returns {string}
- */
+// ─── Utilitários ─────────────────────────────────────────────────────────────
 function formatCurrency(value) {
   return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 }
 
-/**
- * Salva o carrinho no localStorage
- */
-function saveCart() {
-  localStorage.setItem('bellaMassaCart', JSON.stringify(cart));
-}
-
-/**
- * Exibe uma notificação toast
- * @param {string} message
- * @param {'success'|'error'|'info'} type
- */
-function showToast(message, type = 'success') {
-  const toast = document.getElementById('toast');
-  if (!toast) return;
-
-  toast.textContent = message;
-  toast.className = `toast toast--${type} toast--visible`;
-
-  clearTimeout(toast._timeout);
-  toast._timeout = setTimeout(() => {
-    toast.classList.remove('toast--visible');
-  }, 3000);
-}
-
-// ─── Carrinho: CRUD ──────────────────────────────────────────────────────────
-/**
- * Adiciona um produto ao carrinho
- * @param {number} productId
- */
+// ─── addToCart (chamado pelos botões dos cards de produto) ───────────────────
 function addToCart(productId) {
-  const strId  = String(productId);
-  const lookup = typeof getProductById === 'function'
-    ? getProductById(strId)
-    : (typeof PRODUCTS !== 'undefined' ? PRODUCTS.find(p => String(p.id) === strId) : null);
+  const strId = String(productId);
 
-  if (!lookup) {
-    showToast('Produto não encontrado.', 'error');
+  // Busca em _liveProducts (Firestore) depois em BM_PRODUCTS (estático)
+  let product = null;
+  if (typeof getProductById === 'function') {
+    product = getProductById(strId);
+  }
+  if (!product && typeof BM_PRODUCTS !== 'undefined') {
+    product = BM_PRODUCTS.find(p => String(p.id) === strId) || null;
+  }
+
+  if (!product) {
+    if (typeof showToast === 'function') showToast('Produto não encontrado.', 'error');
     return;
   }
 
-  const name  = lookup.name  || lookup.nome  || '';
-  const price = typeof lookup.price === 'number' ? lookup.price : (lookup.preco || 0);
-  const image = lookup.image || lookup.imagem || '';
+  const name  = product.name  || product.nome  || '';
+  const price = typeof product.price === 'number' ? product.price : (product.preco || 0);
+  const image = product.image || product.imagem || '';
 
-  const existing = cart.find(item => String(item.id) === strId);
+  Store.addItem({ id: strId, name, price, image }, 1);
 
-  if (existing) {
-    existing.quantity += 1;
-    showToast(`+1 ${name} adicionado!`, 'success');
-  } else {
-    cart.push({ ...lookup, id: strId, name, price, image, quantity: 1 });
-    showToast(`${name} adicionado ao carrinho!`, 'success');
-  }
-
-  saveCart();
-  updateCartUI();
+  if (typeof showToast === 'function') showToast(`${name} adicionado ao carrinho!`, 'success');
   animateCartBtn();
 }
 
-/**
- * Remove um produto do carrinho pelo id
- * @param {number} productId
- */
-function removeFromCart(productId) {
-  const strId = String(productId);
-  const idx = cart.findIndex(item => String(item.id) === strId);
-  if (idx === -1) return;
-
-  const name = cart[idx].name;
-  cart.splice(idx, 1);
-  saveCart();
-  updateCartUI();
-  showToast(`${name} removido do carrinho.`, 'info');
+// ─── Offcanvas: abrir / fechar ───────────────────────────────────────────────
+function openCart() {
+  const cartEl    = document.getElementById('cart');
+  const overlayEl = document.getElementById('cartOverlay');
+  if (cartEl) { cartEl.classList.add('cart--open'); cartEl.setAttribute('aria-hidden', 'false'); }
+  if (overlayEl) overlayEl.classList.add('cart-overlay--visible');
+  document.body.classList.add('body--no-scroll');
 }
 
-/**
- * Altera a quantidade de um produto no carrinho
- * @param {number} productId
- * @param {number} delta — +1 ou -1
- */
-function changeQuantity(productId, delta) {
-  const strId = String(productId);
-  const item = cart.find(i => String(i.id) === strId);
-  if (!item) return;
-
-  item.quantity += delta;
-
-  if (item.quantity <= 0) {
-    removeFromCart(productId);
-    return;
-  }
-
-  saveCart();
-  updateCartUI();
+function closeCart() {
+  const cartEl    = document.getElementById('cart');
+  const overlayEl = document.getElementById('cartOverlay');
+  if (cartEl) { cartEl.classList.remove('cart--open'); cartEl.setAttribute('aria-hidden', 'true'); }
+  if (overlayEl) overlayEl.classList.remove('cart-overlay--visible');
+  document.body.classList.remove('body--no-scroll');
 }
 
-/**
- * Limpa todo o carrinho
- */
-function clearCart() {
-  cart = [];
-  saveCart();
-  updateCartUI();
-  showToast('Carrinho esvaziado.', 'info');
+// ─── Micro animação no botão do carrinho ─────────────────────────────────────
+function animateCartBtn() {
+  const btn = document.getElementById('cartBtn');
+  if (!btn) return;
+  btn.classList.add('cart-btn--pulse');
+  setTimeout(() => btn.classList.remove('cart-btn--pulse'), 600);
 }
 
-// ─── Cálculos ────────────────────────────────────────────────────────────────
-/**
- * Retorna o total de itens no carrinho
- * @returns {number}
- */
-function getCartCount() {
-  return cart.reduce((sum, item) => sum + item.quantity, 0);
-}
-
-/**
- * Retorna o valor subtotal do carrinho
- * @returns {number}
- */
-function getCartSubtotal() {
-  return cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-}
-
-/**
- * Calcula o frete (grátis acima de R$ 50)
- * @returns {number}
- */
-function getDeliveryFee() {
-  const subtotal = getCartSubtotal();
-  return subtotal >= 50 ? 0 : 8.90;
-}
-
-/**
- * Retorna o total final (subtotal + frete)
- * @returns {number}
- */
-function getCartTotal() {
-  return getCartSubtotal() + getDeliveryFee();
-}
-
-// ─── Renderização do Carrinho ────────────────────────────────────────────────
-/**
- * Atualiza toda a interface do carrinho
- */
+// ─── Renderização do offcanvas ───────────────────────────────────────────────
 function updateCartUI() {
-  const badge     = document.getElementById('cartBadge');
-  const itemsList = document.getElementById('cartItems');
-  const emptyEl   = document.getElementById('cartEmpty');
-  const footerEl  = document.getElementById('cartFooter');
-  const subtotalEl= document.getElementById('cartSubtotal');
-  const totalEl   = document.getElementById('cartTotal');
-  const delivEl   = document.querySelector('.cart__delivery-free');
-
-  const count    = getCartCount();
-  const subtotal = getCartSubtotal();
-  const delivery = getDeliveryFee();
-  const total    = getCartTotal();
-
-  // Badge
-  if (badge) {
-    badge.textContent = count;
-    badge.classList.toggle('cart__badge--active', count > 0);
-  }
+  const itemsList  = document.getElementById('cartItems');
+  const emptyEl    = document.getElementById('cartEmpty');
+  const footerEl   = document.getElementById('cartFooter');
+  const subtotalEl = document.getElementById('cartSubtotal');
+  const totalEl    = document.getElementById('cartTotal');
+  const delivEl    = document.querySelector('.cart__delivery-free');
 
   if (!itemsList) return;
 
-  // Vazio vs populado
-  const isEmpty = cart.length === 0;
-  if (emptyEl) emptyEl.style.display = isEmpty ? 'flex' : 'none';
-  if (footerEl) footerEl.style.display = isEmpty ? 'none' : 'flex';
+  const cartItems = Store.getCart();
+  const count     = Store.getCount();
+  const subtotal  = Store.getSubtotal();
+  const delivery  = Store.getDeliveryFee(true);
+  const total     = subtotal + delivery;
+
+  const isEmpty = count === 0;
+  if (emptyEl)  emptyEl.style.display  = isEmpty ? 'flex'  : 'none';
+  if (footerEl) footerEl.style.display = isEmpty ? 'none'  : 'flex';
   itemsList.style.display = isEmpty ? 'none' : 'block';
 
   if (isEmpty) return;
 
-  // Renderiza itens
-  itemsList.innerHTML = cart.map(item => `
+  itemsList.innerHTML = cartItems.map(item => `
     <li class="cart__item" data-id="${item.id}">
       <div class="cart__item-img">
         <img src="${item.image}" alt="${item.name}" loading="lazy" />
@@ -204,102 +97,62 @@ function updateCartUI() {
         <h4 class="cart__item-name">${item.name}</h4>
         <span class="cart__item-price">${formatCurrency(item.price)}</span>
         <div class="cart__item-qty">
-          <button class="qty__btn" onclick="changeQuantity('${item.id}', -1)" aria-label="Diminuir">
+          <button class="qty__btn" onclick="Store.updateQty('${item.id}', ${item.qty - 1})" aria-label="Diminuir">
             <i class="fas fa-minus"></i>
           </button>
-          <span class="qty__value">${item.quantity}</span>
-          <button class="qty__btn" onclick="changeQuantity('${item.id}', 1)" aria-label="Aumentar">
+          <span class="qty__value">${item.qty}</span>
+          <button class="qty__btn" onclick="Store.updateQty('${item.id}', ${item.qty + 1})" aria-label="Aumentar">
             <i class="fas fa-plus"></i>
           </button>
         </div>
       </div>
       <div class="cart__item-right">
-        <span class="cart__item-total">${formatCurrency(item.price * item.quantity)}</span>
-        <button class="cart__item-remove" onclick="removeFromCart('${item.id}')" aria-label="Remover ${item.name}">
+        <span class="cart__item-total">${formatCurrency(item.price * item.qty)}</span>
+        <button class="cart__item-remove" onclick="Store.removeItem('${item.id}')" aria-label="Remover ${item.name}">
           <i class="fas fa-xmark"></i>
         </button>
       </div>
     </li>
   `).join('');
 
-  // Resumo financeiro
   if (subtotalEl) subtotalEl.textContent = formatCurrency(subtotal);
   if (totalEl)    totalEl.textContent    = formatCurrency(total);
   if (delivEl) {
-    delivEl.textContent = delivery === 0 ? 'Grátis 🎉' : formatCurrency(delivery);
+    delivEl.textContent = delivery === 0
+      ? `Grátis acima de ${formatCurrency(BM_CONFIG.freeDeliveryAbove)}`
+      : formatCurrency(delivery);
     delivEl.style.color = delivery === 0 ? '#4caf50' : 'inherit';
   }
 }
 
-// ─── Abertura / Fechamento do Carrinho ───────────────────────────────────────
-function openCart() {
-  const cartEl   = document.getElementById('cart');
-  const overlayEl= document.getElementById('cartOverlay');
-
-  if (cartEl) {
-    cartEl.classList.add('cart--open');
-    cartEl.setAttribute('aria-hidden', 'false');
-  }
-  if (overlayEl) overlayEl.classList.add('cart-overlay--visible');
-  document.body.classList.add('body--no-scroll');
-}
-
-function closeCart() {
-  const cartEl   = document.getElementById('cart');
-  const overlayEl= document.getElementById('cartOverlay');
-
-  if (cartEl) {
-    cartEl.classList.remove('cart--open');
-    cartEl.setAttribute('aria-hidden', 'true');
-  }
-  if (overlayEl) overlayEl.classList.remove('cart-overlay--visible');
-  document.body.classList.remove('body--no-scroll');
-}
-
-// ─── Micro Animação no Botão do Carrinho ─────────────────────────────────────
-function animateCartBtn() {
-  const btn = document.getElementById('cartBtn');
-  if (!btn) return;
-  btn.classList.add('cart-btn--pulse');
-  setTimeout(() => btn.classList.remove('cart-btn--pulse'), 600);
-}
-
 // ─── Inicialização ───────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-  // Botão abrir carrinho
-  const cartBtn = document.getElementById('cartBtn');
-  if (cartBtn) cartBtn.addEventListener('click', openCart);
+  document.getElementById('cartBtn')?.addEventListener('click', openCart);
+  document.getElementById('cartClose')?.addEventListener('click', closeCart);
+  document.getElementById('cartOverlay')?.addEventListener('click', closeCart);
 
-  // Botão fechar carrinho
-  const cartClose = document.getElementById('cartClose');
-  if (cartClose) cartClose.addEventListener('click', closeCart);
+  document.getElementById('clearCartBtn')?.addEventListener('click', () => {
+    Store.clearCart();
+    if (typeof showToast === 'function') showToast('Carrinho esvaziado.', 'info');
+  });
 
-  // Overlay fecha carrinho
-  const overlay = document.getElementById('cartOverlay');
-  if (overlay) overlay.addEventListener('click', closeCart);
+  document.getElementById('ctaCartBtn')?.addEventListener('click', openCart);
 
-  // Limpar carrinho
-  const clearBtn = document.getElementById('clearCartBtn');
-  if (clearBtn) clearBtn.addEventListener('click', clearCart);
+  document.getElementById('cartEmptyBtn')?.addEventListener('click', () => {
+    closeCart();
+    document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' });
+  });
 
-  // Botão CTA abre carrinho
-  const ctaCartBtn = document.getElementById('ctaCartBtn');
-  if (ctaCartBtn) ctaCartBtn.addEventListener('click', openCart);
-
-  // Botão "ver produtos" no estado vazio
-  const cartEmptyBtn = document.getElementById('cartEmptyBtn');
-  if (cartEmptyBtn) {
-    cartEmptyBtn.addEventListener('click', () => {
-      closeCart();
-      document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' });
-    });
-  }
-
-  // Fecha carrinho com ESC
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') closeCart();
   });
 
-  // Inicializa UI com dados do localStorage
+  // Sincroniza UI sempre que Store mudar
+  Store.subscribe(updateCartUI);
+
+  // Atualiza imediatamente com estado atual
   updateCartUI();
+
+  // Recalcula quando config de entrega for carregada do Firestore
+  window.addEventListener('configLoaded', updateCartUI);
 });
