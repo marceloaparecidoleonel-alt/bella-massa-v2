@@ -2170,7 +2170,7 @@ button {
   background: linear-gradient(135deg, var(--clr-brown-rich) 0%, var(--clr-brown-dark) 100%);
   border: 1.5px solid rgba(200,150,62,0.35);
   color: var(--clr-cream);
-  transform: rotateY(180deg);
+  transform: rotateY(180deg) scaleX(-1);
 }
 
 .hero__spin-card-back i {
