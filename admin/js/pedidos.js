@@ -328,7 +328,11 @@
   function applyFilter() {
     if (!tbody) return;
     tbody.querySelectorAll('tr').forEach(function (row) {
-      row.style.display = (currentFilter === 'todos' || row.dataset.status === currentFilter) ? '' : 'none';
+      var st = row.dataset.status;
+      var match = currentFilter === 'todos'
+        || st === currentFilter
+        || (currentFilter === 'pendente' && st === 'aguardando_pix');
+      row.style.display = match ? '' : 'none';
     });
   }
 
@@ -345,10 +349,11 @@
 
   /* ── Pending count + chip counts ── */
   function updateChipCounts(orders) {
-    // Conta por status
+    // Conta por status (aguardando_pix agrupa com pendente)
     var counts = { pendente: 0, pago: 0, novo: 0, producao: 0, pronto: 0, entrega: 0, entregue: 0, cancelado: 0 };
     orders.forEach(function (o) {
       var s = o.status || 'novo';
+      if (s === 'aguardando_pix') s = 'pendente'; // agrupa no chip "Aguard. Pagto"
       if (counts[s] !== undefined) counts[s]++;
     });
     var total = orders.length;
@@ -428,10 +433,7 @@
         tbody.innerHTML = '';
         var orders = [];
         snapshot.forEach(function (doc) {
-          var data = doc.data();
-          // Ocultar pedidos PIX aguardando confirmação de pagamento
-          if (data.status === 'aguardando_pix') return;
-          orders.push(Object.assign({ id: doc.id }, data));
+          orders.push(Object.assign({ id: doc.id }, doc.data()));
         });
 
         orders.forEach(function (order) {

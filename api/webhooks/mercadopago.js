@@ -85,43 +85,64 @@ export default async function handler(req, res) {
     }
 
     const paymentStatus = paymentData.status;
-
-    // PIX aprovado → 'pendente' (aparece no admin para ser processado)
-    // PIX rejeitado/cancelado → 'cancelado'
-    // PIX ainda pendente → mantém 'aguardando_pix' (invisível no admin)
-    const statusMap = {
-      'approved':   'pendente',
-      'pending':    'aguardando_pix',
-      'in_process': 'aguardando_pix',
-      'rejected':   'cancelado',
-      'cancelled':  'cancelado',
-      'refunded':   'reembolsado'
-    };
-    const newStatus = statusMap[paymentStatus] || 'aguardando_pix';
+    console.log(`Pagamento MP ${paymentId}: status=${paymentStatus}`);
 
     // Atualiza o pedido no Firestore
     if (db) {
       const orderRef = db.collection('pedidos').doc(orderId);
       const orderDoc = await orderRef.get();
 
-      if (orderDoc.exists) {
-        await orderRef.update({
-          paymentId: String(paymentId),
-          paymentStatus: paymentStatus,
-          status: newStatus,
-          paymentDetails: {
-            payment_method: paymentData.payment_method_id,
-            payment_type: paymentData.payment_type_id,
-            transaction_amount: paymentData.transaction_amount,
-            date_approved: paymentData.date_approved,
-            date_created: paymentData.date_created
-          },
-          atualizadoEm: new Date()
-        });
-        console.log(`Pedido ${orderId} atualizado: MP:${paymentStatus} → Firestore:${newStatus}`);
-      } else {
+      if (!orderDoc.exists) {
         console.warn(`Pedido ${orderId} não encontrado no Firestore`);
+        return res.status(200).json({ received: true });
       }
+
+      const currentStatus = orderDoc.data().status || 'aguardando_pix';
+
+      // Ordem de progressão: nunca rebaixa status já avançado
+      const STATUS_ORDER = ['aguardando_pix', 'pendente', 'producao', 'pronto', 'entrega', 'entregue'];
+      const currentIdx = STATUS_ORDER.indexOf(currentStatus);
+
+      // Só atualiza status para aprovado/cancelado/reembolsado
+      let newStatus = currentStatus; // padrão: mantém atual
+      if (paymentStatus === 'approved') {
+        // PIX aprovado: só avança se ainda está em aguardando_pix
+        if (currentStatus === 'aguardando_pix') {
+          newStatus = 'pendente';
+        }
+        // Se já está em status mais avançado, mantém
+      } else if (paymentStatus === 'rejected' || paymentStatus === 'cancelled') {
+        // Só cancela se ainda não foi processado
+        if (currentStatus === 'aguardando_pix') {
+          newStatus = 'cancelado';
+        }
+      } else if (paymentStatus === 'refunded') {
+        newStatus = 'reembolsado';
+      }
+      // pending / in_process: não faz nada (mantém status atual)
+
+      const updateData = {
+        paymentId: String(paymentId),
+        paymentStatus: paymentStatus,
+        paymentDetails: {
+          payment_method: paymentData.payment_method_id,
+          payment_type: paymentData.payment_type_id,
+          transaction_amount: paymentData.transaction_amount,
+          date_approved: paymentData.date_approved,
+          date_created: paymentData.date_created
+        },
+        atualizadoEm: new Date()
+      };
+
+      // Só atualiza o campo status se de fato mudou
+      if (newStatus !== currentStatus) {
+        updateData.status = newStatus;
+        console.log(`Pedido ${orderId}: ${currentStatus} → ${newStatus} (MP: ${paymentStatus})`);
+      } else {
+        console.log(`Pedido ${orderId}: status mantido em ${currentStatus} (MP: ${paymentStatus})`);
+      }
+
+      await orderRef.update(updateData);
     }
 
     return res.status(200).json({ received: true });
