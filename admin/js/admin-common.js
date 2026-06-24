@@ -6,6 +6,32 @@
 (function () {
   'use strict';
 
+  /* ── Guard de autenticação centralizado ──────────────────────────────
+     Oculta o admin-shell imediatamente para evitar flash de conteúdo,
+     e só exibe após confirmar sessão válida via Firebase Auth.
+     Cobre TODAS as páginas admin (este arquivo é carregado em todas).
+  ── */
+  (function initAuthGuard() {
+    var shell = document.querySelector('.admin-shell');
+    if (shell) shell.style.visibility = 'hidden';
+
+    function waitForFirebase() {
+      if (!window.Firebase || !window.Firebase.authApi || !window.Firebase.auth) {
+        setTimeout(waitForFirebase, 100);
+        return;
+      }
+      window.Firebase.authApi.onAuthStateChanged(window.Firebase.auth, function (user) {
+        if (user) {
+          if (shell) shell.style.visibility = '';
+        } else {
+          if (shell) shell.style.display = 'none';
+          window.location.replace('admin-login.html');
+        }
+      });
+    }
+    waitForFirebase();
+  })();
+
   /* ── Botão Sair — todas as páginas ── */
   function doLogout() {
     localStorage.removeItem('bm_admin_auth');

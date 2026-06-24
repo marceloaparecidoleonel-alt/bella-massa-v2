@@ -147,17 +147,20 @@
       });
     });
 
-    if (window.Firebase && window.Firebase.db) {
-      initListener();
-    } else {
-      var attempts = 0;
-      var iv = setInterval(function () {
-        attempts++;
-        if (window.Firebase && window.Firebase.db) { clearInterval(iv); initListener(); }
-        else if (attempts > 30) clearInterval(iv);
-      }, 200);
-    }
+    initListener();
   }
 
-  document.addEventListener('DOMContentLoaded', init);
+  /* ── Init com auth ── */
+  function initAfterAuth() {
+    if (!window.Firebase || !window.Firebase.authApi) { setTimeout(initAfterAuth, 200); return; }
+    window.Firebase.authApi.onAuthStateChanged(window.Firebase.auth, function (user) {
+      if (user) {
+        init();
+      } else {
+        window.location.href = 'admin-login.html';
+      }
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', initAfterAuth);
 })();
