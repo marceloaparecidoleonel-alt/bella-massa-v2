@@ -4,6 +4,7 @@
  */
 
 let currentQty = 1;
+let _allProducts = []; // produtos do Firestore para relacionados
 
 // ── Get product ID from URL ──────────────────────────────────────────────────
 function getIdFromURL() {
@@ -104,10 +105,29 @@ function renderProduct(product) {
   });
 }
 
+// ── Normalize Firestore doc → formato interno ───────────────────────────────
+function normalizeDoc(id, data) {
+  return {
+    id,
+    category:    data.categoria  || '',
+    name:        data.nome       || '',
+    shortDesc:   data.descCurta  || data.descricao || '',
+    description: data.descricao  || data.descCurta || '',
+    price:       typeof data.preco === 'number' ? data.preco : 0,
+    image:       data.imagem     || '',
+    badge:       data.destaque   ? 'Destaque' : null,
+    badgeType:   data.destaque   ? 'bestseller' : null,
+    available:   data.ativo !== false,
+    weight:      data.peso       || '',
+    tags:        data.tags       || [],
+  };
+}
+
 // ── Render related products ──────────────────────────────────────────────────
 function renderRelated(product) {
-  const related = BM_PRODUCTS
-    .filter(p => p.category === product.category && p.id !== product.id)
+  const pool = _allProducts.length ? _allProducts : BM_PRODUCTS;
+  const related = pool
+    .filter(p => p.category === product.category && String(p.id) !== String(product.id))
     .slice(0, 4);
 
   if (!related.length) return;
@@ -147,7 +167,8 @@ function renderRelated(product) {
 
   grid.querySelectorAll('.prod-card__add').forEach(btn => {
     btn.addEventListener('click', () => {
-      const p = getProductById(btn.dataset.id);
+      const pool = _allProducts.length ? _allProducts : BM_PRODUCTS;
+      const p = pool.find(x => String(x.id) === String(btn.dataset.id));
       if (!p) return;
       Store.addItem(p, 1);
       showToast(`${p.name} adicionado!`, 'success');
@@ -157,24 +178,77 @@ function renderRelated(product) {
   setTimeout(() => { if (typeof observeReveal === 'function') observeReveal(); }, 60);
 }
 
+// ── Mostra estado de erro ─────────────────────────────────────────────────────
+function showNotFound() {
+  document.getElementById('prodLayout').innerHTML = `
+    <div style="grid-column:1/-1;text-align:center;padding:5rem 1rem;">
+      <i class="fas fa-circle-exclamation" style="font-size:3rem;color:var(--clr-border);margin-bottom:1rem;display:block;"></i>
+      <h2 style="font-family:var(--ff-heading);font-size:1.5rem;margin-bottom:.5rem;color:var(--clr-brown-dark);">Produto não encontrado</h2>
+      <p style="color:var(--clr-text-muted);margin-bottom:1.5rem;">Esse produto pode ter sido removido ou o link está incorreto.</p>
+      <a href="cardapio.html" style="display:inline-flex;align-items:center;gap:.5em;padding:.8em 1.8em;background:linear-gradient(135deg,#d4a040,#a06820);color:white;border-radius:999px;font-weight:600;text-decoration:none;">
+        <i class="fas fa-arrow-left"></i> Ver cardápio
+      </a>
+    </div>`;
+}
+
 // ── Init ─────────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-  const id      = getIdFromURL();
-  const product = getProductById(id);
+  const id = getIdFromURL();
 
-  if (!product) {
-    document.getElementById('prodLayout').innerHTML = `
-      <div style="grid-column:1/-1;text-align:center;padding:5rem 1rem;">
-        <i class="fas fa-circle-exclamation" style="font-size:3rem;color:var(--clr-border);margin-bottom:1rem;display:block;"></i>
-        <h2 style="font-family:var(--ff-heading);font-size:1.5rem;margin-bottom:.5rem;color:var(--clr-brown-dark);">Produto não encontrado</h2>
-        <p style="color:var(--clr-text-muted);margin-bottom:1.5rem;">Esse produto pode ter sido removido ou o link está incorreto.</p>
-        <a href="cardapio.html" style="display:inline-flex;align-items:center;gap:.5em;padding:.8em 1.8em;background:linear-gradient(135deg,#d4a040,#a06820);color:white;border-radius:999px;font-weight:600;text-decoration:none;">
-          <i class="fas fa-arrow-left"></i> Ver cardápio
-        </a>
-      </div>`;
-    return;
+  if (!id) { showNotFound(); return; }
+
+  function tryFirestore() {
+    if (!window.Firebase || !window.Firebase.db) {
+      // Firebase não disponível — tenta fallback estático
+      const fb = typeof BM_PRODUCTS !== 'undefined'
+        ? BM_PRODUCTS.find(p => String(p.id) === String(id))
+        : null;
+      if (fb) { renderProduct(fb); renderRelated(fb); }
+      else showNotFound();
+      return;
+    }
+
+    const fs  = window.Firebase.fs;
+    const db  = window.Firebase.db;
+
+    // 1) Busca o produto específico pelo doc ID no Firestore
+    fs.getDoc(fs.doc(db, 'produtos', id))
+      .then(snap => {
+        if (snap.exists()) {
+          const product = normalizeDoc(snap.id, snap.data());
+
+          // 2) Busca todos os produtos para relacionados
+          const q = fs.query(fs.collection(db, 'produtos'), fs.orderBy('ordem'));
+          return fs.getDocs(q).then(all => {
+            _allProducts = all.docs
+              .map(d => normalizeDoc(d.id, d.data()))
+              .filter(p => p.available !== false);
+            renderProduct(product);
+            renderRelated(product);
+          });
+        } else {
+          // ID não é doc Firestore — tenta BM_PRODUCTS (produtos locais)
+          const local = typeof BM_PRODUCTS !== 'undefined'
+            ? BM_PRODUCTS.find(p => String(p.id) === String(id))
+            : null;
+          if (local) { renderProduct(local); renderRelated(local); }
+          else showNotFound();
+        }
+      })
+      .catch(() => showNotFound());
   }
 
-  renderProduct(product);
-  renderRelated(product);
+  // Aguarda Firebase.js (módulo async) estar pronto
+  let attempts = 0;
+  function waitFirebase() {
+    if (window.Firebase) {
+      tryFirestore();
+    } else if (attempts < 25) {
+      attempts++;
+      setTimeout(waitFirebase, 150);
+    } else {
+      tryFirestore(); // chama com fallback
+    }
+  }
+  waitFirebase();
 });
