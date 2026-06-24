@@ -175,6 +175,8 @@
 
       snapshot.forEach(doc => {
         const o = doc.data();
+        // Exclui pedidos PIX não confirmados — clientes só de pedidos pagos
+        if (o.status === 'aguardando_pix') return;
         if (!o.cliente || !o.cliente.telefone) return;
         const tel = o.cliente.telefone.replace(/\D/g, '');
         if (!map[tel]) {

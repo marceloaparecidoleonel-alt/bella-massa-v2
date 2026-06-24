@@ -330,8 +330,7 @@
     tbody.querySelectorAll('tr').forEach(function (row) {
       var st = row.dataset.status;
       var match = currentFilter === 'todos'
-        || st === currentFilter
-        || (currentFilter === 'pendente' && st === 'aguardando_pix');
+        || st === currentFilter;
       row.style.display = match ? '' : 'none';
     });
   }
@@ -436,6 +435,9 @@
           orders.push(Object.assign({ id: doc.id }, doc.data()));
         });
 
+        // Exclui pedidos PIX não confirmados — nunca exibir ao admin
+        orders = orders.filter(function (o) { return o.status !== 'aguardando_pix'; });
+
         orders.forEach(function (order) {
           var row = renderOrderRow(order);
           row._orderData = order;
@@ -444,7 +446,7 @@
 
         applyFilter();
         updateChipCounts(orders);
-        console.log('📋 Pedidos carregados:', orders.length);
+        console.log('📋 Pedidos carregados (pagos):', orders.length);
       }, function (err) {
         console.error('❌ Erro ao carregar pedidos:', err);
         toast('Erro ao carregar pedidos.', 'error');
