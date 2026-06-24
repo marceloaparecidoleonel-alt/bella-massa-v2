@@ -135,7 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   document.getElementById('cartOverlay')?.classList.remove('cart-overlay--visible');
 
-  document.getElementById('cartBtn')?.addEventListener('click', openCart);
+  // #cartBtn é um <a href="carrinho.html"> — navega diretamente, sem abrir drawer
   document.getElementById('cartClose')?.addEventListener('click', closeCart);
   document.getElementById('cartOverlay')?.addEventListener('click', closeCart);
 
