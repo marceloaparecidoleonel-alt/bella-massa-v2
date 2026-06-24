@@ -2104,71 +2104,27 @@ button {
   background: var(--clr-gold-dim, rgba(200,160,68,0.1));
 }
 
-/* ─── Hero Spin Card ─────────────────────────────────────────── */
-.hero__spin-card {
-  position: relative;
+/* ─── Hero Badge Artesanal ─────────────────────────────────────── */
+.hero__badge-artesanal {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  width: 124px;
+  gap: 0.5em;
   height: 50px;
+  padding: 0 1.1em;
   border-radius: var(--radius-xl);
   font-family: var(--ff-body);
   font-size: 0.84rem;
   font-weight: 600;
   letter-spacing: 0.03em;
-  cursor: default;
+  white-space: nowrap;
   flex-shrink: 0;
-  overflow: hidden;
   background: linear-gradient(135deg, rgba(200,150,62,0.14), rgba(232,184,109,0.1));
   border: 1.6px solid rgba(200,150,62,0.62);
   color: var(--clr-brown-dark);
   box-shadow: 0 4px 14px rgba(200,150,62,0.22);
-  transition: background 0.5s ease, border-color 0.5s ease,
-              color 0.5s ease, box-shadow 0.5s ease;
 }
 
-/* Estado B: face marrom */
-.hero__spin-card.face--back {
-  background: linear-gradient(135deg, var(--clr-brown-rich), var(--clr-brown-dark));
-  border-color: rgba(200,150,62,0.4);
-  color: var(--clr-cream);
-  box-shadow: 0 4px 18px rgba(46,26,14,0.28);
-}
-
-/* Animação de giro — disparada por JS adicionando .is-spinning */
-.hero__spin-card.is-spinning {
-  animation: cardSpin360 1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-}
-
-/* Ícones */
-.hero__spin-icon-front,
-.hero__spin-icon-back {
-  position: absolute;
+.hero__badge-artesanal i {
+  color: var(--clr-gold);
   font-size: 1rem;
-  left: 14px;
-  transition: opacity 0.25s ease;
-}
-.hero__spin-icon-front { color: var(--clr-gold); }
-.hero__spin-icon-back  { color: var(--clr-gold-light); opacity: 0; }
-
-.hero__spin-card.face--back .hero__spin-icon-front { opacity: 0; }
-.hero__spin-card.face--back .hero__spin-icon-back  { opacity: 1; }
-
-/* Textos */
-.hero__spin-txt-front,
-.hero__spin-txt-back {
-  position: absolute;
-  left: 36px;
-  transition: opacity 0.25s ease;
-  white-space: nowrap;
-}
-.hero__spin-txt-back { opacity: 0; }
-
-.hero__spin-card.face--back .hero__spin-txt-front { opacity: 0; }
-.hero__spin-card.face--back .hero__spin-txt-back  { opacity: 1; }
-
-@keyframes cardSpin360 {
-  0%   { transform: rotateY(0deg); }
-  100% { transform: rotateY(360deg); }
 }
