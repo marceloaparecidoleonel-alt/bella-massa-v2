@@ -2108,13 +2108,14 @@ button {
 .hero__spin-card {
   width: 120px;
   height: 50px;
+  position: relative;
   flex-shrink: 0;
   cursor: default;
 }
 
-.hero__spin-card-face {
-  width: 100%;
-  height: 100%;
+.hero__spin-layer {
+  position: absolute;
+  inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2125,95 +2126,106 @@ button {
   font-weight: 600;
   letter-spacing: 0.03em;
   overflow: hidden;
-  position: relative;
-  /* face A: dourada */
-  background: linear-gradient(135deg, rgba(200,150,62,0.14) 0%, rgba(232,184,109,0.1) 100%);
-  border: 1.5px solid rgba(200,150,62,0.6);
-  color: var(--clr-brown-dark);
-  filter: drop-shadow(0 4px 14px rgba(200,150,62,0.28));
-  animation: cardFlip 4s ease-in-out infinite;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  opacity: 0;
+  transform-origin: center;
 }
 
-/* Shimmer */
-.hero__spin-card-face::after {
+.hero__spin-layer i {
+  font-size: 1rem;
+}
+
+.hero__spin-layer span {
+  position: relative;
+}
+
+.hero__spin-layer::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(105deg, transparent 30%, rgba(255,255,255,0.2) 50%, transparent 70%);
-  background-size: 250% 100%;
-  animation: shimmerCard 4s ease-in-out infinite;
   border-radius: inherit;
+  background: linear-gradient(120deg, transparent 35%, rgba(255,255,255,0.22) 50%, transparent 70%);
+  background-size: 220% 100%;
+  opacity: 0;
   pointer-events: none;
 }
 
-/* Ícones — só um visível por vez */
-.hero__spin-icon {
-  font-size: 1rem;
-  position: absolute;
-  transition: opacity 0s;
+.hero__spin-layer--gold {
+  background: linear-gradient(135deg, rgba(200,150,62,0.14) 0%, rgba(232,184,109,0.1) 100%);
+  border: 1.5px solid rgba(200,150,62,0.6);
+  color: var(--clr-brown-dark);
+  box-shadow: 0 4px 14px rgba(200,150,62,0.24);
+  animation: spinLayerGold 4.6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
-.hero__spin-icon--front {
+
+.hero__spin-layer--gold i {
   color: var(--clr-gold);
-  animation: iconFront 4s ease-in-out infinite;
 }
-.hero__spin-icon--back {
+
+.hero__spin-layer--brown {
+  background: linear-gradient(135deg, var(--clr-brown-rich) 0%, var(--clr-brown-dark) 100%);
+  border: 1.5px solid rgba(200,150,62,0.35);
+  color: var(--clr-cream);
+  box-shadow: 0 4px 14px rgba(45,18,8,0.24);
+  animation: spinLayerBrown 4.6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  animation-delay: 2.3s;
+}
+
+.hero__spin-layer--brown i {
   color: var(--clr-gold-light);
-  animation: iconBack 4s ease-in-out infinite;
 }
 
-/* Labels — só um visível por vez */
-.hero__spin-label {
-  position: absolute;
-  left: 50%;
-  transform: translateX(calc(-50% + 0.85rem));
-}
-.hero__spin-label--front { animation: labelFront 4s ease-in-out infinite; }
-.hero__spin-label--back  { animation: labelBack  4s ease-in-out infinite; }
-
-/* ── Keyframes ── */
-
-/* Card comprime até 0 na metade, troca cor/borda, expande */
-@keyframes cardFlip {
-  0%   { transform: scaleX(1);
-         background: linear-gradient(135deg,rgba(200,150,62,.14),rgba(232,184,109,.1));
-         border-color: rgba(200,150,62,.6); color: var(--clr-brown-dark); }
-  28%  { transform: scaleX(1); }
-  38%  { transform: scaleX(0); }
-  39%  { background: linear-gradient(135deg, var(--clr-brown-rich), var(--clr-brown-dark));
-         border-color: rgba(200,150,62,.35); color: var(--clr-cream); }
-  50%  { transform: scaleX(1); }
-  78%  { transform: scaleX(1); }
-  88%  { transform: scaleX(0); }
-  89%  { background: linear-gradient(135deg,rgba(200,150,62,.14),rgba(232,184,109,.1));
-         border-color: rgba(200,150,62,.6); color: var(--clr-brown-dark); }
-  100% { transform: scaleX(1); }
+@keyframes spinLayerGold {
+  0%, 38% {
+    opacity: 1;
+    transform: rotateY(0deg) scale(1);
+  }
+  45% {
+    opacity: 0;
+    transform: rotateY(28deg) scale(0.92);
+  }
+  50%, 100% {
+    opacity: 0;
+    transform: rotateY(28deg) scale(0.92);
+  }
 }
 
-/* Ícone frente: visível na 1ª metade, oculto na 2ª */
-@keyframes iconFront {
-  0%,  37% { opacity: 1; }
-  38%, 88% { opacity: 0; }
-  89%,100% { opacity: 1; }
-}
-@keyframes iconBack {
-  0%,  37% { opacity: 0; }
-  38%, 88% { opacity: 1; }
-  89%,100% { opacity: 0; }
-}
-@keyframes labelFront {
-  0%,  37% { opacity: 1; }
-  38%, 88% { opacity: 0; }
-  89%,100% { opacity: 1; }
-}
-@keyframes labelBack {
-  0%,  37% { opacity: 0; }
-  38%, 88% { opacity: 1; }
-  89%,100% { opacity: 0; }
+@keyframes spinLayerBrown {
+  0%, 50% {
+    opacity: 0;
+    transform: rotateY(-28deg) scale(0.92);
+  }
+  57%, 88% {
+    opacity: 1;
+    transform: rotateY(0deg) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: rotateY(-28deg) scale(0.92);
+  }
 }
 
-@keyframes shimmerCard {
-  0%   { background-position: 200% 0; }
-  38%  { background-position: -200% 0; }
-  89%  { background-position: 200% 0; }
-  100% { background-position: 200% 0; }
+.hero__spin-layer--gold::after {
+  animation: shimmerLayer 4.6s ease-in-out infinite;
+}
+
+.hero__spin-layer--brown::after {
+  animation: shimmerLayer 4.6s ease-in-out infinite;
+  animation-delay: 2.3s;
+}
+
+@keyframes shimmerLayer {
+  0% {
+    background-position: -180% 0;
+    opacity: 0;
+  }
+  20% {
+    background-position: 180% 0;
+    opacity: 0.35;
+  }
+  35%, 100% {
+    opacity: 0;
+    background-position: 180% 0;
+  }
 }
