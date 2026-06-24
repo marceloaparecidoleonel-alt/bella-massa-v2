@@ -50,17 +50,28 @@ function showToast(message, type = 'success') {
  * @param {number} productId
  */
 function addToCart(productId) {
-  const product = PRODUCTS.find(p => p.id === productId);
-  if (!product) return;
+  const strId  = String(productId);
+  const lookup = typeof getProductById === 'function'
+    ? getProductById(strId)
+    : (typeof PRODUCTS !== 'undefined' ? PRODUCTS.find(p => String(p.id) === strId) : null);
 
-  const existing = cart.find(item => item.id === productId);
+  if (!lookup) {
+    showToast('Produto não encontrado.', 'error');
+    return;
+  }
+
+  const name  = lookup.name  || lookup.nome  || '';
+  const price = typeof lookup.price === 'number' ? lookup.price : (lookup.preco || 0);
+  const image = lookup.image || lookup.imagem || '';
+
+  const existing = cart.find(item => String(item.id) === strId);
 
   if (existing) {
     existing.quantity += 1;
-    showToast(`+1 ${product.name} adicionado!`, 'success');
+    showToast(`+1 ${name} adicionado!`, 'success');
   } else {
-    cart.push({ ...product, quantity: 1 });
-    showToast(`${product.name} adicionado ao carrinho!`, 'success');
+    cart.push({ ...lookup, id: strId, name, price, image, quantity: 1 });
+    showToast(`${name} adicionado ao carrinho!`, 'success');
   }
 
   saveCart();
@@ -73,7 +84,8 @@ function addToCart(productId) {
  * @param {number} productId
  */
 function removeFromCart(productId) {
-  const idx = cart.findIndex(item => item.id === productId);
+  const strId = String(productId);
+  const idx = cart.findIndex(item => String(item.id) === strId);
   if (idx === -1) return;
 
   const name = cart[idx].name;
@@ -89,7 +101,8 @@ function removeFromCart(productId) {
  * @param {number} delta — +1 ou -1
  */
 function changeQuantity(productId, delta) {
-  const item = cart.find(i => i.id === productId);
+  const strId = String(productId);
+  const item = cart.find(i => String(i.id) === strId);
   if (!item) return;
 
   item.quantity += delta;
@@ -191,18 +204,18 @@ function updateCartUI() {
         <h4 class="cart__item-name">${item.name}</h4>
         <span class="cart__item-price">${formatCurrency(item.price)}</span>
         <div class="cart__item-qty">
-          <button class="qty__btn" onclick="changeQuantity(${item.id}, -1)" aria-label="Diminuir">
+          <button class="qty__btn" onclick="changeQuantity('${item.id}', -1)" aria-label="Diminuir">
             <i class="fas fa-minus"></i>
           </button>
           <span class="qty__value">${item.quantity}</span>
-          <button class="qty__btn" onclick="changeQuantity(${item.id}, 1)" aria-label="Aumentar">
+          <button class="qty__btn" onclick="changeQuantity('${item.id}', 1)" aria-label="Aumentar">
             <i class="fas fa-plus"></i>
           </button>
         </div>
       </div>
       <div class="cart__item-right">
         <span class="cart__item-total">${formatCurrency(item.price * item.quantity)}</span>
-        <button class="cart__item-remove" onclick="removeFromCart(${item.id})" aria-label="Remover ${item.name}">
+        <button class="cart__item-remove" onclick="removeFromCart('${item.id}')" aria-label="Remover ${item.name}">
           <i class="fas fa-xmark"></i>
         </button>
       </div>

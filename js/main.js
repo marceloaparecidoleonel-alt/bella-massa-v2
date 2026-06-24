@@ -48,6 +48,25 @@ let activeFilter = 'all';
 let _liveProducts = null; // produtos carregados do Firestore
 
 /**
+ * Busca um produto por ID em _liveProducts e em PRODUCTS (fallback)
+ * @param {string|number} id
+ * @returns {object|null}
+ */
+function getProductById(id) {
+  const strId = String(id);
+  if (_liveProducts) {
+    const found = _liveProducts.find(p => String(p.id) === strId);
+    if (found) return found;
+  }
+  if (typeof PRODUCTS !== 'undefined') {
+    const found = PRODUCTS.find(p => String(p.id) === strId);
+    if (found) return found;
+  }
+  return null;
+}
+window.getProductById = getProductById;
+
+/**
  * Monta o HTML de um card de produto
  */
 function buildProductCard(product, index) {
@@ -66,7 +85,7 @@ function buildProductCard(product, index) {
         <img src="${imgSrc}" alt="${name}" loading="lazy" />
         ${badge ? `<span class="product__badge product__badge--${badgeT}">${badge}</span>` : (product.destaque ? '<span class="product__badge product__badge--bestseller">Destaque</span>' : '')}
         <div class="product__img-overlay">
-          <button class="product__quick-add" onclick="addToCart('${pid}')" aria-label="Adicionar ${name} ao carrinho">
+          <button class="product__quick-add" onclick="addToCart('${pid}')" data-pid="${pid}" aria-label="Adicionar ${name} ao carrinho">
             <i class="fas fa-plus"></i>
           </button>
         </div>
@@ -77,7 +96,7 @@ function buildProductCard(product, index) {
         <p class="product__desc">${desc}</p>
         <div class="product__footer">
           <span class="product__price">${formatCurrency(price)}</span>
-          <button class="btn btn--add-cart" onclick="addToCart('${pid}')" aria-label="Adicionar ao carrinho">
+          <button class="btn btn--add-cart" onclick="addToCart('${pid}')" data-pid="${pid}" aria-label="Adicionar ao carrinho">
             <i class="fas fa-basket-shopping"></i>
             <span>Adicionar</span>
           </button>
