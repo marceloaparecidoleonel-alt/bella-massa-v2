@@ -13,7 +13,7 @@ const CATEGORIES = [
     name: 'Pães',
     icon: 'fas fa-bread-slice',
     description: 'Artesanais e quentinhos',
-    image: 'https://images.unsplash.com/photo-1549931319-a545dcf3bc7c?w=600&q=80',
+    image: 'https://images.unsplash.com/photo-1586444248902-2f64eddc13df?w=600&q=80',
     color: '#c8a97e',
   },
   {
