@@ -404,4 +404,34 @@ document.addEventListener('DOMContentLoaded', () => {
   // Ano dinâmico no footer
   const yearEl = document.getElementById('footerYear');
   if (yearEl) yearEl.textContent = new Date().getFullYear();
+
+  // ── Spin Card ──────────────────────────────────────────────────────
+  const spinCard = document.querySelector('.hero__spin-card');
+  if (spinCard) {
+    let isFaceBack = false;
+    let isAnimating = false;
+
+    spinCard.addEventListener('mouseenter', function () {
+      if (isAnimating) return;
+      isAnimating = true;
+
+      // Inicia giro
+      spinCard.classList.add('is-spinning');
+
+      // Na metade da animação (500ms de 1000ms) troca o conteúdo
+      setTimeout(function () {
+        isFaceBack = !isFaceBack;
+        spinCard.classList.toggle('face--back', isFaceBack);
+      }, 500);
+
+      // Ao terminar o giro, remove a classe de animação
+      spinCard.addEventListener('animationend', function onEnd() {
+        spinCard.removeEventListener('animationend', onEnd);
+        spinCard.classList.remove('is-spinning');
+        // Reset transform acumulado
+        spinCard.style.transform = 'rotateY(0deg)';
+        isAnimating = false;
+      });
+    });
+  }
 });
