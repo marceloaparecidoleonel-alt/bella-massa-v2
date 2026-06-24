@@ -54,6 +54,9 @@ html, body {
     bottom: 1.2rem;
   }
 
+  /* ── Header inner: reduz gap para caber logo + ações em 1024px ── */
+  .header__inner { gap: var(--space-md); }
+
   /* ── Header mobile nav ── */
   .header__nav {
     position: fixed;
@@ -106,9 +109,16 @@ html, body {
 
   .btn--whatsapp span { display: none; }
   .btn--whatsapp {
-    width: 44px; height: 44px; padding: 0;
-    border-radius: 50%; font-size: 1.15rem;
+    width: 40px; height: 40px; padding: 0;
+    border-radius: 50%; font-size: 1.1rem;
   }
+
+  /* ── Header actions: reduz gap ── */
+  .header__actions { gap: 0.375rem; }
+
+  /* ── Logo: garante que não encolhe demais ── */
+  .header__logo { min-width: 0; }
+  .logo__text { display: none; }
 
   /* About */
   .about__inner { grid-template-columns: 1fr; gap: 3rem; }
@@ -127,6 +137,9 @@ html, body {
 /* ─── Tablet (≤ 768px) ──────────────────────────────────────────── */
 @media (max-width: 768px) {
   :root { --section-py: 3.5rem; --header-h: 68px; }
+
+  /* Restaura logo text em 768px (esconde só abaixo de 1024px onde há espaço) */
+  .logo__text { display: flex; }
 
   .section__header { margin-bottom: 2.5rem; }
   .section__title  { font-size: clamp(1.75rem, 5vw, 2.2rem); }
@@ -193,6 +206,20 @@ html, body {
 /* ─── Mobile (≤ 480px) ──────────────────────────────────────────── */
 @media (max-width: 480px) {
   :root { --section-py: 3rem; --header-h: 64px; }
+
+  /* Header inner gap mínimo */
+  .header__inner { gap: 0.5rem; }
+  .header__actions { gap: 0.25rem; }
+
+  /* Logo: oculta texto em 480px, só ícone */
+  .logo__text { display: none; }
+
+  /* Hero float cards: empurra para não cobrir texto */
+  .hero__float--fresh  { bottom: 6%; left: 2%; }
+  .hero__float--rating { top: 6%; right: 2%; }
+
+  /* Toast: permite quebra de linha em telas pequenas */
+  .toast { white-space: normal; text-align: center; }
 
   /* Hero */
   .hero { grid-template-rows: auto 72vw; }
