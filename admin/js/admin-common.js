@@ -13,7 +13,7 @@
   ── */
   (function initAuthGuard() {
     var shell = document.querySelector('.admin-shell');
-    if (shell) shell.style.visibility = 'hidden';
+    /* shell já começa com display:none no HTML — sem flash de conteúdo */
 
     function waitForFirebase() {
       if (!window.Firebase || !window.Firebase.authApi || !window.Firebase.auth) {
@@ -22,9 +22,8 @@
       }
       window.Firebase.authApi.onAuthStateChanged(window.Firebase.auth, function (user) {
         if (user) {
-          if (shell) shell.style.visibility = '';
+          if (shell) shell.style.display = '';
         } else {
-          if (shell) shell.style.display = 'none';
           window.location.replace('admin-login.html');
         }
       });
