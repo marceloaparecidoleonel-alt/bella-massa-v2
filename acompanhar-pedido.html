@@ -279,8 +279,8 @@
       const trackContent = document.getElementById('trackContent');
 
       if (trackNum) trackNum.textContent = `Pedido #${order.numero || order.id?.slice(-4) || '—'}`;
-      if (trackLoading) trackLoading.style.display  = 'none !important';
-      if (trackContent) trackContent.style.display  = 'block !important';
+      if (trackLoading) trackLoading.style.display  = 'none';
+      if (trackContent) trackContent.style.display  = 'block';
 
       // Cancelamento com motivo
       const cancelEl = document.getElementById('trackCancelMsg');
@@ -320,18 +320,30 @@
     }
 
     if (!orderId) {
+      console.log('❌ orderId null');
       showNotFound();
     } else {
+      console.log('✅ orderId:', orderId);
       waitForFirebase(() => {
+        console.log('✅ Firebase pronto');
         const fs  = window.Firebase.fs;
         const db  = window.Firebase.db;
         const ref = fs.doc(db, 'pedidos', orderId);
 
         // Listener em tempo real
         fs.onSnapshot(ref, (snap) => {
-          if (!snap.exists()) { showDeleted(); return; }
+          console.log('✅ snapshot recebido, exists:', snap.exists());
+          if (!snap.exists()) {
+            console.log('❌ pedido nao existe');
+            showDeleted();
+            return;
+          }
+          console.log('✅ dados recebidos, chamando renderOrder');
           renderOrder({ id: snap.id, ...snap.data() });
-        }, () => showNotFound());
+        }, (error) => {
+          console.error('❌ erro no onSnapshot:', error);
+          showNotFound();
+        });
       });
     }
 
