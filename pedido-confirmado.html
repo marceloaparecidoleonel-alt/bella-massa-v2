@@ -233,7 +233,7 @@
             : `<div class="confirmado__info-row"><i class="fas fa-store"></i><span>Retirada na loja</span></div>`}
           <div class="confirmado__info-row"><i class="fas fa-credit-card"></i><span>Pagamento: <strong>${payLabels[order.pagamento] || order.pagamento}</strong></span></div>
           ${trocoRow}
-          <div class="confirmado__info-row"><i class="fas fa-brazilian-real-sign"></i><span>Total: <strong>R$ ${order.total?.toFixed(2).replace('.',',') || '—'}</strong></span></div>
+          <div class="confirmado__info-row"><i class="fas fa-brazilian-real-sign"></i><span>Total: <strong>R$ ${parseFloat(order.total || 0).toFixed(2).replace('.',',')}</strong></span></div>
         `;
       }
 
