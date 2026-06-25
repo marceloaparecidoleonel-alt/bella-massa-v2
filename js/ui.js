@@ -192,8 +192,9 @@ function initOrderBanner() {
         localStorage.removeItem('bm_active_order');
         return;
       }
-      const st = snap.data().status;
-      if (st === 'entregue' || st === 'cancelado') {
+      const data = snap.data();
+      const st = data.status;
+      if (st === 'entregue' || st === 'cancelado' || data.hiddenFromOrders) {
         banner.remove();
         localStorage.removeItem('bm_active_order');
       }
