@@ -227,8 +227,11 @@
         <div class="confirmado__info-row"><i class="fas fa-brazilian-real-sign"></i><span>Total: <strong>${order.total}</strong></span></div>
       `;
 
-      // Ocultar botão separado (timeline está embutida)
-      if (btnAcomp) btnAcomp.style.display = 'none';
+      // Atualizar href do botão Acompanhar com o orderId
+      if (btnAcomp && pid) {
+        btnAcomp.href = `acompanhar-pedido.html?orderId=${pid}`;
+        btnAcomp.style.display = 'flex';
+      }
 
       // Firebase: timeline em tempo real
       if (!pid) return;
