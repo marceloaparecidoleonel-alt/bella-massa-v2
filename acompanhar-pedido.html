@@ -307,9 +307,12 @@
         trackContent.style.display  = 'block';
         console.log('🔍 trackContent exibido, style.display:', trackContent.style.display);
         console.log('🔍 computed style display:', window.getComputedStyle(trackContent).display);
+        console.log('🔍 trackContent innerHTML:', trackContent.innerHTML);
+        console.log('🔍 trackContent children:', trackContent.children.length);
         // Verificar após 100ms se ainda está visível
         setTimeout(() => {
           console.log('🔍 trackContent após 100ms, style.display:', trackContent.style.display);
+          console.log('🔍 trackContent innerHTML após 100ms:', trackContent.innerHTML);
         }, 100);
       }
 
