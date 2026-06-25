@@ -297,11 +297,12 @@
       }
       if (trackLoading) {
         trackLoading.style.display  = 'none';
-        console.log('🔍 trackLoading ocultado');
+        console.log('🔍 trackLoading ocultado, style.display:', trackLoading.style.display);
       }
       if (trackContent) {
         trackContent.style.display  = 'block';
-        console.log('🔍 trackContent exibido');
+        console.log('🔍 trackContent exibido, style.display:', trackContent.style.display);
+        console.log('🔍 computed style display:', window.getComputedStyle(trackContent).display);
       }
 
       // Cancelamento com motivo
