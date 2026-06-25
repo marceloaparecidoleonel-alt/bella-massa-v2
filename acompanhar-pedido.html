@@ -264,12 +264,15 @@
     }
 
     function renderOrder(order) {
+      console.log('🔍 renderOrder iniciado');
       const isDelivery = order.tipo === 'delivery' || (order.endereco && order.endereco.rua);
       const steps      = isDelivery ? STEPS_DELIVERY : STEPS_PICKUP;
       const status     = order.status || 'novo';
       const cancelled  = status === 'cancelado';
       const done       = status === 'entregue' || cancelled;
       const activeIdx  = cancelled ? -1 : getActiveStep(steps, status);
+
+      console.log('🔍 status:', status, 'isDelivery:', isDelivery, 'activeIdx:', activeIdx);
 
       // Remove banner do localStorage quando pedido finalizado
       if (done) localStorage.removeItem('bm_active_order');
@@ -278,9 +281,20 @@
       const trackLoading = document.getElementById('trackLoading');
       const trackContent = document.getElementById('trackContent');
 
-      if (trackNum) trackNum.textContent = `Pedido #${order.numero || order.id?.slice(-4) || '—'}`;
-      if (trackLoading) trackLoading.style.display  = 'none';
-      if (trackContent) trackContent.style.display  = 'block';
+      console.log('🔍 elementos DOM:', { trackNum, trackLoading, trackContent });
+
+      if (trackNum) {
+        trackNum.textContent = `Pedido #${order.numero || order.id?.slice(-4) || '—'}`;
+        console.log('🔍 trackNum atualizado');
+      }
+      if (trackLoading) {
+        trackLoading.style.display  = 'none';
+        console.log('🔍 trackLoading ocultado');
+      }
+      if (trackContent) {
+        trackContent.style.display  = 'block';
+        console.log('🔍 trackContent exibido');
+      }
 
       // Cancelamento com motivo
       const cancelEl = document.getElementById('trackCancelMsg');
@@ -292,7 +306,9 @@
         cancelEl.style.display = 'none';
       }
 
+      console.log('🔍 chamando renderTimeline');
       renderTimeline(steps, activeIdx, cancelled);
+      console.log('🔍 renderOrder finalizado');
     }
 
     function showNotFound() {
