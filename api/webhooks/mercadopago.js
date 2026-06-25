@@ -100,23 +100,23 @@ export default async function handler(req, res) {
         return res.status(200).json({ received: true });
       }
 
-      const currentStatus = orderDoc.data().status || 'aguardando_pix';
+      const currentStatus = orderDoc.data().status || 'pix_pendente';
 
       // Ordem de progressão: nunca rebaixa status já avançado
-      const STATUS_ORDER = ['aguardando_pix', 'pendente', 'producao', 'pronto', 'entrega', 'entregue'];
+      const STATUS_ORDER = ['pix_pendente', 'aguardando_pix', 'pendente', 'producao', 'pronto', 'entrega', 'entregue'];
       const currentIdx = STATUS_ORDER.indexOf(currentStatus);
 
       // Só atualiza status para aprovado/cancelado/reembolsado
       let newStatus = currentStatus; // padrão: mantém atual
       if (paymentStatus === 'approved') {
-        // PIX aprovado: só avança se ainda está em aguardando_pix
-        if (currentStatus === 'aguardando_pix') {
+        // PIX aprovado: avança de pix_pendente ou aguardando_pix para pendente
+        if (currentStatus === 'pix_pendente' || currentStatus === 'aguardando_pix') {
           newStatus = 'pendente';
         }
         // Se já está em status mais avançado, mantém
       } else if (paymentStatus === 'rejected' || paymentStatus === 'cancelled') {
         // Só cancela se ainda não foi processado
-        if (currentStatus === 'aguardando_pix') {
+        if (currentStatus === 'pix_pendente' || currentStatus === 'aguardando_pix') {
           newStatus = 'cancelado';
         }
       } else if (paymentStatus === 'refunded') {

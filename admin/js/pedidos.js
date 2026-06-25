@@ -30,6 +30,7 @@
   /* ── Status config (espelha steps do cliente) ── */
 
   var STATUS_META = {
+    pix_pendente:   { label: 'PIX Pendente',    badgeClass: 'badge--muted'    },
     aguardando_pix: { label: 'Aguard. PIX',     badgeClass: 'badge--muted'    },
     pendente:       { label: 'Pedido Recebido', badgeClass: 'badge--info'     },
     pago:           { label: 'Pedido Recebido', badgeClass: 'badge--info'     },
@@ -44,6 +45,7 @@
 
   // Mapa explícito: status atual → próximo status (delivery)
   var NEXT_DELIVERY = {
+    pix_pendente:   'producao',
     aguardando_pix: 'producao',
     pendente:       'producao',
     pago:           'producao',
@@ -55,6 +57,7 @@
 
   // Mapa explícito: status atual → próximo status (pickup — pula entrega)
   var NEXT_PICKUP = {
+    pix_pendente:   'producao',
     aguardando_pix: 'producao',
     pendente:       'producao',
     pago:           'producao',
@@ -433,7 +436,11 @@
         tbody.innerHTML = '';
         var orders = [];
         snapshot.forEach(function (doc) {
-          orders.push(Object.assign({ id: doc.id }, doc.data()));
+          var order = Object.assign({ id: doc.id }, doc.data());
+          // Filtra pedidos pix_pendente (ainda não pagos)
+          if (order.status !== 'pix_pendente') {
+            orders.push(order);
+          }
         });
 
         orders.forEach(function (order) {

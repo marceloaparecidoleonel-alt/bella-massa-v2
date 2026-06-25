@@ -220,7 +220,7 @@
 
     // Etapas para delivery (sem aguardando pagamento / pagamento confirmado)
     const STEPS_DELIVERY = [
-      { statuses: ['aguardando_pix','pendente','pago','novo'], icon: 'fa-clock',        label: 'Pedido recebido',       desc: 'Seu pedido foi registrado e aguarda preparo.' },
+      { statuses: ['pix_pendente','aguardando_pix','pendente','pago','novo'], icon: 'fa-clock',        label: 'Pedido recebido',       desc: 'Seu pedido foi registrado e aguarda preparo.' },
       { statuses: ['producao'],                        icon: 'fa-fire-burner',        label: 'Em produção',           desc: 'Seu pedido está sendo preparado.' },
       { statuses: ['pronto'],                          icon: 'fa-box-open',           label: 'Pronto',                desc: 'Pedido pronto, aguardando entregador.' },
       { statuses: ['entrega'],                         icon: 'fa-motorcycle',         label: 'Saiu para entrega',     desc: 'Seu pedido está a caminho!' },
@@ -229,7 +229,7 @@
 
     // Etapas para retirada
     const STEPS_PICKUP = [
-      { statuses: ['aguardando_pix','pendente','pago','novo'], icon: 'fa-clock',        label: 'Pedido recebido',       desc: 'Seu pedido foi registrado e aguarda preparo.' },
+      { statuses: ['pix_pendente','aguardando_pix','pendente','pago','novo'], icon: 'fa-clock',        label: 'Pedido recebido',       desc: 'Seu pedido foi registrado e aguarda preparo.' },
       { statuses: ['producao'],                        icon: 'fa-fire-burner',        label: 'Em produção',           desc: 'Seu pedido está sendo preparado.' },
       { statuses: ['pronto','entrega','entregue'],     icon: 'fa-store',              label: 'Pronto para retirada',  desc: 'Venha buscar seu pedido na loja! 🎉' }
     ];

@@ -218,7 +218,7 @@ function initForm() {
       paymentStatus: 'pending',
       obs: data.obs || '',
       // PIX fica oculto no admin até confirmação do pagamento
-      ...(data.payment === 'pix' && { status: 'aguardando_pix', paymentStatus: 'pending' }),
+      ...(data.payment === 'pix' && { status: 'pix_pendente', paymentStatus: 'pending' }),
     };
 
     let orderId = null;
@@ -425,7 +425,7 @@ function startPixPolling(paymentId, orderId) {
         if (orderId && window.Firebase && window.Firebase.db && window.Firebase.fs) {
           const fs = window.Firebase.fs;
           fs.getDoc(fs.doc(window.Firebase.db, 'pedidos', orderId)).then(snap => {
-            if (snap.exists() && snap.data().status === 'aguardando_pix') {
+            if (snap.exists() && (snap.data().status === 'pix_pendente' || snap.data().status === 'aguardando_pix')) {
               fs.updateDoc(fs.doc(window.Firebase.db, 'pedidos', orderId), {
                 status: 'pendente',
                 paymentStatus: 'approved',
