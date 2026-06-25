@@ -298,11 +298,19 @@
       if (trackLoading) {
         trackLoading.style.display  = 'none';
         console.log('🔍 trackLoading ocultado, style.display:', trackLoading.style.display);
+        // Verificar após 100ms se ainda está oculto
+        setTimeout(() => {
+          console.log('🔍 trackLoading após 100ms, style.display:', trackLoading.style.display);
+        }, 100);
       }
       if (trackContent) {
         trackContent.style.display  = 'block';
         console.log('🔍 trackContent exibido, style.display:', trackContent.style.display);
         console.log('🔍 computed style display:', window.getComputedStyle(trackContent).display);
+        // Verificar após 100ms se ainda está visível
+        setTimeout(() => {
+          console.log('🔍 trackContent após 100ms, style.display:', trackContent.style.display);
+        }, 100);
       }
 
       // Cancelamento com motivo
