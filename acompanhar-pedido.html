@@ -243,12 +243,19 @@
     }
 
     function renderTimeline(steps, activeIdx, cancelled) {
+      console.log('🔍 renderTimeline iniciado', { steps, activeIdx, cancelled });
       const tl = document.getElementById('trackTimeline');
-      if (!tl) return;
+      console.log('🔍 trackTimeline:', tl);
+      if (!tl) {
+        console.log('❌ trackTimeline não encontrado');
+        return;
+      }
       tl.innerHTML = '';
+      console.log('🔍 timeline limpa, steps.length:', steps.length);
       steps.forEach((step, i) => {
         const done   = i < activeIdx;
         const active = i === activeIdx && !cancelled;
+        console.log('🔍 step', i, { label: step.label, done, active });
         const li = document.createElement('li');
         li.className = 'timeline__item';
         li.innerHTML = `
@@ -261,6 +268,7 @@
           </div>`;
         tl.appendChild(li);
       });
+      console.log('🔍 renderTimeline finalizado, itens:', tl.children.length);
     }
 
     function renderOrder(order) {
