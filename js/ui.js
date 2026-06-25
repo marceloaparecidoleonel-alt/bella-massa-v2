@@ -198,10 +198,8 @@ function initOrderBanner() {
         localStorage.removeItem('bm_active_order');
       }
     }, (error) => {
-      // Erro no listener Firebase — limpar localStorage para evitar banner persistente
-      console.error('Erro no listener do banner:', error);
-      banner.remove();
-      localStorage.removeItem('bm_active_order');
+      // Erro no listener Firebase — apenas logar, não remover banner
+      console.error('Erro no listener do banner (banner continua visível):', error);
     });
   }
   watchOrderForBanner();
