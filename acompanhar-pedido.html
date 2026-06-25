@@ -314,7 +314,10 @@
       localStorage.removeItem('bm_active_order');
     }
 
+    console.log('🔍 [DIAGNÓSTICO] orderId recebido da URL:', orderId);
+
     if (!orderId) {
+      console.log('❌ [DIAGNÓSTICO] CASO 1: orderId = null');
       showNotFound();
     } else {
       waitForFirebase(() => {
@@ -322,11 +325,27 @@
         const db  = window.Firebase.db;
         const ref = fs.doc(db, 'pedidos', orderId);
 
+        console.log('🔍 [DIAGNÓSTICO] Caminho consultado:', `pedidos/${orderId}`);
+
         // Listener em tempo real
         fs.onSnapshot(ref, (snap) => {
-          if (!snap.exists()) { showDeleted(); return; }
-          renderOrder({ id: snap.id, ...snap.data() });
-        }, () => showNotFound());
+          console.log('✅ [DIAGNÓSTICO] Callback de sucesso executado');
+          console.log('🔍 [DIAGNÓSTICO] snap.exists():', snap.exists());
+          if (snap.exists()) {
+            console.log('🔍 [DIAGNÓSTICO] Dados retornados:', snap.data());
+            renderOrder({ id: snap.id, ...snap.data() });
+          } else {
+            console.log('❌ [DIAGNÓSTICO] CASO 2: snap.exists() = false');
+            showDeleted();
+            return;
+          }
+        }, (error) => {
+          console.log('❌ [DIAGNÓSTICO] Callback de erro executado');
+          console.log('❌ [DIAGNÓSTICO] Erro Firestore:', error);
+          console.log('❌ [DIAGNÓSTICO] Código do erro:', error.code);
+          console.log('❌ [DIAGNÓSTICO] Mensagem do erro:', error.message);
+          showNotFound();
+        });
       });
     }
 
