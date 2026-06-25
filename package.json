@@ -7,7 +7,6 @@
     "dev": "vercel dev"
   },
   "dependencies": {
-    "mercadopago": "^1.5.14",
     "firebase-admin": "^11.11.0"
   },
   "devDependencies": {

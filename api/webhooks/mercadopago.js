@@ -6,7 +6,6 @@
 
 import { initializeApp, cert, getApps, getApp } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
-import mercadopago from 'mercadopago';
 
 // Inicializa Firebase Admin — reutiliza instância existente em ambiente serverless
 let db;
@@ -67,14 +66,18 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Payment ID não fornecido' });
     }
 
-    // Configura Mercado Pago
-    mercadopago.configure({
-      access_token: process.env.MERCADO_PAGO_ACCESS_TOKEN
+    // Consulta pagamento via API REST do MP (sem dependência de SDK)
+    console.log('Consultando pagamento MP:', paymentId);
+    const mpRes = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
+      headers: { 'Authorization': `Bearer ${process.env.MERCADO_PAGO_ACCESS_TOKEN}` }
     });
 
-    console.log('Consultando pagamento MP:', paymentId);
-    const payment = await mercadopago.payment.findById(paymentId);
-    const paymentData = payment.body;
+    if (!mpRes.ok) {
+      console.error('Erro ao consultar pagamento MP:', mpRes.status);
+      return res.status(500).json({ error: 'Erro ao consultar pagamento' });
+    }
+
+    const paymentData = await mpRes.json();
 
     // Obtém o external_reference (ID do pedido no Firestore)
     const orderId = paymentData.external_reference;

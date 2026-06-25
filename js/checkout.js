@@ -417,6 +417,21 @@ function startPixPolling(paymentId, orderId) {
         clearInterval(_pixPollInterval);
         document.getElementById('pixContent').style.display = 'none';
         document.getElementById('pixPaidMsg').style.display = 'block';
+
+        // Fallback: atualiza status no Firestore caso webhook não tenha chegado
+        if (orderId && window.Firebase && window.Firebase.db && window.Firebase.fs) {
+          const fs = window.Firebase.fs;
+          fs.getDoc(fs.doc(window.Firebase.db, 'pedidos', orderId)).then(snap => {
+            if (snap.exists() && snap.data().status === 'aguardando_pix') {
+              fs.updateDoc(fs.doc(window.Firebase.db, 'pedidos', orderId), {
+                status: 'pendente',
+                paymentStatus: 'approved',
+                atualizadoEm: fs.serverTimestamp()
+              }).catch(() => {});
+            }
+          }).catch(() => {});
+        }
+
         // Salva banner agora que pagamento foi confirmado
         const lastOrder = JSON.parse(sessionStorage.getItem('bm_last_order') || 'null');
         if (lastOrder) {
