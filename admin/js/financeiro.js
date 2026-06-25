@@ -151,6 +151,8 @@
       const ordens = allOrders.filter(o => {
         if (!o.criadoEm) return false;
         const ts = new Date(o.criadoEm.seconds * 1000);
+        // Se houver data de reset, ignora pedidos anteriores
+        if (resetDate && ts < resetDate) return false;
         return ts >= dia && ts < prox;
       });
       const k = calcKPIs(ordens);
