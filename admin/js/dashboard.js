@@ -288,7 +288,13 @@
     var q  = fs.query(fs.collection(window.Firebase.db, 'pedidos'), fs.orderBy('criadoEm', 'desc'));
     fs.onSnapshot(q, function (snapshot) {
       var orders = [];
-      snapshot.forEach(function (doc) { orders.push(Object.assign({ id: doc.id }, doc.data())); });
+      snapshot.forEach(function (doc) {
+        var order = Object.assign({ id: doc.id }, doc.data());
+        // Filtra pedidos pix_pendente (ainda não pagos)
+        if (order.status !== 'pix_pendente') {
+          orders.push(order);
+        }
+      });
       updateKPIs(orders);
       renderRecentOrders(orders);
       renderTopProducts(orders);
