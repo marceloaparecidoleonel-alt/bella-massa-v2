@@ -243,7 +243,13 @@
     }
 
     function renderTimeline(steps, activeIdx, cancelled) {
+      console.log('🔍 [DIAGNÓSTICO] renderTimeline chamada com:', { steps, activeIdx, cancelled });
       const tl = document.getElementById('trackTimeline');
+      console.log('🔍 [DIAGNÓSTICO] Elemento trackTimeline:', tl);
+      if (!tl) {
+        console.log('❌ [DIAGNÓSTICO] trackTimeline não encontrado');
+        return;
+      }
       tl.innerHTML = '';
       steps.forEach((step, i) => {
         const done   = i < activeIdx;
@@ -260,6 +266,7 @@
           </div>`;
         tl.appendChild(li);
       });
+      console.log('🔍 [DIAGNÓSTICO] Timeline renderizada com', steps.length, 'itens');
     }
 
     function renderOrder(order) {
