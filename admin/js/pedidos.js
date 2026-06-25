@@ -241,12 +241,12 @@
       var row = delBtn.closest('tr');
       if (!row) return;
       var orderId = row.dataset.orderId;
-      if (!confirm('Excluir este pedido permanentemente? Esta ação não pode ser desfeita.')) return;
+      if (!confirm('Remover este pedido da lista de pedidos? Esta ação não afeta os dados do pedido.')) return;
       if (window.Firebase && window.Firebase.db) {
         var fs = window.Firebase.fs;
-        fs.deleteDoc(fs.doc(window.Firebase.db, 'pedidos', orderId))
-          .then(function () { toast('Pedido excluído.', 'success'); })
-          .catch(function (err) { console.error('Erro ao excluir pedido:', err); toast('Erro ao excluir pedido.', 'error'); });
+        fs.updateDoc(fs.doc(window.Firebase.db, 'pedidos', orderId), { hiddenFromOrders: true })
+          .then(function () { toast('Pedido removido da lista.', 'success'); })
+          .catch(function (err) { console.error('Erro ao remover pedido:', err); toast('Erro ao remover pedido.', 'error'); });
       }
       return;
     }
@@ -409,15 +409,15 @@
       if (!window.Firebase || !window.Firebase.db) return;
       var rows = tbody ? tbody.querySelectorAll('tr[data-status="entregue"], tr[data-status="cancelado"]') : [];
       if (!rows.length) { toast('Nenhum pedido entregue ou cancelado para limpar.', 'info'); return; }
-      if (!confirm('Excluir permanentemente todos os pedidos entregues e cancelados (' + rows.length + ')? Esta ação não pode ser desfeita.')) return;
+      if (!confirm('Remover todos os pedidos entregues e cancelados da lista (' + rows.length + ')? Esta ação não afeta os dados dos pedidos.')) return;
       var fs = window.Firebase.fs;
       var promises = [];
       rows.forEach(function (row) {
-        promises.push(fs.deleteDoc(fs.doc(window.Firebase.db, 'pedidos', row.dataset.orderId)));
+        promises.push(fs.updateDoc(fs.doc(window.Firebase.db, 'pedidos', row.dataset.orderId), { hiddenFromOrders: true }));
       });
       Promise.all(promises)
-        .then(function () { toast(rows.length + ' pedidos excluídos.', 'success'); })
-        .catch(function (err) { console.error('Erro ao limpar pedidos:', err); toast('Erro ao excluir alguns pedidos.', 'error'); });
+        .then(function () { toast(rows.length + ' pedidos removidos da lista.', 'success'); })
+        .catch(function (err) { console.error('Erro ao limpar pedidos:', err); toast('Erro ao remover alguns pedidos.', 'error'); });
     });
   }
 
@@ -437,8 +437,8 @@
         var orders = [];
         snapshot.forEach(function (doc) {
           var order = Object.assign({ id: doc.id }, doc.data());
-          // Filtra pedidos pix_pendente (ainda não pagos)
-          if (order.status !== 'pix_pendente') {
+          // Filtra pedidos pix_pendente (ainda não pagos) e hiddenFromOrders
+          if (order.status !== 'pix_pendente' && !order.hiddenFromOrders) {
             orders.push(order);
           }
         });
