@@ -262,6 +262,13 @@
 
       // Firebase: timeline em tempo real
       if (!pid) return;
+
+      // Determinar isDelivery para timeline
+      let isDelivery = false;
+      if (order && order.delivery) {
+        isDelivery = order.delivery === 'delivery';
+      }
+
       function startTracking() {
         const fs  = window.Firebase.fs;
         const db  = window.Firebase.db;
