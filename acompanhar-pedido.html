@@ -320,8 +320,10 @@
     }
 
     if (!orderId) {
+      console.log('❌ orderId null');
       showNotFound();
     } else {
+      console.log('✅ orderId:', orderId);
       waitForFirebase(() => {
         const fs  = window.Firebase.fs;
         const db  = window.Firebase.db;
@@ -329,9 +331,23 @@
 
         // Listener em tempo real
         fs.onSnapshot(ref, (snap) => {
-          if (!snap.exists()) { showDeleted(); return; }
-          renderOrder({ id: snap.id, ...snap.data() });
-        }, () => showNotFound());
+          console.log('✅ snapshot recebido, exists:', snap.exists());
+          if (!snap.exists()) {
+            console.log('❌ pedido nao existe');
+            showDeleted();
+            return;
+          }
+          console.log('✅ dados:', snap.data());
+          try {
+            renderOrder({ id: snap.id, ...snap.data() });
+            console.log('✅ renderOrder executado');
+          } catch (e) {
+            console.error('❌ erro em renderOrder:', e);
+          }
+        }, (error) => {
+          console.error('❌ erro no onSnapshot:', error);
+          showNotFound();
+        });
       });
     }
 
