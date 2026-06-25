@@ -70,6 +70,8 @@
     return orders.filter(o => {
       if (!o.criadoEm) return false;
       const ts = new Date(o.criadoEm.seconds * 1000);
+      // Se houver data de reset, ignora pedidos anteriores
+      if (resetDate && ts < resetDate) return false;
       return ts >= start && ts <= end;
     });
   }
@@ -189,6 +191,7 @@
   /* ── Listener de período ── */
   let allOrders = [];
   let currentPeriod = 'hoje';
+  let resetDate = null; // Data de reset financeiro
 
   function refreshView() {
     const filtered = filterByPeriod(allOrders, currentPeriod);
@@ -214,6 +217,15 @@
       return;
     }
     const fs = window.Firebase.fs;
+
+    // Carregar data de reset do Firestore
+    fs.getDoc(fs.doc(window.Firebase.db, 'config', 'financeiro')).then(snap => {
+      if (snap.exists() && snap.data().resetDate) {
+        resetDate = new Date(snap.data().resetDate);
+        console.log('📅 Data de reset financeiro:', resetDate);
+      }
+    }).catch(() => {});
+
     const q  = fs.query(fs.collection(window.Firebase.db, 'pedidos'), fs.orderBy('criadoEm', 'desc'));
 
     fs.onSnapshot(q, snapshot => {
@@ -224,6 +236,31 @@
     }, err => {
       console.error('Erro ao carregar dados financeiros:', err);
       toast('Erro ao carregar dados financeiros.', 'error');
+    });
+  }
+
+  /* ── Zerar dados financeiros ── */
+  function resetFinanceiro() {
+    if (!confirm('Tem certeza que deseja zerar os dados financeiros? Isso não afetará os pedidos, apenas os cálculos de lucro a partir de agora.')) return;
+    
+    if (!window.Firebase || !window.Firebase.db) {
+      toast('Firebase indisponível.', 'error');
+      return;
+    }
+
+    const fs = window.Firebase.fs;
+    resetDate = new Date();
+    
+    fs.setDoc(fs.doc(window.Firebase.db, 'config', 'financeiro'), {
+      resetDate: resetDate.toISOString(),
+      atualizadoEm: fs.serverTimestamp()
+    }, { merge: true }).then(() => {
+      toast('Dados financeiros zerados com sucesso!', 'success');
+      refreshView();
+      buildDailyTable(allOrders);
+    }).catch(err => {
+      console.error('Erro ao zerar dados financeiros:', err);
+      toast('Erro ao zerar dados financeiros.', 'error');
     });
   }
 
@@ -238,6 +275,13 @@
       }
     });
   }
+
+  // Event listener para botão de reset
+  const resetBtn = document.getElementById('resetFinanceiroBtn');
+  if (resetBtn) {
+    resetBtn.addEventListener('click', resetFinanceiro);
+  }
+
   initAfterAuth();
 
 })();
