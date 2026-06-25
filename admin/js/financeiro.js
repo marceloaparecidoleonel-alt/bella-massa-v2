@@ -225,6 +225,11 @@
       if (snap.exists() && snap.data().resetDate) {
         resetDate = new Date(snap.data().resetDate);
         console.log('📅 Data de reset financeiro:', resetDate);
+        // Atualizar view após carregar data de reset
+        if (allOrders.length > 0) {
+          refreshView();
+          buildDailyTable(allOrders);
+        }
       }
     }).catch(() => {});
 
