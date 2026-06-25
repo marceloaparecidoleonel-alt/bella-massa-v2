@@ -88,7 +88,7 @@ export default async function handler(req, res) {
     }
 
     const paymentStatus = paymentData.status;
-    console.log(`🔍 [WEBHOOK] Pagamento MP ${paymentId}: status=${paymentStatus}, orderId=${orderId}`);
+    console.log(`Pagamento MP ${paymentId}: status=${paymentStatus}`);
 
     // Atualiza o pedido no Firestore
     if (db) {
@@ -96,12 +96,11 @@ export default async function handler(req, res) {
       const orderDoc = await orderRef.get();
 
       if (!orderDoc.exists) {
-        console.warn(`⚠️ [WEBHOOK] Pedido ${orderId} não encontrado no Firestore`);
+        console.warn(`Pedido ${orderId} não encontrado no Firestore`);
         return res.status(200).json({ received: true });
       }
 
       const currentStatus = orderDoc.data().status || 'pix_pendente';
-      console.log(`🔍 [WEBHOOK] Status atual do pedido: ${currentStatus}`);
 
       // Ordem de progressão: nunca rebaixa status já avançado
       const STATUS_ORDER = ['pix_pendente', 'aguardando_pix', 'pendente', 'producao', 'pronto', 'entrega', 'entregue'];

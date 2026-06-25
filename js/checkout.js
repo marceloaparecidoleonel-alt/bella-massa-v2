@@ -417,7 +417,6 @@ function startPixPolling(paymentId, orderId) {
       const { status } = await res.json();
 
       if (status === 'approved') {
-        console.log('✅ [POLLING] Pagamento PIX aprovado, atualizando pedido no Firestore');
         clearInterval(_pixPollInterval);
         document.getElementById('pixContent').style.display = 'none';
         document.getElementById('pixPaidMsg').style.display = 'block';
@@ -427,16 +426,13 @@ function startPixPolling(paymentId, orderId) {
           const fs = window.Firebase.fs;
           fs.getDoc(fs.doc(window.Firebase.db, 'pedidos', orderId)).then(snap => {
             if (snap.exists() && (snap.data().status === 'pix_pendente' || snap.data().status === 'aguardando_pix')) {
-              console.log('📝 [POLLING] Atualizando status do pedido para pendente');
               fs.updateDoc(fs.doc(window.Firebase.db, 'pedidos', orderId), {
                 status: 'pendente',
                 paymentStatus: 'approved',
                 atualizadoEm: fs.serverTimestamp()
-              }).catch(err => console.error('❌ [POLLING] Erro ao atualizar pedido:', err));
-            } else {
-              console.log('⚠️ [POLLING] Pedido não está em status pix_pendente ou aguardando_pix:', snap.data().status);
+              }).catch(() => {});
             }
-          }).catch(err => console.error('❌ [POLLING] Erro ao buscar pedido:', err));
+          }).catch(() => {});
         }
 
         Store.clearCart();
