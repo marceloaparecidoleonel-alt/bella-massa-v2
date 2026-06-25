@@ -243,13 +243,8 @@
     }
 
     function renderTimeline(steps, activeIdx, cancelled) {
-      console.log('🔍 [DIAGNÓSTICO] renderTimeline chamada com:', { steps, activeIdx, cancelled });
       const tl = document.getElementById('trackTimeline');
-      console.log('🔍 [DIAGNÓSTICO] Elemento trackTimeline:', tl);
-      if (!tl) {
-        console.log('❌ [DIAGNÓSTICO] trackTimeline não encontrado');
-        return;
-      }
+      if (!tl) return;
       tl.innerHTML = '';
       steps.forEach((step, i) => {
         const done   = i < activeIdx;
@@ -266,11 +261,9 @@
           </div>`;
         tl.appendChild(li);
       });
-      console.log('🔍 [DIAGNÓSTICO] Timeline renderizada com', steps.length, 'itens');
     }
 
     function renderOrder(order) {
-      console.log('🔍 [DIAGNÓSTICO] renderOrder chamada com:', order);
       const isDelivery = order.tipo === 'delivery' || (order.endereco && order.endereco.rua);
       const steps      = isDelivery ? STEPS_DELIVERY : STEPS_PICKUP;
       const status     = order.status || 'novo';
@@ -278,16 +271,12 @@
       const done       = status === 'entregue' || cancelled;
       const activeIdx  = cancelled ? -1 : getActiveStep(steps, status);
 
-      console.log('🔍 [DIAGNÓSTICO] isDelivery:', isDelivery, 'status:', status, 'activeIdx:', activeIdx);
-
       // Remove banner do localStorage quando pedido finalizado
       if (done) localStorage.removeItem('bm_active_order');
 
       const trackNum = document.getElementById('trackNum');
       const trackLoading = document.getElementById('trackLoading');
       const trackContent = document.getElementById('trackContent');
-
-      console.log('🔍 [DIAGNÓSTICO] Elementos DOM:', { trackNum, trackLoading, trackContent });
 
       if (trackNum) trackNum.textContent = `Pedido #${order.numero || order.id?.slice(-4) || '—'}`;
       if (trackLoading) trackLoading.style.display  = 'none';
@@ -303,7 +292,6 @@
         cancelEl.style.display = 'none';
       }
 
-      console.log('🔍 [DIAGNÓSTICO] Chamando renderTimeline');
       renderTimeline(steps, activeIdx, cancelled);
     }
 
@@ -331,10 +319,7 @@
       localStorage.removeItem('bm_active_order');
     }
 
-    console.log('🔍 [DIAGNÓSTICO] orderId recebido da URL:', orderId);
-
     if (!orderId) {
-      console.log('❌ [DIAGNÓSTICO] CASO 1: orderId = null');
       showNotFound();
     } else {
       waitForFirebase(() => {
@@ -342,27 +327,11 @@
         const db  = window.Firebase.db;
         const ref = fs.doc(db, 'pedidos', orderId);
 
-        console.log('🔍 [DIAGNÓSTICO] Caminho consultado:', `pedidos/${orderId}`);
-
         // Listener em tempo real
         fs.onSnapshot(ref, (snap) => {
-          console.log('✅ [DIAGNÓSTICO] Callback de sucesso executado');
-          console.log('🔍 [DIAGNÓSTICO] snap.exists():', snap.exists());
-          if (snap.exists()) {
-            console.log('🔍 [DIAGNÓSTICO] Dados retornados:', snap.data());
-            renderOrder({ id: snap.id, ...snap.data() });
-          } else {
-            console.log('❌ [DIAGNÓSTICO] CASO 2: snap.exists() = false');
-            showDeleted();
-            return;
-          }
-        }, (error) => {
-          console.log('❌ [DIAGNÓSTICO] Callback de erro executado');
-          console.log('❌ [DIAGNÓSTICO] Erro Firestore:', error);
-          console.log('❌ [DIAGNÓSTICO] Código do erro:', error.code);
-          console.log('❌ [DIAGNÓSTICO] Mensagem do erro:', error.message);
-          showNotFound();
-        });
+          if (!snap.exists()) { showDeleted(); return; }
+          renderOrder({ id: snap.id, ...snap.data() });
+        }, () => showNotFound());
       });
     }
 
