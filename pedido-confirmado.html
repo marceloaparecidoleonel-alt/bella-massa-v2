@@ -191,41 +191,68 @@
         if (msgEl)   msgEl.innerHTML = 'Seu pagamento está sendo validado.<br>Você receberá a confirmação em breve.';
       }
 
-      // Dados do sessionStorage
-      const raw = sessionStorage.getItem('bm_last_order');
-      if (!raw) return;
-      const order      = JSON.parse(raw);
-      const info       = document.getElementById('confirmInfo');
-      const isDelivery = order.delivery === 'delivery';
-      const payLabels  = { pix: 'Pix', dinheiro: 'Dinheiro', cartao: 'Cartão' };
-      const pid        = urlParams.get('orderId') || order.orderId;
+      // Prioridade: orderId da URL (independente de sessionStorage)
+      const pid = urlParams.get('orderId');
 
-      // Mensagem de sucesso
-      if (mpStatus === 'success' || !mpStatus) {
-        if (order.payment === 'pix') {
-          if (iconEl)  { iconEl.className = 'fas fa-circle-check'; iconEl.style.color = '#2d7a3a'; }
-          if (titleEl) titleEl.textContent = 'Pagamento PIX aprovado!';
-          msgEl.innerHTML = `Olá, <strong>${order.name}</strong>! Seu PIX foi confirmado.<br>Seu pedido já está sendo preparado. 🎉`;
-        } else {
-          msgEl.innerHTML = `Olá, <strong>${order.name}</strong>! Seu pedido foi recebido.<br>O pagamento será feito na ${isDelivery ? 'entrega' : 'retirada'}.`;
+      // Dados do sessionStorage (usado apenas para exibir informações, não para orderId)
+      const raw = sessionStorage.getItem('bm_last_order');
+      let order = raw ? JSON.parse(raw) : null;
+      const info = document.getElementById('confirmInfo');
+      const payLabels = { pix: 'Pix', dinheiro: 'Dinheiro', cartao: 'Cartão' };
+
+      // Se sessionStorage vazio mas temos pid, buscar do Firestore
+      if (!order && pid) {
+        function fetchOrderFromFirebase() {
+          if (!window.Firebase || !window.Firebase.db) {
+            setTimeout(fetchOrderFromFirebase, 300);
+            return;
+          }
+          const fs = window.Firebase.fs;
+          const db = window.Firebase.db;
+          fs.getDoc(fs.doc(db, 'pedidos', pid)).then(snap => {
+            if (snap.exists()) {
+              order = snap.data();
+              const isDelivery = order.tipo === 'delivery';
+              renderOrderInfo(order, isDelivery, payLabels, info);
+            }
+          }).catch(() => {});
         }
+        fetchOrderFromFirebase();
       }
 
-      // Troco info
-      const trocoRow = (order.payment === 'dinheiro' && isDelivery && order.troco)
-        ? `<div class="confirmado__info-row"><i class="fas fa-money-bill-wave"></i><span>Troco para: <strong>R$ ${parseFloat(order.troco).toFixed(2).replace('.',',')}</strong></span></div>`
-        : '';
+      function renderOrderInfo(order, isDelivery, payLabels, info) {
+        const trocoRow = (order.pagamento === 'dinheiro' && isDelivery && order.troco)
+          ? `<div class="confirmado__info-row"><i class="fas fa-money-bill-wave"></i><span>Troco para: <strong>R$ ${parseFloat(order.troco).toFixed(2).replace('.',',')}</strong></span></div>`
+          : '';
 
-      info.innerHTML = `
-        <div class="confirmado__info-row"><i class="fas fa-hashtag"></i><span>Pedido <strong>#${order.numero || '—'}</strong></span></div>
-        <div class="confirmado__info-row"><i class="fas fa-user"></i><span>${order.name} &mdash; ${order.phone}</span></div>
-        ${isDelivery
-          ? `<div class="confirmado__info-row"><i class="fas fa-location-dot"></i><span>${order.address}, ${order.neighborhood} &mdash; ${order.city}</span></div>`
-          : `<div class="confirmado__info-row"><i class="fas fa-store"></i><span>Retirada na loja</span></div>`}
-        <div class="confirmado__info-row"><i class="fas fa-credit-card"></i><span>Pagamento: <strong>${payLabels[order.payment] || order.payment}</strong></span></div>
-        ${trocoRow}
-        <div class="confirmado__info-row"><i class="fas fa-brazilian-real-sign"></i><span>Total: <strong>${order.total}</strong></span></div>
-      `;
+        info.innerHTML = `
+          <div class="confirmado__info-row"><i class="fas fa-hashtag"></i><span>Pedido <strong>#${order.numero || '—'}</strong></span></div>
+          <div class="confirmado__info-row"><i class="fas fa-user"></i><span>${order.cliente?.nome || '—'} &mdash; ${order.cliente?.telefone || '—'}</span></div>
+          ${isDelivery && order.endereco
+            ? `<div class="confirmado__info-row"><i class="fas fa-location-dot"></i><span>${order.endereco.rua}, ${order.endereco.bairro} &mdash; ${order.endereco.cidade}</span></div>`
+            : `<div class="confirmado__info-row"><i class="fas fa-store"></i><span>Retirada na loja</span></div>`}
+          <div class="confirmado__info-row"><i class="fas fa-credit-card"></i><span>Pagamento: <strong>${payLabels[order.pagamento] || order.pagamento}</strong></span></div>
+          ${trocoRow}
+          <div class="confirmado__info-row"><i class="fas fa-brazilian-real-sign"></i><span>Total: <strong>R$ ${order.total?.toFixed(2).replace('.',',') || '—'}</strong></span></div>
+        `;
+      }
+
+      // Se order existe no sessionStorage, renderizar imediatamente
+      if (order) {
+        const isDelivery = order.delivery === 'delivery';
+        renderOrderInfo(order, isDelivery, payLabels, info);
+
+        // Mensagem de sucesso
+        if (mpStatus === 'success' || !mpStatus) {
+          if (order.payment === 'pix') {
+            if (iconEl)  { iconEl.className = 'fas fa-circle-check'; iconEl.style.color = '#2d7a3a'; }
+            if (titleEl) titleEl.textContent = 'Pagamento PIX aprovado!';
+            msgEl.innerHTML = `Olá, <strong>${order.name}</strong>! Seu PIX foi confirmado.<br>Seu pedido já está sendo preparado. 🎉`;
+          } else {
+            msgEl.innerHTML = `Olá, <strong>${order.name}</strong>! Seu pedido foi recebido.<br>O pagamento será feito na ${isDelivery ? 'entrega' : 'retirada'}.`;
+          }
+        }
+      }
 
       // Atualizar href do botão Acompanhar com o orderId
       if (btnAcomp && pid) {
