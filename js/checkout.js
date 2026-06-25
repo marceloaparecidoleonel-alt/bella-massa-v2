@@ -331,8 +331,7 @@ function initForm() {
         }
 
         showPixQr(result.qr_code_base64, result.qr_code, result.payment_id, orderId);
-        btn.disabled = false;
-        btn.innerHTML = 'Finalizar pedido';
+        // Botão permanece desabilitado durante o fluxo PIX — só reabilita ao fechar modal ou erro
 
       } catch (err) {
         console.error('❌ Erro ao gerar PIX:', err);
@@ -366,6 +365,12 @@ function closePixModal() {
   const modal = document.getElementById('pixModal');
   if (modal) modal.style.display = 'none';
   if (_pixPollInterval) { clearInterval(_pixPollInterval); _pixPollInterval = null; }
+  // Reabilita botão ao fechar modal manualmente
+  const btn = document.getElementById('submitBtn');
+  if (btn) {
+    btn.disabled = false;
+    btn.innerHTML = 'Confirmar pedido';
+  }
 }
 
 function showPixQr(base64, copyCode, paymentId, orderId) {
