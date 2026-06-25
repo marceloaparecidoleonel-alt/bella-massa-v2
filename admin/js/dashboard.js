@@ -289,8 +289,6 @@
     fs.onSnapshot(q, function (snapshot) {
       var orders = [];
       snapshot.forEach(function (doc) { orders.push(Object.assign({ id: doc.id }, doc.data())); });
-      // Exclui pedidos PIX não confirmados — nunca exibir ao admin
-      orders = orders.filter(function (o) { return o.status !== 'aguardando_pix'; });
       updateKPIs(orders);
       renderRecentOrders(orders);
       renderTopProducts(orders);

@@ -330,7 +330,8 @@
     tbody.querySelectorAll('tr').forEach(function (row) {
       var st = row.dataset.status;
       var match = currentFilter === 'todos'
-        || st === currentFilter;
+        || st === currentFilter
+        || (currentFilter === 'pendente' && st === 'aguardando_pix');
       row.style.display = match ? '' : 'none';
     });
   }
@@ -398,72 +399,6 @@
     if (todayEl) todayEl.textContent = hoje_count || total;
   }
 
-  /* ── Recuperar PIX pagos que ficaram presos em aguardando_pix ── */
-  var btnRecoverPix = document.getElementById('btnRecoverPix');
-  if (btnRecoverPix) {
-    btnRecoverPix.addEventListener('click', async function () {
-      if (!window.Firebase || !window.Firebase.db) return;
-      var fs = window.Firebase.fs;
-
-      btnRecoverPix.disabled = true;
-      btnRecoverPix.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verificando…';
-
-      try {
-        // Busca todos os pedidos com status aguardando_pix
-        var q = fs.query(
-          fs.collection(window.Firebase.db, 'pedidos'),
-          fs.where('status', '==', 'aguardando_pix')
-        );
-        var snap = await fs.getDocs(q);
-
-        if (snap.empty) {
-          toast('Nenhum pedido PIX pendente encontrado.', 'info');
-          btnRecoverPix.disabled = false;
-          btnRecoverPix.innerHTML = '<i class="fas fa-rotate"></i> Recuperar PIX pagos';
-          return;
-        }
-
-        var recovered = 0;
-        var promises = [];
-
-        snap.forEach(function (docSnap) {
-          var data = docSnap.data();
-          var paymentId = data.paymentId;
-          if (!paymentId) return; // sem paymentId não tem como verificar
-
-          var p = fetch('/api/check-pix-status?payment_id=' + paymentId)
-            .then(function (r) { return r.json(); })
-            .then(function (result) {
-              if (result.status === 'approved') {
-                recovered++;
-                return fs.updateDoc(
-                  fs.doc(window.Firebase.db, 'pedidos', docSnap.id),
-                  { status: 'pendente', paymentStatus: 'approved', atualizadoEm: fs.serverTimestamp() }
-                );
-              }
-            })
-            .catch(function () {});
-
-          promises.push(p);
-        });
-
-        await Promise.all(promises);
-
-        if (recovered > 0) {
-          toast(recovered + ' pedido(s) PIX recuperado(s) com sucesso!', 'success');
-        } else {
-          toast('Nenhum pagamento aprovado encontrado nos pedidos PIX pendentes.', 'info');
-        }
-      } catch (err) {
-        console.error('Erro ao recuperar PIX:', err);
-        toast('Erro ao verificar pagamentos.', 'error');
-      }
-
-      btnRecoverPix.disabled = false;
-      btnRecoverPix.innerHTML = '<i class="fas fa-rotate"></i> Recuperar PIX pagos';
-    });
-  }
-
   /* ── Limpar pedidos finalizados em lote ── */
   var btnClearDone = document.getElementById('btnClearDone');
   if (btnClearDone) {
@@ -501,9 +436,6 @@
           orders.push(Object.assign({ id: doc.id }, doc.data()));
         });
 
-        // Exclui pedidos PIX não confirmados — nunca exibir ao admin
-        orders = orders.filter(function (o) { return o.status !== 'aguardando_pix'; });
-
         orders.forEach(function (order) {
           var row = renderOrderRow(order);
           row._orderData = order;
@@ -512,7 +444,7 @@
 
         applyFilter();
         updateChipCounts(orders);
-        console.log('📋 Pedidos carregados (pagos):', orders.length);
+        console.log('📋 Pedidos carregados:', orders.length);
       }, function (err) {
         console.error('❌ Erro ao carregar pedidos:', err);
         toast('Erro ao carregar pedidos.', 'error');

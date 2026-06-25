@@ -217,10 +217,7 @@
     const q  = fs.query(fs.collection(window.Firebase.db, 'pedidos'), fs.orderBy('criadoEm', 'desc'));
 
     fs.onSnapshot(q, snapshot => {
-      allOrders = snapshot.docs
-        .map(d => Object.assign({ id: d.id }, d.data()))
-        // Exclui pedidos PIX não confirmados — nunca computar receita não realizada
-        .filter(o => o.status !== 'aguardando_pix');
+      allOrders = snapshot.docs.map(d => Object.assign({ id: d.id }, d.data()));
       refreshView();
       buildDailyTable(allOrders);
       console.log('💰 Financeiro atualizado com', allOrders.length, 'pedidos');
