@@ -214,10 +214,6 @@
   <script type="module" src="js/firebase.js"></script>
   <script src="js/data.js"></script>
   <script src="js/ui.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/vconsole@latest/dist/vconsole.min.js"></script>
-  <script>
-    new VConsole();
-  </script>
   <script>
     const urlParams = new URLSearchParams(window.location.search);
     const orderId   = urlParams.get('orderId');
@@ -324,30 +320,18 @@
     }
 
     if (!orderId) {
-      console.log('❌ orderId null');
       showNotFound();
     } else {
-      console.log('✅ orderId:', orderId);
       waitForFirebase(() => {
-        console.log('✅ Firebase pronto');
         const fs  = window.Firebase.fs;
         const db  = window.Firebase.db;
         const ref = fs.doc(db, 'pedidos', orderId);
 
         // Listener em tempo real
         fs.onSnapshot(ref, (snap) => {
-          console.log('✅ snapshot recebido, exists:', snap.exists());
-          if (!snap.exists()) {
-            console.log('❌ pedido nao existe');
-            showDeleted();
-            return;
-          }
-          console.log('✅ dados recebidos, chamando renderOrder');
+          if (!snap.exists()) { showDeleted(); return; }
           renderOrder({ id: snap.id, ...snap.data() });
-        }, (error) => {
-          console.error('❌ erro no onSnapshot:', error);
-          showNotFound();
-        });
+        }, () => showNotFound());
       });
     }
 
