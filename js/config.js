@@ -152,13 +152,10 @@
     // Carregar configuração de entrega
     fs.getDoc(fs.doc(db, 'config', 'entrega'))
       .then(function (snap) {
-        console.log('🔍 [CONFIG] Documento config/entrega:', snap.exists());
         if (snap.exists()) {
           var data = snap.data();
-          console.log('🔍 [CONFIG] Dados do documento:', data);
           if (data.taxaFixa) {
             BM_CONFIG.deliveryFee = parseFloat(data.taxaFixa) || BM_CONFIG.deliveryFee;
-            console.log('🔍 [CONFIG] Taxa de entrega atualizada:', BM_CONFIG.deliveryFee);
           }
           if (data.pedidoMinimo) {
             BM_CONFIG.minOrderDelivery = parseFloat(data.pedidoMinimo) || BM_CONFIG.minOrderDelivery;
@@ -167,8 +164,6 @@
             BM_CONFIG.deliveryRadius = parseFloat(data.raio);
           }
           window.dispatchEvent(new Event('configLoaded'));
-        } else {
-          console.log('🔍 [CONFIG] Documento config/entrega não existe, usando valor padrão:', BM_CONFIG.deliveryFee);
         }
       })
       .catch(function (err) {
