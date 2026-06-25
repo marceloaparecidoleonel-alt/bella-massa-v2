@@ -197,9 +197,22 @@ function initOrderBanner() {
         banner.remove();
         localStorage.removeItem('bm_active_order');
       }
+    }, (error) => {
+      // Erro no listener Firebase — limpar localStorage para evitar banner persistente
+      console.error('Erro no listener do banner:', error);
+      banner.remove();
+      localStorage.removeItem('bm_active_order');
     });
   }
   watchOrderForBanner();
+
+  // Timeout de segurança: remover banner após 24 horas para evitar persistência
+  setTimeout(() => {
+    if (document.body.contains(banner)) {
+      banner.remove();
+      localStorage.removeItem('bm_active_order');
+    }
+  }, 24 * 60 * 60 * 1000); // 24 horas
 }
 
 // ── Init all shared UI ───────────────────────────────────────────────────────
