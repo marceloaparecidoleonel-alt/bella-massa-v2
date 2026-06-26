@@ -274,6 +274,7 @@
   }
 
   var resetDate = null; // Data de reset da dashboard
+  var allOrdersCache = []; // Cache de todos os pedidos para pesquisa
 
   /* ── Listener Firestore ── */
   function initFirestoreListener() {
@@ -319,6 +320,7 @@
             }
           }
         });
+        allOrdersCache = orders;
         updateKPIs(orders);
         renderRecentOrders(orders);
         renderTopProducts(orders);
@@ -382,6 +384,29 @@
   var resetBtn = document.getElementById('resetDashboardBtn');
   if (resetBtn) {
     resetBtn.addEventListener('click', resetDashboard);
+  }
+
+  /* ── Barra de pesquisa ── */
+  var searchInput = document.getElementById('searchInput');
+  if (searchInput) {
+    searchInput.addEventListener('input', function(e) {
+      var query = e.target.value.toLowerCase().trim();
+      if (!query) {
+        renderRecentOrders(allOrdersCache);
+        return;
+      }
+      var filtered = allOrdersCache.filter(function(order) {
+        var searchFields = [
+          String(order.numero || ''),
+          String(order.cliente || ''),
+          String(order.telefone || ''),
+          String(order.endereco || ''),
+          String(order.itens ? JSON.stringify(order.itens) : '')
+        ].join(' ').toLowerCase();
+        return searchFields.includes(query);
+      });
+      renderRecentOrders(filtered);
+    });
   }
 
   /* ── Init com Auth ── */
