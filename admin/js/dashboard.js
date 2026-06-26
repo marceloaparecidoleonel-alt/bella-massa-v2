@@ -273,6 +273,8 @@
     if (elPending) elPending.textContent = pendentes + ' aguardando ação';
   }
 
+  var resetDate = null; // Data de reset da dashboard
+
   /* ── Listener Firestore ── */
   function initFirestoreListener() {
     if (!window.Firebase || !window.Firebase.db) {
@@ -285,14 +287,30 @@
       return;
     }
     var fs = window.Firebase.fs;
+
+    // Carregar data de reset do Firestore
+    fs.getDoc(fs.doc(window.Firebase.db, 'config', 'dashboard')).then(function(snap) {
+      if (snap.exists() && snap.data().resetDate) {
+        resetDate = new Date(snap.data().resetDate);
+        console.log('📅 Data de reset dashboard:', resetDate);
+      }
+    }).catch(function() {});
+
     var q  = fs.query(fs.collection(window.Firebase.db, 'pedidos'), fs.orderBy('criadoEm', 'desc'));
     fs.onSnapshot(q, function (snapshot) {
       var orders = [];
       snapshot.forEach(function (doc) {
         var order = Object.assign({ id: doc.id }, doc.data());
-        // Filtra pedidos pix_pendente (ainda não pagos)
+        // Filtra pedidos pix_pendente (ainda não pagos) e anteriores ao reset
         if (order.status !== 'pix_pendente') {
-          orders.push(order);
+          if (resetDate) {
+            var ts = new Date(order.criadoEm.seconds * 1000);
+            if (ts >= resetDate) {
+              orders.push(order);
+            }
+          } else {
+            orders.push(order);
+          }
         }
       });
       updateKPIs(orders);
@@ -302,6 +320,31 @@
       renderOrdersChart(orders);
     }, function (err) {
       console.error('Erro ao carregar pedidos:', err);
+    });
+  }
+
+  /* ── Zerar dados da dashboard ── */
+  function resetDashboard() {
+    if (!confirm('Tem certeza que deseja zerar os dados da dashboard? Isso não afetará os pedidos, apenas os cálculos a partir de agora.')) return;
+
+    if (!window.Firebase || !window.Firebase.db) {
+      showToast('Firebase indisponível.', 'error');
+      return;
+    }
+
+    var fs = window.Firebase.fs;
+    resetDate = new Date();
+
+    fs.setDoc(fs.doc(window.Firebase.db, 'config', 'dashboard'), {
+      resetDate: resetDate.toISOString(),
+      atualizadoEm: fs.serverTimestamp()
+    }, { merge: true }).then(function() {
+      showToast('Dados da dashboard zerados com sucesso!', 'success');
+      // Recarregar dados
+      initFirestoreListener();
+    }).catch(function(err) {
+      console.error('Erro ao zerar dados da dashboard:', err);
+      showToast('Erro ao zerar dados da dashboard.', 'error');
     });
   }
 
@@ -327,6 +370,12 @@
   }
   var notifBtn = document.getElementById('notifBtn');
   if (notifBtn) notifBtn.addEventListener('click', function () { showToast('Verifique a lista de pedidos para detalhes.', 'info'); });
+
+  // Event listener para botão de reset da dashboard
+  var resetBtn = document.getElementById('resetDashboardBtn');
+  if (resetBtn) {
+    resetBtn.addEventListener('click', resetDashboard);
+  }
 
   /* ── Init com Auth ── */
   function initAfterAuth() {
