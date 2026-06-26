@@ -396,14 +396,21 @@
         return;
       }
       var filtered = allOrdersCache.filter(function(order) {
-        var searchFields = [
-          String(order.numero || ''),
-          String(order.cliente || ''),
-          String(order.telefone || ''),
-          String(order.endereco || ''),
-          String(order.itens ? JSON.stringify(order.itens) : '')
-        ].join(' ').toLowerCase();
-        return searchFields.includes(query);
+        // Busca em número do pedido
+        if (order.numero && String(order.numero).toLowerCase().includes(query)) return true;
+        // Busca em nome do cliente
+        if (order.cliente && String(order.cliente).toLowerCase().includes(query)) return true;
+        // Busca em telefone
+        if (order.telefone && String(order.telefone).toLowerCase().includes(query)) return true;
+        // Busca em endereço
+        if (order.endereco && String(order.endereco).toLowerCase().includes(query)) return true;
+        // Busca em itens (produtos)
+        if (order.itens && Array.isArray(order.itens)) {
+          for (var i = 0; i < order.itens.length; i++) {
+            if (order.itens[i].nome && String(order.itens[i].nome).toLowerCase().includes(query)) return true;
+          }
+        }
+        return false;
       });
       renderRecentOrders(filtered);
     });
