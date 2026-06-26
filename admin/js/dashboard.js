@@ -288,39 +288,46 @@
     }
     var fs = window.Firebase.fs;
 
-    // Carregar data de reset do Firestore
+    // Carregar data de reset do Firestore primeiro
     fs.getDoc(fs.doc(window.Firebase.db, 'config', 'dashboard')).then(function(snap) {
       if (snap.exists() && snap.data().resetDate) {
         resetDate = new Date(snap.data().resetDate);
         console.log('📅 Data de reset dashboard:', resetDate);
       }
-    }).catch(function() {});
+      // Só depois configurar o listener de pedidos
+      setupOrdersListener();
+    }).catch(function() {
+      // Se falhar, configura o listener sem reset
+      setupOrdersListener();
+    });
 
-    var q  = fs.query(fs.collection(window.Firebase.db, 'pedidos'), fs.orderBy('criadoEm', 'desc'));
-    fs.onSnapshot(q, function (snapshot) {
-      var orders = [];
-      snapshot.forEach(function (doc) {
-        var order = Object.assign({ id: doc.id }, doc.data());
-        // Filtra pedidos pix_pendente (ainda não pagos) e anteriores ao reset
-        if (order.status !== 'pix_pendente') {
-          if (resetDate) {
-            var ts = new Date(order.criadoEm.seconds * 1000);
-            if (ts >= resetDate) {
+    function setupOrdersListener() {
+      var q  = fs.query(fs.collection(window.Firebase.db, 'pedidos'), fs.orderBy('criadoEm', 'desc'));
+      fs.onSnapshot(q, function (snapshot) {
+        var orders = [];
+        snapshot.forEach(function (doc) {
+          var order = Object.assign({ id: doc.id }, doc.data());
+          // Filtra pedidos pix_pendente (ainda não pagos) e anteriores ao reset
+          if (order.status !== 'pix_pendente') {
+            if (resetDate) {
+              var ts = new Date(order.criadoEm.seconds * 1000);
+              if (ts >= resetDate) {
+                orders.push(order);
+              }
+            } else {
               orders.push(order);
             }
-          } else {
-            orders.push(order);
           }
-        }
+        });
+        updateKPIs(orders);
+        renderRecentOrders(orders);
+        renderTopProducts(orders);
+        renderRevenueChart(orders);
+        renderOrdersChart(orders);
+      }, function (err) {
+        console.error('Erro ao carregar pedidos:', err);
       });
-      updateKPIs(orders);
-      renderRecentOrders(orders);
-      renderTopProducts(orders);
-      renderRevenueChart(orders);
-      renderOrdersChart(orders);
-    }, function (err) {
-      console.error('Erro ao carregar pedidos:', err);
-    });
+    }
   }
 
   /* ── Zerar dados da dashboard ── */
